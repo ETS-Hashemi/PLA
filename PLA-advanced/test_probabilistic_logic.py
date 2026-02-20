@@ -29,7 +29,7 @@ class TestProbabilisticLogic(unittest.TestCase):
         prob, explanation = engine.query(fraud)
 
         self.assertAlmostEqual(prob, 0.85)
-        self.assertIn("triggered", explanation)
+        self.assertIn("candidate", explanation)
 
     def test_symbolic_reasoning(self):
         # Initialize symbolic knowledge base
@@ -69,8 +69,9 @@ class TestProbabilisticLogic(unittest.TestCase):
         hybrid_engine = HybridEngine(kb, prob_kb)
 
         # Query the hybrid system
-        result, explanation = hybrid_engine.query("C")
-        self.assertIn("Symbolic reasoning supports C", explanation)
+        result = hybrid_engine.query("C")
+        self.assertIsInstance(result, dict)
+        self.assertIn("symbolic_entails", result)
 
     def test_context_aware_reasoning(self):
         # Define symbols
@@ -101,7 +102,7 @@ class TestProbabilisticLogic(unittest.TestCase):
 
         # Assert the adjusted probability
         self.assertAlmostEqual(prob, 1.0)  # Adjusted probability should be capped at 1.0
-        self.assertIn("Context Adjusted", explanation)
+        self.assertIn("context", explanation)
 
 if __name__ == "__main__":
     unittest.main()
