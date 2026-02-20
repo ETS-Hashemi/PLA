@@ -1,3 +1,6 @@
+import itertools
+
+
 class Symbol:
     def __init__(self, name):
         self.name = name
@@ -29,17 +32,44 @@ class Implication:
         return f"({self.antecedent} -> {self.consequent})"
 
 
+def symbols(sentence):
+    """Collect all propositional symbols appearing in a sentence."""
+    if isinstance(sentence, Symbol):
+        return {sentence}
+    if isinstance(sentence, And):
+        result = set()
+        for arg in sentence.args:
+            result |= symbols(arg)
+        return result
+    if isinstance(sentence, Implication):
+        return symbols(sentence.antecedent) | symbols(sentence.consequent)
+    return set()
+
+
+def evaluate(sentence, model):
+    """Evaluate a sentence under a specific boolean model."""
+    if isinstance(sentence, Symbol):
+        return model[sentence]
+    if isinstance(sentence, And):
+        return all(evaluate(arg, model) for arg in sentence.args)
+    if isinstance(sentence, Implication):
+        return (not evaluate(sentence.antecedent, model)) or evaluate(sentence.consequent, model)
+    raise ValueError(f"Unsupported sentence type: {type(sentence)}")
+
+
 def model_check(knowledge, query):
     """
-    Perform a simple model check to verify if the query is entailed by the knowledge base.
-    :param knowledge: A list of facts and rules.
-    :param query: The query to check.
-    :return: True if the query is entailed, False otherwise.
+    Propositional entailment by truth-table model checking.
+    KB |= query iff every model that satisfies KB also satisfies query.
     """
-    # Simplified model checking: Check if the query is in the knowledge base
-    if isinstance(knowledge, And):
-        return query in knowledge.args
-    return query == knowledge
+    all_symbols = sorted(symbols(knowledge) | symbols(query), key=lambda s: s.name)
+
+    for values in itertools.product([False, True], repeat=len(all_symbols)):
+        model = dict(zip(all_symbols, values))
+        if evaluate(knowledge, model) and not evaluate(query, model):
+            return False
+
+    return True
 
 
 class KnowledgeBase:

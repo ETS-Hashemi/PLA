@@ -91,53 +91,46 @@ If the context number is omitted, it defaults to "1".
 
 ---
 
+## Semantics
+
+The probabilistic layer uses explicit operators:
+
+- **Antecedent conjunction**: `min(p(a1), ..., p(an))`
+- **Context adjustment**: `p_rule_adjusted = min(1, p_rule * Π active_context_weights)`
+- **Support candidate from one rule**: `candidate = p_rule_adjusted * min_antecedent`
+- **Support aggregation (configurable)**:
+  - `max`: `max(existing, candidate)`
+  - `noisy_or` (default): `1 - (1-existing)(1-candidate)`
+  - `sum_cap`: `min(1, existing + candidate)`
+  - `logit_pool`: additive in log-odds space
+
+Use `examples/run_readme_scenario.py` as the single source of truth for the README numbers.
+
+---
+
 ## Sample Outputs
 
-### Example: Logistics Very Complex Context-Aware Scenario
-Input: `scenario_logistics_very_complex.json` with **Context 1**
+### Example: Reproducible README Scenario (with multi-support aggregation)
+Run:
+```bash
+python examples/run_readme_scenario.py
 ```
-==================================================
-                KNOWLEDGE BASE
-==================================================
-Facts:
-  • DelayedShipment
-  • HighPriorityOrder
-  • WeatherDisruption
-  • WarehouseIssue
-  • DriverShortage
-  • TrafficCongestion
 
-Rules:
-  • If DelayedShipment and HighPriorityOrder -> EscalationRequired (P=0.8)
-  • If WeatherDisruption and DelayedShipment -> EscalationRequired (P=0.7)
-  • If WarehouseIssue -> DelayedShipment (P=0.6)
-  • If DriverShortage and TrafficCongestion -> DelayedShipment (P=0.9)
-  • If EscalationRequired -> CustomerNotification (P=0.95)
-==================================================
-
-                ACTIVE CONTEXT
-==================================================
-  • DriverShortage: Weight = 0.9
-  • WeatherDisruption: Weight = 0.7
-==================================================
-
-                QUERIES AND RESULTS
-==================================================
-Query: EscalationRequired
---------------------------------------------------
-  Probability: 0.756
-  Explanation:
-    - DelayedShipment and HighPriorityOrder triggered EscalationRequired with P=0.756 (Context Adjusted)
---------------------------------------------------
-
-Query: CustomerNotification
---------------------------------------------------
-  Probability: 0.718
-  Explanation:
-    - DelayedShipment and HighPriorityOrder triggered EscalationRequired with P=0.756 (Context Adjusted)
-    - EscalationRequired triggered CustomerNotification with P=0.718 (Context Adjusted)
---------------------------------------------------
+Output:
 ```
+=== README Scenario (aggregation=noisy_or) ===
+Escalation supports:
+  - rule_1: If DelayedShipment and HighPriorityOrder -> EscalationRequired (P=0.8): candidate_p=0.504
+  - rule_2: If WeatherDisruption and DelayedShipment -> EscalationRequired (P=0.7): candidate_p=0.490
+Aggregated EscalationRequired probability: 0.747040
+CustomerNotification probability: 0.709688
+```
+
+Computation notes:
+- `candidate_1 = (0.8 * 0.9 * 0.7) * min(1, 1) = 0.504`
+- `candidate_2 = (0.7 * 0.7) * min(1, 1) = 0.490`
+- noisy-OR aggregation: `1 - (1-0.504)(1-0.490) = 0.74704`
+- `CustomerNotification = 0.95 * 0.74704 = 0.709688`
 
 ---
 
@@ -193,11 +186,10 @@ prob_kb.add_fact(large)
 prob_kb.add_fact(no_receipt)
 prob_kb.add_rule(rule)
 
-# Hybrid Engine
-hybrid_engine = HybridEngine(symbolic_kb, prob_kb)
-result, explanation = hybrid_engine.query("C")
-print(f"Result: {result}")
-print(f"Explanation: {explanation}")
+# Hybrid Engine (configurable gate)
+hybrid_engine = HybridEngine(symbolic_kb, prob_kb, gate_mode="soft", gate_penalty=0.5)
+result = hybrid_engine.query("C")
+print(result["symbolic_entails"], result["probability"], result["explanation"])
 ```
 
 ---

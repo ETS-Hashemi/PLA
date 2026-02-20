@@ -1,6 +1,44 @@
+from collections import defaultdict
+import math
+
+
+EPSILON = 1e-9
+
+
+def aggregate_supports(existing_p, new_p, method="noisy_or"):
+    """Aggregate two supports for the same fact."""
+    existing_p = max(0.0, min(1.0, existing_p))
+    new_p = max(0.0, min(1.0, new_p))
+
+    if method == "max":
+        return max(existing_p, new_p)
+    if method == "noisy_or":
+        return 1.0 - (1.0 - existing_p) * (1.0 - new_p)
+    if method == "sum_cap":
+        return min(1.0, existing_p + new_p)
+    if method == "logit_pool":
+        if existing_p <= 0:
+            return new_p
+        if new_p <= 0:
+            return existing_p
+        if existing_p >= 1 or new_p >= 1:
+            return 1.0
+
+        def _logit(p):
+            return math.log(p / (1 - p))
+
+        def _sigmoid(x):
+            return 1 / (1 + math.exp(-x))
+
+        return _sigmoid(_logit(existing_p) + _logit(new_p))
+
+    raise ValueError(f"Unsupported aggregation method: {method}")
+
+
 class ProbabilisticReasoner:
-    def __init__(self):
+    def __init__(self, aggregation_method="noisy_or"):
         self.rules = {}
+        self.aggregation_method = aggregation_method
 
     def add_rule(self, rule):
         """Add a probabilistic rule to the reasoner."""
@@ -15,14 +53,25 @@ class ProbabilisticReasoner:
         :param query: The query symbol.
         :param facts: A set of facts from the knowledge base.
         """
+        aggregated_probability = 0.0
+        explanations = []
+
         for condition, probability in self.rules.items():
-            # Split the condition into individual symbols
             condition_symbols = [symbol.strip() for symbol in condition.split(",")]
             if query in condition_symbols:
-                # Check if all other symbols in the condition are in the facts
                 if all(symbol in facts for symbol in condition_symbols if symbol != query):
-                    return probability, f"Rule P({condition}) = {probability}"
+                    aggregated_probability = aggregate_supports(
+                        aggregated_probability,
+                        probability,
+                        self.aggregation_method,
+                    )
+                    explanations.append(f"Rule P({condition}) = {probability}")
+
+        if explanations:
+            return aggregated_probability, " | ".join(explanations)
+
         return 0.0, f"No rule found for P({query})"
+
 
 class ProbSymbol:
     def __init__(self, name):
@@ -36,6 +85,7 @@ class ProbSymbol:
 
     def __repr__(self):
         return self.name
+
 
 class ProbRule:
     def __init__(self, condition, result, probability, context=None, context_weight=1.0):
@@ -69,20 +119,24 @@ class ProbRule:
         conditions = " and ".join([str(c) for c in self.condition])
         return f"If {conditions} -> {self.result} (P={self.probability})"
 
+
 class ProbKB:
-    def __init__(self):
+    def __init__(self, aggregation_method="noisy_or"):
         self.facts = set()
         self.rules = []
         self.cache = {}
-        self.current_context = {}  # Store the current context variables
+        self.current_context = {}
+        self.aggregation_method = aggregation_method
 
     def add_fact(self, fact):
         if isinstance(fact, str):
             fact = ProbSymbol(fact)
         self.facts.add(fact)
+        self.cache.clear()
 
     def add_rule(self, rule):
         self.rules.append(rule)
+        self.cache.clear()
 
     def set_context(self, context):
         """
@@ -90,47 +144,94 @@ class ProbKB:
         :param context: Dictionary of context variables and their values.
         """
         self.current_context = context
+        self.cache.clear()
+
+    def _forward_chain(self):
+        base_fact_probs = {fact: 1.0 for fact in self.facts}
+        fact_probs = dict(base_fact_probs)
+        support_map = defaultdict(dict)
+
+        max_iterations = max(1, len(self.rules) * 10)
+        for _ in range(max_iterations):
+            next_fact_probs = dict(base_fact_probs)
+
+            for idx, rule in enumerate(self.rules):
+                conditions_met = all(c in fact_probs for c in rule.condition)
+                if not conditions_met:
+                    continue
+
+                antecedent_probs = [fact_probs[c] for c in rule.condition]
+                adjusted_rule_prob = rule.adjusted_probability(self.current_context)
+                candidate_p = adjusted_rule_prob * min(antecedent_probs)
+
+                existing = next_fact_probs.get(rule.result, 0.0)
+                next_fact_probs[rule.result] = aggregate_supports(existing, candidate_p, self.aggregation_method)
+
+                support_map[rule.result][f"rule_{idx + 1}"] = {
+                    "rule": f"rule_{idx + 1}: {rule}",
+                    "candidate_p": candidate_p,
+                    "antecedents": [str(c) for c in rule.condition],
+                    "context": dict(self.current_context),
+                    "adjusted_rule_probability": adjusted_rule_prob,
+                }
+
+            all_facts = set(fact_probs) | set(next_fact_probs)
+            max_delta = max(abs(next_fact_probs.get(f, 0.0) - fact_probs.get(f, 0.0)) for f in all_facts)
+            fact_probs = next_fact_probs
+
+            if max_delta <= EPSILON:
+                break
+
+        supports = defaultdict(list)
+        for result, per_rule in support_map.items():
+            supports[result] = list(per_rule.values())
+
+        return fact_probs, supports
 
     def query(self, query):
         if isinstance(query, str):
             query = ProbSymbol(query)
 
-        # Check cache for previously computed results
         if query in self.cache:
             return self.cache[query]
 
-        # Forward chaining to infer new facts with probabilities
-        inferred_facts = {fact: 1.0 for fact in self.facts}  # Facts with certainty
-        explanations = []
-        while True:
-            new_facts = {}
-            for rule in self.rules:
-                if rule.result not in inferred_facts:
-                    # Check if all conditions are satisfied
-                    conditions_met = all(c in inferred_facts for c in rule.condition)
-                    if conditions_met:
-                        # Adjust the probability based on the current context
-                        prob = rule.adjusted_probability(self.current_context) * min(
-                            inferred_facts[c] for c in rule.condition
-                        )
-                        new_facts[rule.result] = prob
-                        explanations.append(
-                            f"{' and '.join(map(str, rule.condition))} triggered {rule.result} with P={prob:.3f} (Context Adjusted)"
-                        )
-            if not new_facts:
-                break
-            inferred_facts.update(new_facts)
+        fact_probs, supports = self._forward_chain()
 
-        # Check if the query is in the inferred facts
-        if query in inferred_facts:
-            explanation = "\n".join(explanations)
-            result = (inferred_facts[query], explanation)
+        if query in fact_probs:
+            explanation_lines = []
+            for support in supports.get(query, []):
+                explanation_lines.append(
+                    f"{support['rule']} candidate={support['candidate_p']:.3f} "
+                    f"(antecedents={support['antecedents']}, context={support['context']})"
+                )
+
+            if not explanation_lines and query in self.facts:
+                explanation_lines.append(f"{query} is a base fact with P=1.0")
+
+            result = (
+                fact_probs[query],
+                "\n".join(explanation_lines) if explanation_lines else "No matching rule found.",
+            )
             self.cache[query] = result
             return result
 
         result = (0.0, "No matching rule found.")
         self.cache[query] = result
         return result
+
+    def query_detailed(self, query):
+        if isinstance(query, str):
+            query = ProbSymbol(query)
+
+        fact_probs, supports = self._forward_chain()
+        return {
+            "query": str(query),
+            "probability": fact_probs.get(query, 0.0),
+            "supports": supports.get(query, []),
+            "all_fact_probabilities": {str(k): v for k, v in fact_probs.items()},
+            "aggregation_method": self.aggregation_method,
+        }
+
 
 class InferenceEngine:
     def __init__(self, kb):
