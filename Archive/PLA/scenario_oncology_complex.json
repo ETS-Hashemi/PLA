@@ -1,0 +1,28 @@
+{
+  "facts": [
+    "PersistentCough",
+    "WeightLoss",
+    "ChestPain",
+    "AbnormalXRay"
+  ],
+  "rules": [
+    {
+      "condition": ["PersistentCough", "WeightLoss"],
+      "result": "LungCancerRisk",
+      "probability": 0.7
+    },
+    {
+      "condition": ["ChestPain", "AbnormalXRay"],
+      "result": "LungCancerRisk",
+      "probability": 0.85
+    },
+    {
+      "condition": ["LungCancerRisk"],
+      "result": "BiopsyRequired",
+      "probability": 0.9
+    }
+  ],
+  "queries": [
+    "BiopsyRequired"
+  ]
+}

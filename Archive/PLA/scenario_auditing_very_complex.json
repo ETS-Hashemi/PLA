@@ -1,0 +1,40 @@
+{
+  "facts": [
+    "HighRiskClient",
+    "LateSubmission",
+    "UnverifiedDocuments",
+    "LargeDiscrepancy",
+    "RegulatoryWarning",
+    "MultipleAuditFlags"
+  ],
+  "rules": [
+    {
+      "condition": ["HighRiskClient", "LateSubmission"],
+      "result": "AuditFlag",
+      "probability": 0.8
+    },
+    {
+      "condition": ["UnverifiedDocuments", "LargeDiscrepancy"],
+      "result": "AuditFlag",
+      "probability": 0.9
+    },
+    {
+      "condition": ["AuditFlag", "RegulatoryWarning"],
+      "result": "InvestigationRequired",
+      "probability": 0.95
+    },
+    {
+      "condition": ["MultipleAuditFlags"],
+      "result": "InvestigationRequired",
+      "probability": 0.9
+    },
+    {
+      "condition": ["InvestigationRequired"],
+      "result": "RegulatoryAction",
+      "probability": 0.85
+    }
+  ],
+  "queries": [
+    "RegulatoryAction"
+  ]
+}

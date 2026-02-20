@@ -1,0 +1,41 @@
+{
+  "facts": [
+    "FamilyHistoryOfCancer",
+    "SmokingHistory",
+    "PersistentCough",
+    "WeightLoss",
+    "ChestPain",
+    "AbnormalXRay",
+    "GeneticMutationDetected"
+  ],
+  "rules": [
+    {
+      "condition": ["FamilyHistoryOfCancer", "GeneticMutationDetected"],
+      "result": "HighCancerRisk",
+      "probability": 0.9
+    },
+    {
+      "condition": ["SmokingHistory", "PersistentCough"],
+      "result": "LungCancerRisk",
+      "probability": 0.8
+    },
+    {
+      "condition": ["WeightLoss", "ChestPain", "AbnormalXRay"],
+      "result": "LungCancerRisk",
+      "probability": 0.85
+    },
+    {
+      "condition": ["LungCancerRisk", "HighCancerRisk"],
+      "result": "BiopsyRequired",
+      "probability": 0.95
+    },
+    {
+      "condition": ["BiopsyRequired"],
+      "result": "TreatmentPlanRequired",
+      "probability": 0.9
+    }
+  ],
+  "queries": [
+    "TreatmentPlanRequired"
+  ]
+}
