@@ -1,0 +1,52 @@
+{
+  "domain": "pharmaceutical",
+  "facts": [
+    "AdverseReaction",
+    "NewDrug",
+    "ClinicalTrialFailure",
+    "MultiplePatientReports",
+    "SupplyChainIssue"
+  ],
+  "rules": [
+    {
+      "condition": ["AdverseReaction", "NewDrug"],
+      "result": "RecallRequired",
+      "probability": 0.7,
+      "context": {
+        "1": {
+          "LowSeverityCases": 0.8
+        },
+        "2": {
+          "HighSeverityCases": 1.4
+        }
+      }
+    },
+    {
+      "condition": ["ClinicalTrialFailure", "MultiplePatientReports"],
+      "result": "RecallRequired",
+      "probability": 0.8,
+      "context": {
+        "1": {
+          "LowSeverityCases": 0.7
+        },
+        "2": {
+          "HighSeverityCases": 1.3
+        }
+      }
+    },
+    {
+      "condition": ["RecallRequired", "SupplyChainIssue"],
+      "result": "MarketWithdrawal",
+      "probability": 0.9
+    },
+    {
+      "condition": ["RecallRequired"],
+      "result": "PublicNotification",
+      "probability": 0.95
+    }
+  ],
+  "queries": [
+    "MarketWithdrawal",
+    "PublicNotification"
+  ]
+}

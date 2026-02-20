@@ -1,0 +1,41 @@
+{
+  "facts": [
+    "HighDemand",
+    "LowInventory",
+    "SupplierDelay",
+    "WeatherDisruption",
+    "AlternativeSupplierAvailable"
+  ],
+  "rules": [
+    {
+      "condition": ["HighDemand", "LowInventory"],
+      "result": "ExpediteShipping",
+      "probability": 0.85
+    },
+    {
+      "condition": ["SupplierDelay", "HighDemand"],
+      "result": "AlternativeSupplierRequired",
+      "probability": 0.8
+    },
+    {
+      "condition": ["WeatherDisruption", "SupplierDelay"],
+      "result": "AlternativeSupplierRequired",
+      "probability": 0.75
+    },
+    {
+      "condition": ["AlternativeSupplierRequired", "AlternativeSupplierAvailable"],
+      "result": "SwitchToAlternativeSupplier",
+      "probability": 0.9
+    },
+    {
+      "condition": ["ExpediteShipping", "SwitchToAlternativeSupplier"],
+      "result": "SupplyChainStabilized",
+      "probability": 0.95
+    }
+  ],
+  "queries": [
+    "ExpediteShipping",
+    "SwitchToAlternativeSupplier",
+    "SupplyChainStabilized"
+  ]
+}

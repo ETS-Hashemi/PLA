@@ -1,0 +1,222 @@
+{
+  "parallel_scenarios": [
+    {
+      "domain": "accounting",
+      "facts": [
+        "LargeTransaction",
+        "NoReceipt",
+        "UnusualVendor",
+        "ForeignPayment",
+        "MultipleDiscrepancies",
+        "DelayedApproval",
+        "IrregularExpenseReport"
+      ],
+      "rules": [
+        {
+          "condition": ["LargeTransaction", "NoReceipt", "UnusualVendor"],
+          "result": "FraudRisk",
+          "probability": 0.8,
+          "context": {
+            "1": {
+              "WeekendTransaction": 1.1,
+              "HighRiskClient": 1.2
+            },
+            "2": {
+              "ForeignPayment": 1.3,
+              "IrregularExpenseReport": 1.1
+            }
+          }
+        },
+        {
+          "condition": ["FraudRisk", "MultipleDiscrepancies"],
+          "result": "AuditRequired",
+          "probability": 0.9,
+          "context": {
+            "1": {
+              "DelayedApproval": 1.0
+            },
+            "2": {
+              "DelayedApproval": 1.2
+            }
+          }
+        },
+        {
+          "condition": ["AuditRequired", "IrregularExpenseReport"],
+          "result": "InvestigationRequested",
+          "probability": 0.95
+        }
+      ],
+      "queries": [
+        "InvestigationRequested"
+      ]
+    },
+    {
+      "domain": "auditing",
+      "facts": [
+        "InternalIrregularity",
+        "LateSubmission",
+        "UnverifiedDocuments",
+        "DataInconsistency",
+        "MultipleAuditFlags",
+        "ManagementWarning"
+      ],
+      "rules": [
+        {
+          "condition": ["InternalIrregularity", "UnverifiedDocuments"],
+          "result": "AuditFlagRaised",
+          "probability": 0.75,
+          "context": {
+            "1": {
+              "LateSubmission": 1.1
+            },
+            "2": {
+              "DataInconsistency": 1.2
+            }
+          }
+        },
+        {
+          "condition": ["AuditFlagRaised", "MultipleAuditFlags"],
+          "result": "DeepAuditInitiated",
+          "probability": 0.85,
+          "context": {
+            "1": {
+              "ManagementWarning": 1.0
+            },
+            "2": {
+              "ManagementWarning": 1.3
+            }
+          }
+        },
+        {
+          "condition": ["DeepAuditInitiated"],
+          "result": "RegulatoryAction",
+          "probability": 0.9
+        }
+      ],
+      "queries": [
+        "RegulatoryAction"
+      ]
+    },
+    {
+      "domain": "pharmaceutical",
+      "facts": [
+        "AdverseReaction",
+        "NewDrug",
+        "ClinicalTrialFailure",
+        "MultiplePatientReports",
+        "RegulatoryWarning",
+        "SupplyChainIssue",
+        "CompetitorDrugApproval"
+      ],
+      "rules": [
+        {
+          "condition": ["AdverseReaction", "NewDrug"],
+          "result": "RecallRequired",
+          "probability": 0.7,
+          "context": {
+            "1": {
+              "LowSeverityCases": 0.8
+            },
+            "2": {
+              "HighSeverityCases": 1.4
+            }
+          }
+        },
+        {
+          "condition": ["ClinicalTrialFailure", "MultiplePatientReports"],
+          "result": "RecallRequired",
+          "probability": 0.8,
+          "context": {
+            "1": {
+              "LowSeverityCases": 0.7
+            },
+            "2": {
+              "HighSeverityCases": 1.3
+            }
+          }
+        },
+        {
+          "condition": ["RecallRequired", "CompetitorDrugApproval"],
+          "result": "MarketWithdrawal",
+          "probability": 0.9
+        },
+        {
+          "condition": ["RecallRequired"],
+          "result": "PublicNotification",
+          "probability": 0.95
+        }
+      ],
+      "queries": [
+        "MarketWithdrawal",
+        "PublicNotification"
+      ]
+    },
+    {
+      "domain": "oncology",
+      "facts": [
+        "FamilyHistoryOfCancer",
+        "GeneticMutationDetected",
+        "SmokingHistory",
+        "PersistentCough",
+        "RapidWeightLoss",
+        "ChestPain",
+        "AbnormalImaging",
+        "ElevatedTumorMarkers"
+      ],
+      "rules": [
+        {
+          "condition": ["FamilyHistoryOfCancer", "GeneticMutationDetected"],
+          "result": "HighCancerRisk",
+          "probability": 0.9,
+          "context": {
+            "1": {
+              "PatientAgeOver60": 1.1
+            },
+            "2": {
+              "PatientAgeOver60": 1.3
+            }
+          }
+        },
+        {
+          "condition": ["SmokingHistory", "PersistentCough"],
+          "result": "LungCancerRisk",
+          "probability": 0.8,
+          "context": {
+            "1": {
+              "ChronicExposure": 1.2
+            },
+            "2": {
+              "ChronicExposure": 1.4
+            }
+          }
+        },
+        {
+          "condition": ["RapidWeightLoss", "ChestPain", "AbnormalImaging"],
+          "result": "LungCancerRisk",
+          "probability": 0.85
+        },
+        {
+          "condition": ["LungCancerRisk", "ElevatedTumorMarkers", "HighCancerRisk"],
+          "result": "AdvancedCancer",
+          "probability": 0.95,
+          "context": {
+            "1": {
+              "TreatmentDelay": 1.0
+            },
+            "2": {
+              "TreatmentDelay": 1.2
+            }
+          }
+        },
+        {
+          "condition": ["AdvancedCancer"],
+          "result": "TreatmentPlanRequired",
+          "probability": 0.9
+        }
+      ],
+      "queries": [
+        "TreatmentPlanRequired"
+      ]
+    }
+  ]
+}

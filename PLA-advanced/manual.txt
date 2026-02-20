@@ -1,0 +1,110 @@
+Probabilistic Logic Agent (PLA) - User Manual
+
+1. Introduction
+The Probabilistic Logic Agent (PLA) is a hybrid reasoning framework that combines symbolic rule-based logic with probabilistic inference. It is designed for domains requiring both uncertainty handling and explainability, such as healthcare, auditing, legal decision support, and logistics.
+
+2. System Requirements
+- Python 3.7 or higher
+- Required packages: json, Flask (for REST API), standard Python libraries.
+- Optional: requests, pytest for testing, matplotlib for visualization.
+
+3. Installation Guide
+    1. Clone the repository:
+    git clone https://github.com/ETS-HASHEMI/Projects/Research/PLA-Advanced/PLA.git
+    2. Navigate to the directory:
+    cd PLA
+    3. Install dependencies:
+    pip install -r requirements.txt
+    4. Run initial test:
+    python main.py --scenario oncology.json
+
+4. Project Structure
+    - main.py: CLI entry point
+    - engine.py: Hybrid inference engine
+    - prob.py: Probabilistic inference logic
+    - kb.py: Symbolic knowledge base
+    - rest_api.py: RESTful interface
+    - /scenarios/: Contains JSON-based knowledge files
+    - /tests/: Unit tests
+
+5. Configuration (Facts and Rules)
+Facts and rules are defined in JSON. Example:
+{
+  "facts": ["PersistentCough", "WeightLoss"],
+  "rules": [
+    {
+      "if": ["PersistentCough", "WeightLoss"],
+      "then": "LungCancerRisk",
+      "prob": 0.7,
+      "context": {"SmokingHistory": 1.5}
+    }
+  ]
+}
+
+6. Inference Engine Usage
+The engine uses forward chaining with logical validity checks. Run inference with:
+   result = InferenceEngine(kb).infer()
+Query results:
+   prob, explanation = engine.query('LungCancerRisk')
+
+7. Hybrid Reasoning Mode
+Use HybridEngine for symbolic and probabilistic checks combined. Example:
+   engine = HybridEngine(sym_kb, prob_kb)
+   result = engine.query("CancerConfirmed")
+
+8. Context Handling
+Contexts modify rule probabilities multiplicatively. Activate context:
+   engine.set_context({"SmokingHistory": True})
+
+9. Explanation Trace Output
+Each inference step is logged as a human-readable trace. Sample output:
+- Rule: PersistentCough & WeightLoss -> LungCancerRisk
+- Probability: 0.7
+- Context: SmokingHistory applied (1.5)
+
+10. REST API Guide
+Start API: python rest_api.py
+POST /infer
+Body:
+{
+  "scenario": "oncology.json",
+  "query": "CancerConfirmed"
+}
+Returns JSON: {"probability": 0.8075, "explanation": "..."}
+
+11. Command-Line Interface (CLI) Guide
+Run a scenario:
+   python main.py --scenario oncology.json --query LungCancerRisk
+
+12. Testing and Evaluation
+Unit tests located in /tests. Run with:
+   pytest
+Benchmarks confirm sub-second performance for complex cases.
+
+13. Sample Scenarios
+- Oncology (oncology.json)
+- Auditing (auditing.json)
+- Legal Decision Support (legal.json)
+
+14. Extending the System
+You can add new rules/facts by editing JSON. To create a new scenario:
+1. Create a new JSON file
+2. Populate 'facts', 'rules', and optional 'context'
+3. Load using main.py or REST API
+
+15. Troubleshooting
+- Q: No output?
+  A: Check your JSON structure and initial facts.
+- Q: Wrong probability?
+  A: Verify if all context variables are correctly applied.
+
+16. Glossary
+- Fact: A known truth or proposition
+- Rule: Conditional implication with a probability
+- Context: Situational modifier affecting rule strength
+
+17. Changelog and License
+Version 1.0.0 (2025-04-22)
+License: Apache 2.0
+Author: Seyed Masoud Hashemi Ahmadi
+Contact: contact@AiCentralLab.com

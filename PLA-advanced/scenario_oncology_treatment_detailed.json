@@ -1,0 +1,67 @@
+{
+  "facts": [
+    "FamilyHistoryOfCancer",
+    "GeneticMutationDetected",
+    "SmokingHistory",
+    "PersistentCough",
+    "WeightLoss",
+    "ChestPain",
+    "AbnormalXRay",
+    "HighTumorMarkerLevels",
+    "Stage3Cancer"
+  ],
+  "rules": [
+    {
+      "condition": ["FamilyHistoryOfCancer", "GeneticMutationDetected"],
+      "result": "HighCancerRisk",
+      "probability": 0.9
+    },
+    {
+      "condition": ["SmokingHistory", "PersistentCough"],
+      "result": "LungCancerRisk",
+      "probability": 0.8
+    },
+    {
+      "condition": ["WeightLoss", "ChestPain", "AbnormalXRay"],
+      "result": "LungCancerRisk",
+      "probability": 0.85
+    },
+    {
+      "condition": ["HighTumorMarkerLevels", "LungCancerRisk"],
+      "result": "CancerConfirmed",
+      "probability": 0.95
+    },
+    {
+      "condition": ["CancerConfirmed", "Stage3Cancer"],
+      "result": "TreatmentRequired",
+      "probability": 0.9
+    },
+    {
+      "condition": ["TreatmentRequired"],
+      "result": "ChemotherapyPlan",
+      "probability": 0.8
+    },
+    {
+      "condition": ["TreatmentRequired", "HighCancerRisk"],
+      "result": "RadiationTherapyPlan",
+      "probability": 0.7
+    },
+    {
+      "condition": ["TreatmentRequired", "Stage3Cancer"],
+      "result": "SurgeryPlan",
+      "probability": 0.6
+    },
+    {
+      "condition": ["ChemotherapyPlan", "RadiationTherapyPlan", "SurgeryPlan"],
+      "result": "ComprehensiveTreatmentPlan",
+      "probability": 0.9
+    }
+  ],
+  "queries": [
+    "TreatmentRequired",
+    "ChemotherapyPlan",
+    "RadiationTherapyPlan",
+    "SurgeryPlan",
+    "ComprehensiveTreatmentPlan"
+  ]
+}

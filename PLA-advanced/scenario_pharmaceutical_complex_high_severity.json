@@ -1,0 +1,34 @@
+{
+  "facts": [
+    "AdverseReaction",
+    "NewDrug",
+    "MultipleReports",
+    "RegulatoryWarning"
+  ],
+  "rules": [
+    {
+      "condition": ["AdverseReaction", "NewDrug"],
+      "result": "RecallRequired",
+      "probability": 0.7,
+      "context": {
+        "HighSeverityCases": 1.5
+      }
+    },
+    {
+      "condition": ["MultipleReports", "RegulatoryWarning"],
+      "result": "RecallRequired",
+      "probability": 0.9,
+      "context": {
+        "HighSeverityCases": 1.3
+      }
+    },
+    {
+      "condition": ["RecallRequired"],
+      "result": "PublicNotification",
+      "probability": 0.95
+    }
+  ],
+  "queries": [
+    "PublicNotification"
+  ]
+}

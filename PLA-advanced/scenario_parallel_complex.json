@@ -1,0 +1,162 @@
+{
+  "parallel_scenarios": [
+    {
+      "domain": "accounting",
+      "facts": [
+        "LargeTransaction",
+        "NoReceipt",
+        "UnusualVendor",
+        "MultipleDiscrepancies",
+        "HighRiskClient",
+        "ForeignPayment",
+        "UnusuallyDelayedApproval"
+      ],
+      "rules": [
+        {
+          "condition": ["LargeTransaction", "NoReceipt", "UnusualVendor"],
+          "result": "FraudRisk",
+          "probability": 0.85
+        },
+        {
+          "condition": ["FraudRisk", "ForeignPayment"],
+          "result": "AuditRequired",
+          "probability": 0.9
+        },
+        {
+          "condition": ["MultipleDiscrepancies", "HighRiskClient", "UnusuallyDelayedApproval"],
+          "result": "AuditRequired",
+          "probability": 0.8
+        },
+        {
+          "condition": ["AuditRequired"],
+          "result": "InvestigationInitiated",
+          "probability": 0.95
+        }
+      ],
+      "queries": [
+        "InvestigationInitiated"
+      ]
+    },
+    {
+      "domain": "auditing",
+      "facts": [
+        "InternalIrregularity",
+        "LateSubmission",
+        "InconsistentRecords",
+        "SuspiciousExpense",
+        "MultipleAuditFlags"
+      ],
+      "rules": [
+        {
+          "condition": ["InternalIrregularity", "InconsistentRecords"],
+          "result": "AuditFlag",
+          "probability": 0.75
+        },
+        {
+          "condition": ["LateSubmission", "SuspiciousExpense"],
+          "result": "AuditFlag",
+          "probability": 0.8
+        },
+        {
+          "condition": ["AuditFlag", "MultipleAuditFlags"],
+          "result": "DeepAuditRequired",
+          "probability": 0.85
+        },
+        {
+          "condition": ["DeepAuditRequired"],
+          "result": "RegulatoryAction",
+          "probability": 0.9
+        }
+      ],
+      "queries": [
+        "RegulatoryAction"
+      ]
+    },
+    {
+      "domain": "pharmaceutical",
+      "facts": [
+        "AdverseReaction",
+        "NewDrug",
+        "ClinicalTrialFailure",
+        "MultipleReports",
+        "RegulatoryWarning",
+        "CompetingDrugApproval",
+        "SupplyChainIssue"
+      ],
+      "rules": [
+        {
+          "condition": ["AdverseReaction", "NewDrug"],
+          "result": "RecallRequired",
+          "probability": 0.7
+        },
+        {
+          "condition": ["ClinicalTrialFailure", "MultipleReports"],
+          "result": "RecallRequired",
+          "probability": 0.8
+        },
+        {
+          "condition": ["RegulatoryWarning", "SupplyChainIssue"],
+          "result": "RecallRequired",
+          "probability": 0.75
+        },
+        {
+          "condition": ["RecallRequired", "CompetingDrugApproval"],
+          "result": "MarketWithdrawal",
+          "probability": 0.9
+        },
+        {
+          "condition": ["RecallRequired"],
+          "result": "PublicNotification",
+          "probability": 0.95
+        }
+      ],
+      "queries": [
+        "PublicNotification",
+        "MarketWithdrawal"
+      ]
+    },
+    {
+      "domain": "oncology",
+      "facts": [
+        "FamilyHistoryOfCancer",
+        "GeneticMutationDetected",
+        "SmokingHistory",
+        "PersistentCough",
+        "RapidWeightLoss",
+        "ChestPain",
+        "AbnormalCTScan",
+        "ElevatedTumorMarkers"
+      ],
+      "rules": [
+        {
+          "condition": ["FamilyHistoryOfCancer", "GeneticMutationDetected"],
+          "result": "HighCancerRisk",
+          "probability": 0.9
+        },
+        {
+          "condition": ["SmokingHistory", "PersistentCough"],
+          "result": "LungCancerRisk",
+          "probability": 0.8
+        },
+        {
+          "condition": ["RapidWeightLoss", "ChestPain", "AbnormalCTScan"],
+          "result": "LungCancerRisk",
+          "probability": 0.85
+        },
+        {
+          "condition": ["LungCancerRisk", "ElevatedTumorMarkers"],
+          "result": "AdvancedCancer",
+          "probability": 0.95
+        },
+        {
+          "condition": ["AdvancedCancer"],
+          "result": "TreatmentPlanRequired",
+          "probability": 0.9
+        }
+      ],
+      "queries": [
+        "TreatmentPlanRequired"
+      ]
+    }
+  ]
+}

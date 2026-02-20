@@ -1,0 +1,16 @@
+{
+  "facts": [
+    "PersistentCough",
+    "WeightLoss"
+  ],
+  "rules": [
+    {
+      "condition": ["PersistentCough", "WeightLoss"],
+      "result": "LungCancerRisk",
+      "probability": 0.7
+    }
+  ],
+  "queries": [
+    "LungCancerRisk"
+  ]
+}

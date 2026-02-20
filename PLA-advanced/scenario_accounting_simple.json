@@ -1,0 +1,16 @@
+{
+  "facts": [
+    "LargeTransaction",
+    "NoReceipt"
+  ],
+  "rules": [
+    {
+      "condition": ["LargeTransaction", "NoReceipt"],
+      "result": "Fraud",
+      "probability": 0.85
+    }
+  ],
+  "queries": [
+    "Fraud"
+  ]
+}

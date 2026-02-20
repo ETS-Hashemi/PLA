@@ -1,0 +1,16 @@
+{
+  "facts": [
+    "HighRiskClient",
+    "LateSubmission"
+  ],
+  "rules": [
+    {
+      "condition": ["HighRiskClient", "LateSubmission"],
+      "result": "AuditFlag",
+      "probability": 0.8
+    }
+  ],
+  "queries": [
+    "AuditFlag"
+  ]
+}

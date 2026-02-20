@@ -1,0 +1,48 @@
+{
+  "domain": "accounting",
+  "facts": [
+    "LargeTransaction",
+    "NoReceipt",
+    "ForeignPayment",
+    "MultipleDiscrepancies",
+    "DelayedApproval"
+  ],
+  "rules": [
+    {
+      "condition": ["LargeTransaction", "NoReceipt"],
+      "result": "FraudRisk",
+      "probability": 0.8,
+      "context": {
+        "1": {
+          "WeekendTransaction": 1.1,
+          "HighRiskClient": 1.2
+        },
+        "2": {
+          "ForeignPayment": 1.3,
+          "DelayedApproval": 1.0
+        }
+      }
+    },
+    {
+      "condition": ["FraudRisk", "MultipleDiscrepancies"],
+      "result": "AuditRequired",
+      "probability": 0.9,
+      "context": {
+        "1": {
+          "InternalAlert": 1.0
+        },
+        "2": {
+          "ManagementWarning": 1.2
+        }
+      }
+    },
+    {
+      "condition": ["AuditRequired"],
+      "result": "InvestigationInitiated",
+      "probability": 0.95
+    }
+  ],
+  "queries": [
+    "InvestigationInitiated"
+  ]
+}

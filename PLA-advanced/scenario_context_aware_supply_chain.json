@@ -1,0 +1,36 @@
+{
+  "facts": [
+    "HighDemand",
+    "LowInventory",
+    "SupplierDelay"
+  ],
+  "rules": [
+    {
+      "condition": ["HighDemand", "LowInventory"],
+      "result": "ExpediteShipping",
+      "probability": 0.85,
+      "context": {
+        "WeatherDisruption": 0.8,
+        "SupplierReliabilityLow": 0.7
+      }
+    },
+    {
+      "condition": ["SupplierDelay", "ExpediteShipping"],
+      "result": "AlternativeSupplierRequired",
+      "probability": 0.8,
+      "context": {
+        "WeatherDisruption": 0.9
+      }
+    },
+    {
+      "condition": ["AlternativeSupplierRequired"],
+      "result": "SupplyChainStabilized",
+      "probability": 0.95
+    }
+  ],
+  "queries": [
+    "ExpediteShipping",
+    "AlternativeSupplierRequired",
+    "SupplyChainStabilized"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "facts": [
+    "PersistentCough",
+    "WeightLoss"
+  ],
+  "rules": [
+    {
+      "condition": ["PersistentCough", "WeightLoss"],
+      "result": "LungCancerRisk",
+      "probability": 0.7,
+      "context": {
+        "PatientAge>60": 1.2,
+        "SmokingHistory": 1.5
+      }
+    }
+  ],
+  "queries": [
+    "LungCancerRisk"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "facts": [
+    "DelayedShipment",
+    "HighPriorityOrder"
+  ],
+  "rules": [
+    {
+      "condition": ["DelayedShipment", "HighPriorityOrder"],
+      "result": "EscalationRequired",
+      "probability": 0.8
+    }
+  ],
+  "queries": [
+    "EscalationRequired"
+  ]
+}

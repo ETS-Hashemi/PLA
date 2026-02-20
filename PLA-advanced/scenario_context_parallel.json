@@ -1,0 +1,42 @@
+{
+  "facts": [
+    "PersistentCough",
+    "WeightLoss",
+    "ChestPain"
+  ],
+  "rules": [
+    {
+      "condition": ["PersistentCough", "WeightLoss"],
+      "result": "LungCancerRisk",
+      "probability": 0.7,
+      "context": {
+        "1": {
+          "AgeOver60": 1.2
+        },
+        "2": {
+          "SmokingHistory": 1.3
+        }
+      }
+    },
+    {
+      "condition": ["LungCancerRisk", "ChestPain"],
+      "result": "BiopsyRequired",
+      "probability": 0.9,
+      "context": {
+        "1": {
+          "FamilyHistoryOfCancer": 1.0
+        },
+        "2": {
+          "HighTumorMarkerLevels": 1.1
+        },
+        "3": {
+          "OccupationalHazard": 1.2
+        }
+      }
+    }
+  ],
+  "queries": [
+    "LungCancerRisk",
+    "BiopsyRequired"
+  ]
+}

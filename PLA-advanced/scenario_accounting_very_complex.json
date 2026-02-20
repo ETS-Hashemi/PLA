@@ -1,0 +1,40 @@
+{
+  "facts": [
+    "LargeTransaction",
+    "NoReceipt",
+    "UnusualVendor",
+    "WeekendTransaction",
+    "MultipleDiscrepancies",
+    "HighRiskClient"
+  ],
+  "rules": [
+    {
+      "condition": ["LargeTransaction", "NoReceipt"],
+      "result": "Fraud",
+      "probability": 0.85
+    },
+    {
+      "condition": ["UnusualVendor", "WeekendTransaction"],
+      "result": "Fraud",
+      "probability": 0.75
+    },
+    {
+      "condition": ["Fraud"],
+      "result": "AuditRequired",
+      "probability": 0.95
+    },
+    {
+      "condition": ["MultipleDiscrepancies", "HighRiskClient"],
+      "result": "AuditRequired",
+      "probability": 0.9
+    },
+    {
+      "condition": ["AuditRequired"],
+      "result": "InvestigationRequired",
+      "probability": 0.9
+    }
+  ],
+  "queries": [
+    "InvestigationRequired"
+  ]
+}

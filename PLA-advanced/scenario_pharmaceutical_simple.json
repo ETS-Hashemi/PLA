@@ -1,0 +1,16 @@
+{
+  "facts": [
+    "AdverseReaction",
+    "NewDrug"
+  ],
+  "rules": [
+    {
+      "condition": ["AdverseReaction", "NewDrug"],
+      "result": "RecallRequired",
+      "probability": 0.7
+    }
+  ],
+  "queries": [
+    "RecallRequired"
+  ]
+}
