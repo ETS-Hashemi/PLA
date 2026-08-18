@@ -121,11 +121,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   cycles included): monotone, bounded, ε-fixpoint reached, engine ≡ reference;
   slow-cycle regression matches closed form under the raised iteration cap;
   48/48 tests green.*
-- [ ] **S4. Scalable symbolic layer.** Replace O(2^n) truth-table entailment with
+- [x] **S4. Scalable symbolic layer.** Replace O(2^n) truth-table entailment with
   forward chaining for definite clauses; keep the truth-table checker as a test
-  oracle.
-  *Verify: differential test on random KBs (new engine ≡ oracle, n ≤ 15); 200-symbol
-  KB entailment under 1 second.*
+  oracle. (`ba9b469`)
+  *Verify: passed — 150 random KBs (≤15 symbols): forward chaining ≡ truth-table
+  oracle on every query; 200-symbol chain + multi-antecedent rules answers in
+  well under 1s; 51/51 tests green.*
 
 ## Phase 4 — Learnable weights
 
