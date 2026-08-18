@@ -54,9 +54,10 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   entailed AuditRequired at 0.85; soft (0.255) and constraint (pass-through +
   warning) modes covered; limitation documented in engine.py, README, and demo;
   30/30 tests green.*
-- [ ] **C4. Delete dead code.** Remove `ProbabilisticReasoner` (incompatible rule
-  syntax) and the unused `ProbRule.context_weight`.
-  *Verify: grep clean; full test suite passes.*
+- [x] **C4. Delete dead code.** Remove `ProbabilisticReasoner` (incompatible rule
+  syntax) and the unused `ProbRule.context_weight`. (`2ba75a8`)
+  *Verify: passed — grep clean across PLA-advanced/, tests/, examples/ (Archive
+  copies are deleted wholesale in H3); 30/30 tests green.*
 
 ## Phase 2 — Hygiene & packaging
 
