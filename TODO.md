@@ -93,10 +93,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — fresh venv ran every quickstart command as written: both
   installs, CLI (0.840), both examples (output matches the quoted block), pytest
   30/30, and the REST /load + /query round-trip (0.84).*
-- [ ] **H8. Purge fabricated results.** Remove the invented benchmark/case-study
+- [x] **H8. Purge fabricated results.** Remove the invented benchmark/case-study
   numbers from `paper_draft.md`; add `scripts/benchmark.py` that regenerates the
-  table from real runs.
-  *Verify: doc table matches script output byte-for-byte.*
+  table from real runs. (`adcc151`)
+  *Verify: passed — table between markers in paper/paper_draft.md diffs clean
+  against `scripts/benchmark.py --paper-table`; no residual invented numbers;
+  case studies replaced by an explicit Phase 5 placeholder; 30/30 tests green.*
 
 ## Phase 3 — Semantics (the research core)
 
