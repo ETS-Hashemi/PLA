@@ -108,10 +108,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — in legacy two strong combos both cap at 1.0, in logit they
   stay distinct and < 1.0 (closed-form checked); negative weights weaken; p∈{0,1}
   fixed points; legacy default reproduces all values (37/37 tests green).*
-- [ ] **S2. `docs/SEMANTICS.md`.** Formal operator definitions; explicit lineage
+- [x] **S2. `docs/SEMANTICS.md`.** Formal operator definitions; explicit lineage
   (certainty factors, Gödel t-norm, noisy-OR); positioning against Heckerman's
-  1986 coherence critique; guidance on aggregator choice.
-  *Verify: every formula in the doc backed by a doctest or unit test.*
+  1986 coherence critique; guidance on aggregator choice. (`10cee8f`)
+  *Verify: passed — tests/test_semantics_doc.py extracts and executes all 6
+  formula blocks (F1–F5d, fixpoint, non-distribution caveat) against the engine;
+  44/44 tests green.*
 - [ ] **S3. Convergence guarantees.** Property-based tests (hypothesis) that the
   fixpoint iteration converges and is monotone for `max`/`noisy_or`/`sum_cap` on
   random cyclic KBs; proof sketch added to SEMANTICS.md.
