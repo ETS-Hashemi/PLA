@@ -102,11 +102,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 3 — Semantics (the research core)
 
-- [ ] **S1. Log-odds context adjustment.** Additive evidence weights in logit space
+- [x] **S1. Log-odds context adjustment.** Additive evidence weights in logit space
   as a new context mode (fixes cap-saturation information loss); multiply-and-cap
-  kept as `legacy`.
-  *Verify: tests show two strong context signals no longer saturate identically;
-  legacy mode reproduces all existing expected values.*
+  kept as `legacy`. (`3a56202`)
+  *Verify: passed — in legacy two strong combos both cap at 1.0, in logit they
+  stay distinct and < 1.0 (closed-form checked); negative weights weaken; p∈{0,1}
+  fixed points; legacy default reproduces all values (37/37 tests green).*
 - [ ] **S2. `docs/SEMANTICS.md`.** Formal operator definitions; explicit lineage
   (certainty factors, Gödel t-norm, noisy-OR); positioning against Heckerman's
   1986 coherence critique; guidance on aggregator choice.
