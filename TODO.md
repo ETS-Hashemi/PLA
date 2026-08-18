@@ -199,6 +199,8 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   quoted result numbers grep-traced to generated CSVs; all citations resolve;
   Appendix B maps every substantive claim to its verifying artifact; 84/84
   tests green.*
-- [ ] **P3. Workshop-paper cut** (4–6 pages) targeting NeSy / RuleML+RR tool track,
-  from P2.
-  *Verify: compiles via `main.tex`; page budget respected.*
+- [x] **P3. Workshop-paper cut** (4–6 pages) targeting NeSy / RuleML+RR tool track,
+  from P2. (`8453efe`)
+  *Verify: passed — CI paper job (run 32174854855) compiled main.tex with TeX
+  Live, the 4≤pages≤6 gate passed, and the PDF is downloadable as the
+  "workshop-paper" artifact on the Actions run.*
