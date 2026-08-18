@@ -195,44 +195,55 @@ true model is logistic in the raw features. The ProbLog row (0.7416 on a
 subsample) executes the same rules under distribution semantics and
 cross-validates PLA's noisy-OR.
 
-### 5.3 Real data I: ULB credit-card fraud
+### 5.3 Real data I: ULB credit-card fraud (three split seeds)
 
-`results/experiment_creditcard_real.{csv,md}` (obtained and
-invariant-verified per `data/README.md`; 199,364 train / 85,443 test):
-an 11-rule PLA model reaches AUC 0.9687 (static) and 0.9625 (learned,
-log-loss 0.0113, ECE 0.0022) against 0.9796 for raw-feature logistic
-regression; ProbLog on the same rules scores 0.9610 (subset), pgmpy
-naive Bayes 0.9322 (subset), and untuned gradient boosting 0.7159.
-The study also surfaced a model-class pathology (recorded pre-fix in git
-history): with no intercept, the learned model's AUC was 0.076 —
-inverted — because individually-weak-but-jointly-strong rules force
-negative weights and five co-firing rules then rank strongest signals
-lowest; the standard intercept (a base-rate prior rule under logit_pool)
-repairs it, with a deterministic regression test.
+`results/experiment_creditcard_real*.{csv,md}` (obtained and
+invariant-verified per `data/README.md`; ~199K train / ~85K test; every
+AUC with bootstrap 95% CI). The interpretable frontier tops the table:
+EBM 0.9815 [0.9680, 0.9930], just above logistic regression 0.9796. An
+11-rule PLA model sits within 0.013–0.019 of that frontier — static
+0.9687 [0.9500, 0.9840], learned 0.9625 [0.9381, 0.9817] with
+near-perfect calibration (log-loss 0.0113, ECE 0.0022) — with CIs
+overlapping the frontier's. Across seeds 42/43/44: static
+0.9525–0.9687, learned 0.9485–0.9628, LR 0.9700–0.9796, EBM
+0.9747–0.9815. The context ablation is null here (no-context 0.963 vs
+learned 0.9625). The intercept-inversion pathology (pre-fix AUC 0.076,
+preserved in git history) and its repair are described in §4.
 
-### 5.4 Real data II: Bao et al. accounting fraud, temporal drift
+### 5.4 Real data II: Bao et al. accounting fraud, two temporal designs
 
-`results/experiment_bao2020_real.{csv,md}` (authors' replication data;
-temporal split: train fyear ≤ 2001, gap 2002, test ≥ 2003; complete-case
-62,689 train / 58,405 test). An honest negative on a simplified
-protocol: tail rules mined pre-2002 barely beat chance post-2003 (PLA
-static 0.5312, learned 0.5343; the issuance context variable does not
-rescue them) while raw-ratio logistic regression reaches 0.6771 and
-untuned gradient boosting 0.6349. Reported per the pre-registered kill
-criterion; protocol gaps that scope the next iteration: 13.4%
-complete-case deletion, no serial-fraud handling, and an 11-rule
-vocabulary far coarser than the original 28-feature ensembles [R1-24].
+Serial-fraud handling approximates the original protocol
+(post-first-fraud firm-years dropped from training; counts in the
+generated files). **Strict design** (train ≤2001, gap 2002, test ≥2003;
+62,087/58,405): PLA static 0.5285 [0.5028, 0.5585], learned 0.4905,
+no-context 0.4733, vs LR 0.6794 and EBM 0.666. **SOX-boundary design**
+(`experiment_bao2020_sox`; train ≤2005 spanning the 2003 regime change
+so the PostSOX context weight is identifiable, gap 2006–07, test ≥2008;
+1,172 serial-fraud rows dropped): learned 0.4651 [0.4207, 0.5097] vs
+no-context ablation 0.464 [0.4234, 0.5099] — **the pre-registered
+verdict on context conditioning is a clean negative**: with the
+single-bit context variables tested, the mechanism shows no reliable
+ranking benefit in any of the three designs. LR reaches 0.7003; all
+rule models sit near chance, indicating vocabulary drift that
+reweighting cannot rescue (discussion in the manuscript).
 
 ### 5.5 Explanation fidelity
 
-`results/fidelity_*.{csv,md}` report deletion-based comprehensiveness
-and sufficiency [R1-23] with a reversed-attribution control. The static
-model's traces out-score the control on every dataset (synthetic 0.2222
-vs 0.1864; credit card 0.0202 vs 0.0166; accounting 0.0163 vs 0.0127);
-the calibrated learned model's deltas compress toward zero on rare-event
-data (predictions live near the base rate), still ordered correctly but
-at noise level — deletion metrics should move to log-odds units for such
-models (limitation §6).
+`results/fidelity_*.{csv,md}`: the static model's traces out-score the
+reversed-attribution control on all four datasets (synthetic 0.2222 vs
+0.1864; credit card 0.0202 vs 0.0166; accounting strict 0.0116 vs
+0.0082; accounting SOX 0.0094 vs 0.0068). The calibrated learned
+model's absolute deltas compress to noise on rare-event data — deletion
+metrics should move to log-odds units for such models (limitation §6).
+
+### 5.6 Case study
+
+`results/case_study_creditcard.md` (generated): the highest-scored true
+positive fires 11 of 11 rules; the noisy-OR fold runs line by line from
+the strongest pair rule (precision 0.1949) to a static score of 0.4929
+vs a 0.0017 base rate; deleting the top rule's two facts drops it to
+0.2552 (learned 0.0189 → 0.0069). The trace-plus-counterfactual artifact
+is the deliverable none of the baselines produce.
 
 ## 6. Limitations and threats to validity
 
@@ -304,9 +315,12 @@ selects the log-odds mode.
 | Symbolic entailment sound, complete, scalable | `tests/test_symbolic_entailment.py` (oracle differential + 200-symbol timing) |
 | Section 5.1 table | `scripts/benchmark.py --paper-table` (byte-verified) |
 | Section 5.2 numbers | `results/experiment_synthetic_n2000_seed0.csv` (byte-reproduced by `scripts/run_experiments.py`) |
-| Section 5.3 numbers | `results/experiment_creditcard_real.csv` (real ULB data, invariant-verified; provenance in `data/README.md`) |
-| Section 5.4 numbers | `results/experiment_bao2020_real.csv` (authors' replication data, temporal split) |
+| Section 5.3 numbers | `results/experiment_creditcard_real*.csv` — seeds 42/43/44 (real ULB data, invariant-verified; provenance in `data/README.md`) |
+| Section 5.4 numbers | `results/experiment_bao2020_real.csv` + `results/experiment_bao2020_sox.csv` (authors' replication data, two temporal designs, serial-fraud handling) |
+| Context-conditioning verdict | `pla_learned` vs `pla_learned_noctx` rows across all three real designs (ablation) |
 | Section 5.5 numbers | `results/fidelity_*.csv` (byte-reproduced by `scripts/run_fidelity.py`) |
+| Section 5.6 case study | `results/case_study_creditcard.md` (generated by `scripts/make_case_study.py`) |
 | Intercept fixes rank inversion | `tests/test_bias_learning.py` (deterministic reproduction + repair); pre-fix table in git history |
+| Bootstrap CIs | `_auc_ci` in `scripts/run_baselines.py` (seeded percentile bootstrap, B=500) |
 | ProbLog marginals + conditioning; pgmpy posteriors | `tests/test_related_work_claims.py` against installed packages |
 | Trace fidelity beats reversed control | `tests/test_fidelity.py` + `results/fidelity_*.csv` |

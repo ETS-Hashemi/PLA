@@ -14,11 +14,14 @@ human exactly why a conclusion was reached.
 
 **Project status:** the verifiable rebuild roadmap in [`TODO.md`](TODO.md)
 is complete (29/29 ticked with commit hashes), and the **real-data
-studies have been run**: the ULB credit-card dataset
-(invariant-verified) and the Bao et al. 2020 accounting-fraud
-replication data — results and headline findings in
-[`results/`](results/README.md), provenance in
-[`data/README.md`](data/README.md). The main remaining human step is the
+studies have been run** — the ULB credit-card dataset (three split
+seeds, bootstrap CIs) and the Bao et al. 2020 accounting-fraud data
+under two temporal designs, with equal-interpretability baselines
+(decision tree, EBM) and pre-registered context ablations whose verdict
+(no reliable benefit) is reported as such. Results and headline findings
+in [`results/`](results/README.md), provenance in
+[`data/README.md`](data/README.md), the manuscript in
+[`paper/`](paper/README.md). The main remaining human step is the
 literature pass driven by
 [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md).
 

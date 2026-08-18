@@ -15,9 +15,9 @@ check) before committing to a rule-shaped model.
 
 \paragraph{What maximum likelihood buys, and what it does not.} Across
 every study, learning the weights improves calibration --- on the real
-credit-card data the learned variant's log-loss is roughly $40\%$ below
-the static rules' and its expected calibration error is an order of
-magnitude smaller. Ranking, by contrast, is already fixed by \emph{which
+credit-card data the learned variant's log-loss is roughly a third below
+the static rules' and its expected calibration error is smaller by a
+factor of six. Ranking, by contrast, is already fixed by \emph{which
 rules fire}: static noisy-OR and fitted weights order test cases almost
 identically. In deployments where scores feed thresholds, queues, or
 cost-sensitive decisions, calibration is the property that matters, and
@@ -36,18 +36,20 @@ intercept as a base-rate prior rule makes the repaired model exactly
 representable in the same trace vocabulary.
 
 \paragraph{What the drift studies say about context conditioning.} The
-accounting experiments are the honest frontier of this paper. Under the
-strict pre/post-2003 split, rules mined before the regime change barely
-rank later frauds, and no reweighting --- context-conditioned or not ---
-can rescue antecedents that have stopped being informative; the
-SOX-boundary design of Section~\ref{sec:evaluation}, whose training
-spans the regime change so the context weight is identifiable, isolates
-the mechanism's genuine contribution beyond the static ablation. The
-broader reading is that context conditioning operates on rule
-\emph{reliability}, not rule \emph{vocabulary}: when drift replaces the
-vocabulary itself, rule re-mining --- not reweighting --- is the needed
-adaptation, which connects this line to concept-drift
+accounting experiments are the honest frontier of this paper, and their
+verdict is negative. Under the strict pre/post-2003 split, rules mined
+before the regime change barely rank later frauds; under the
+SOX-boundary design --- built so the context weight is identifiable ---
+the ablation gap is $0.4651$ vs.\ $0.464$: nothing. The mechanism
+operates on rule \emph{reliability}, but what the regime change broke
+was rule \emph{vocabulary}: antecedents that stopped being informative
+cannot be rescued by reweighting, context-conditioned or otherwise.
+When drift replaces the vocabulary, rule re-mining --- not reweighting
+--- is the needed adaptation, connecting this line to concept-drift
 taxonomies~\cite{gama2014} that distinguish real from virtual drift.
+Whether richer context features (beyond the single-bit indicators
+tested) change this verdict is the sharpest open question the negative
+result leaves behind.
 
 \paragraph{Traces as the deliverable.} The case study in
 Section~\ref{sec:evaluation} shows what the auditor actually receives:

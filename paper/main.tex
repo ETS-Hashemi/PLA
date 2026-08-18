@@ -29,8 +29,8 @@
 
 \begin{frontmatter}
 
-\title{\pla: A Transparent, Context-Conditioned, Learnable
-Rule-Confidence Model with Measured Trace Fidelity}
+\title{\pla: A Transparent, Learnable Rule-Confidence Engine
+with Measured Trace Fidelity}
 
 \author{Seyed Masoud Hashemi Ahmadi}
 \ead{contact@AiCentralLab.com}
@@ -54,12 +54,16 @@ monotone; and (iii)~explanations are \emph{traces whose fidelity is
 measured}, via deletion-based comprehensiveness and sufficiency against
 a reversed-attribution control. The calculus has machine-checked
 convergence guarantees, the entire engine is a few hundred lines of
-dependency-free Python, and every experimental number regenerates
-byte-for-byte from committed scripts. On the real ULB credit-card data an
-11-rule model reaches AUC $0.96$--$0.97$ (raw-feature logistic
-regression: $0.98$) with near-perfect calibration; on accounting-fraud
-data under temporal drift, a deliberately simplified protocol yields an
-honest negative result, reported per its pre-registered kill criterion.
+dependency-free Python, and every experimental number regenerates from
+committed scripts with bootstrap confidence intervals. On the real ULB
+credit-card data an 11-rule model reaches AUC $0.96$--$0.97$ across
+three split seeds --- within $0.02$ of the interpretable accuracy
+frontier (EBM, $0.98$) --- with near-perfect calibration. On
+accounting-fraud data under two temporal designs, including one built
+around the 2003 SOX regime change, pre-registered ablations find no
+reliable ranking benefit from context conditioning; we report that
+negative as such. The demonstrated value of learning is calibration,
+and the deliverable is the measured, counterfactual-bearing trace.
 \end{abstract}
 
 \begin{keyword}
