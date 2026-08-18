@@ -61,8 +61,9 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 2 — Hygiene & packaging
 
-- [ ] **H1. LICENSE file** (Apache 2.0, matching README claims).
-  *Verify: file present with correct text and copyright line.*
+- [x] **H1. LICENSE file** (Apache 2.0, matching README claims). (`02f28a7`)
+  *Verify: passed — all 9 sections + appendix present, canonical word/byte count
+  (1581 words / 11362 chars), copyright line for the author included.*
 - [ ] **H2. `.gitignore` + purge tracked `__pycache__`/`.pyc`.**
   *Verify: `git ls-files | grep pyc` empty; `git status` stays clean after a test run.*
 - [ ] **H3. Remove duplicates:** `scenario_supply_chain_optimization copy.json`,
