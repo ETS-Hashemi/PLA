@@ -192,10 +192,13 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   to citation-level facts cross-checked against the annotated reading list —
   confirm during the two-week reading pass; all 17 [R1-n] keys resolve; 84/84
   tests green.*
-- [ ] **P2. Restructure `paper_draft.md`** around the honest contribution
+- [x] **P2. Restructure `paper_draft.md`** around the honest contribution
   (context-modulated, learnable, trace-faithful rule confidence model) with only
-  generated results.
-  *Verify: no orphan claims — each maps to a script output or citation.*
+  generated results. (`acab92d`)
+  *Verify: passed — benchmark table byte-identical to script output; all 11
+  quoted result numbers grep-traced to generated CSVs; all citations resolve;
+  Appendix B maps every substantive claim to its verifying artifact; 84/84
+  tests green.*
 - [ ] **P3. Workshop-paper cut** (4–6 pages) targeting NeSy / RuleML+RR tool track,
   from P2.
   *Verify: compiles via `main.tex`; page budget respected.*
