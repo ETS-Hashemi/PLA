@@ -84,8 +84,9 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — fresh core-only venv installs with zero dependencies, CLI
   works, suite runs 20 passed + REST module skipped without Flask; full suite
   30/30 with the [api] extra.*
-- [ ] **H6. CI.** GitHub Actions: pytest on Python 3.9–3.12.
-  *Verify: workflow YAML parses; first push shows green run.*
+- [x] **H6. CI.** GitHub Actions: pytest on Python 3.9–3.12. (`856b43e`)
+  *Verify: passed — YAML parses; run #1 (id 32169345240) concluded success on the
+  3.9/3.10/3.11/3.12 matrix, including CLI and example smoke steps.*
 - [ ] **H7. Honest README rewrite.** Remove "first ever" claims and the stale 2025
   timeline; add install, quickstart, semantics summary, and a positioning paragraph
   that cites ProbLog/PSL/pracmln instead of denying them.
