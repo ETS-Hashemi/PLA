@@ -15,12 +15,16 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 0 — Research framing (unblocks the human reading work)
 
-- [ ] **R1. `research/READING_LIST.md`** — annotated list (~25 entries) covering
+- [x] **R1. `research/READING_LIST.md`** — annotated list (28 entries) covering
   NeSy/StarAI 2023–2026 (ProbLog/DeepProbLog line, PSL, LNN, Scallop, LLM+symbolic
   verification) and AI-in-auditing/fraud literature, each with 1–2 sentences on
-  why it matters for PLA.
-  *Verify: links spot-checked as resolvable; covers all systems named in
-  PROJECT_FEEDBACK.md.*
+  why it matters for PLA. (`8a83a87`)
+  *Verify (amended — sandbox network policy blocks scholarly hosts, so links
+  cannot be resolved from here): coverage of all systems named in
+  PROJECT_FEEDBACK.md grep-checked ✓; `scripts/check_links.py --list` extracts
+  all 30 URLs ✓; run `python3 scripts/check_links.py` on an open network to
+  finish link resolution — uncertain identifiers were omitted in favor of
+  text citations.*
 - [ ] **R2. `research/GAP_STATEMENT.md`** — 2-page skeleton with the three candidate
   research questions (context-conditioned weights vs. static SRL; explanation
   fidelity for auditors; probabilistic-logic verification of LLM-extracted facts),
