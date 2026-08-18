@@ -156,9 +156,11 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   schema/invariant/TOFU-tamper/stats/synthetic paths all unit-tested (69/69);
   run `python scripts/fetch_fraud_data.py` once on an open network to pull the
   real data — it self-verifies against the published invariants.*
-- [ ] **E2. Feature→rule pipeline.** Discretize features into propositions and
-  candidate rules for PLA.
-  *Verify: pipeline runs end-to-end on E1 data; produced scenario loads in the engine.*
+- [x] **E2. Feature→rule pipeline.** Discretize features into propositions and
+  candidate rules for PLA. (`9aeaf1e`)
+  *Verify: passed — end-to-end on E1-format data (2000 examples, 11 rules with
+  empirical precisions; top pair 0.722 vs 0.107 base rate); exported scenario
+  loads and queries in the engine; deterministic; 73/73 tests green.*
 - [ ] **E3. Baselines.** Logistic regression + gradient boosting (sklearn), and
   ProbLog/pgmpy where installable in this environment.
   *Verify: one script trains and evaluates all baselines, emitting a metrics CSV.*
