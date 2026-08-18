@@ -113,6 +113,15 @@ def generate_rule_specs(examples, top_singles=8, top_pairs=3,
     return specs, precisions
 
 
+def noisy_or_probability(rule_specs, precisions, facts):
+    """Noisy-OR over fired rules — the engine's default aggregation."""
+    p = 0.0
+    for spec, precision in zip(rule_specs, precisions):
+        if all(a in facts for a in spec.antecedents):
+            p = 1.0 - (1.0 - p) * (1.0 - precision)
+    return p
+
+
 def export_scenario(rule_specs, precisions, example_facts, example_context, path):
     """Write one example as a loadable scenario file; returns the dict."""
     scenario = {

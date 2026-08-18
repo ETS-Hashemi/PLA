@@ -34,18 +34,15 @@ import fetch_fraud_data as ffd  # noqa: E402
 import run_baselines as rb  # noqa: E402
 
 from pla.learn import RuleWeightLearner  # noqa: E402
-from pla.pipeline import build_examples, fit_discretizer, generate_rule_specs, load_rows  # noqa: E402
+from pla.pipeline import (  # noqa: E402
+    build_examples,
+    fit_discretizer,
+    generate_rule_specs,
+    load_rows,
+    noisy_or_probability as pla_static_probability,
+)
 
 RESULTS_DIR = ROOT / "results"
-
-
-def pla_static_probability(rule_specs, precisions, facts):
-    """Noisy-OR over fired rules — the engine's default aggregation."""
-    p = 0.0
-    for spec, precision in zip(rule_specs, precisions):
-        if all(a in facts for a in spec.antecedents):
-            p = 1.0 - (1.0 - p) * (1.0 - precision)
-    return p
 
 
 def pla_rows(rule_specs, precisions, train_examples, test_examples):
