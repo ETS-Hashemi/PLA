@@ -79,9 +79,11 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — fresh venv `pip install -e ".[api,dev]"` clean;
   `pla scenarios/scenario_context_aware_medical.json 1` reports 0.840; 30/30
   tests pass from repo root both installed and uninstalled.*
-- [ ] **H5. Dependency cleanup.** Drop `unittest2` (Python-2 era), move Flask to an
-  optional extra, sane pins.
-  *Verify: fresh-venv install + tests with core deps only.*
+- [x] **H5. Dependency cleanup.** Drop `unittest2` (Python-2 era), move Flask to an
+  optional extra, sane pins. (`1c6b69a`)
+  *Verify: passed — fresh core-only venv installs with zero dependencies, CLI
+  works, suite runs 20 passed + REST module skipped without Flask; full suite
+  30/30 with the [api] extra.*
 - [ ] **H6. CI.** GitHub Actions: pytest on Python 3.9–3.12.
   *Verify: workflow YAML parses; first push shows green run.*
 - [ ] **H7. Honest README rewrite.** Remove "first ever" claims and the stale 2025
