@@ -2,6 +2,24 @@ from prob import InferenceEngine
 
 
 class HybridEngine:
+    """Combine a symbolic entailment layer with a probabilistic layer.
+
+    Gating is only meaningful when both layers model the same symbols —
+    a query the probabilistic KB knows nothing about scores 0.0 regardless
+    of the gate (see examples/run_hybrid_demo.py for a coherent setup).
+
+    Gate modes:
+
+    - "hard": a query not entailed by the symbolic KB is forced to 0.0.
+    - "soft": a non-entailed query's probability is multiplied by
+      ``gate_penalty``.
+    - "constraint": intended to zero out queries the symbolic KB
+      *contradicts*. The current symbolic layer has no negation, so nothing
+      can be contradicted: this mode passes probabilities through unchanged
+      and only attaches a warning. It is a documented no-op until the
+      symbolic layer supports negation.
+    """
+
     def __init__(self, kb, prob_kb, gate_mode="hard", gate_penalty=0.5):
         self.kb = kb
         self.prob_engine = InferenceEngine(prob_kb)

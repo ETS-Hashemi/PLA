@@ -163,34 +163,40 @@ Rules can define context variables and their weights. For example:
 
 ### Using the Hybrid Engine
 
-The framework supports hybrid reasoning by combining symbolic and probabilistic reasoning. For example:
+The hybrid engine gates probabilistic conclusions with symbolic entailment.
+Gating is only meaningful when **both layers model the same symbols**; the
+runnable version of this example is `examples/run_hybrid_demo.py`.
 
 ```python
 from engine import HybridEngine
 from kb import KnowledgeBase
 from prob import ProbKB, ProbSymbol, ProbRule
 
-# Symbolic KB
+# Symbolic policy: a large transaction without a receipt requires an audit.
 symbolic_kb = KnowledgeBase()
-symbolic_kb.add_fact("A")
-symbolic_kb.add_fact("B")
-symbolic_kb.add_rule("A and B -> C")
+symbolic_kb.add_fact("LargeTransaction")
+symbolic_kb.add_fact("NoReceipt")
+symbolic_kb.add_rule("LargeTransaction and NoReceipt -> AuditRequired")
 
-# Probabilistic KB
+# Probabilistic strengths for the SAME symbols, plus one conclusion
+# (RegulatorReport) the policy does not entail.
 prob_kb = ProbKB()
-large = ProbSymbol("LargeTransaction")
-no_receipt = ProbSymbol("NoReceipt")
-fraud = ProbSymbol("Fraud")
-rule = ProbRule([large, no_receipt], fraud, 0.85)
+large, no_receipt = ProbSymbol("LargeTransaction"), ProbSymbol("NoReceipt")
+audit, report = ProbSymbol("AuditRequired"), ProbSymbol("RegulatorReport")
 prob_kb.add_fact(large)
 prob_kb.add_fact(no_receipt)
-prob_kb.add_rule(rule)
+prob_kb.add_rule(ProbRule([large, no_receipt], audit, 0.85))
+prob_kb.add_rule(ProbRule([audit], report, 0.6))
 
-# Hybrid Engine (configurable gate)
-hybrid_engine = HybridEngine(symbolic_kb, prob_kb, gate_mode="soft", gate_penalty=0.5)
-result = hybrid_engine.query("C")
-print(result["symbolic_entails"], result["probability"], result["explanation"])
+engine = HybridEngine(symbolic_kb, prob_kb, gate_mode="hard")
+print(engine.query("AuditRequired")["probability"])    # 0.85  (entailed, passes)
+print(engine.query("RegulatorReport")["probability"])  # 0.0   (not entailed, blocked)
 ```
+
+Gate modes: `hard` blocks non-entailed queries to 0.0; `soft` multiplies them
+by `gate_penalty`; `constraint` is intended to zero out *contradicted*
+queries, but the symbolic layer has no negation yet, so it currently passes
+probabilities through with a warning only (documented no-op).
 
 ---
 
