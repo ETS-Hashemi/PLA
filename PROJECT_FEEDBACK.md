@@ -206,3 +206,35 @@ Practical sequencing: fix the context bug, submit a workshop/tool paper this
 cycle to collect expert reviews and a citable artifact, and treat the
 learnable-weights + real-data study as the Q1 campaign. Venue strategy is
 also a PhD-milestone question — pressure-test this plan with the supervisor.
+
+### A note on "but the competitors are not in Python"
+
+That claim is factually wrong and must not appear in any submission —
+verified on PyPI (2026-08-18):
+
+| Package | Version | What it is |
+|---|---|---|
+| `problog` | 2.2.10 | ProbLog 2 — probabilistic logic programming, Python implementation and API (KU Leuven, used in teaching) |
+| `deepproblog` | 2.0.6 | ProbLog + neural networks |
+| `pracmln` | 1.2.4 | Markov Logic Networks in Python |
+| `pgmpy` | 1.1.2 | Standard educational Bayesian-network / causal library |
+| `pslpython` | 2.4.0 | Official Python interface to PSL (Java core) |
+| `scallopy` | 0.1.0 | Python bindings for Scallop (Rust core) |
+
+The defensible version of the argument is usability/pedagogy, not language:
+ProbLog requires Prolog syntax and distribution semantics and its engine
+(knowledge compilation, SDDs) is unreadable to students, whereas PLA is
+JSON-in / trace-out with a ~500-line engine a student can step through.
+Two consequences:
+
+1. In AI venues, "friendlier API, readable source" is a tool-track
+   contribution (JOSS, SoftwareX), never a Q1 journal contribution on its
+   own.
+2. The ease-of-use claim becomes science only when measured: a controlled
+   study (30–60 students, same reasoning tasks in PLA vs. ProbLog; task
+   completion time, error rates, comprehension) turns PLA into the
+   instrument of an education paper — Computers & Education (Q1 in its
+   category), IEEE Transactions on Education, or AAAI EAAI.
+
+Either way, ProbLog gets cited prominently; claiming it does not exist in
+Python is a one-minute refutation for any reviewer.
