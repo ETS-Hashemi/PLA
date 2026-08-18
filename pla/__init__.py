@@ -7,6 +7,7 @@ weights, symbolic entailment gating, and explanation traces.
 from .engine import HybridEngine
 from .kb import KnowledgeBase, forward_chain_entails, model_check
 from .learn import RuleSpec, RuleWeightLearner
+from .metrics import brier_score, log_loss, reliability_summary, roc_auc
 from .prob import InferenceEngine, ProbKB, ProbRule, ProbSymbol, aggregate_supports
 from .scenario_loader import Scenario, ScenarioFormatError, load_scenario
 
@@ -24,6 +25,10 @@ __all__ = [
     "Scenario",
     "ScenarioFormatError",
     "aggregate_supports",
+    "brier_score",
+    "log_loss",
+    "reliability_summary",
+    "roc_auc",
     "load_scenario",
     "forward_chain_entails",
     "model_check",
