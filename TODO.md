@@ -136,9 +136,11 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   monotonically non-increasing with a real decrease; learner predictions match
   engine logit-path queries exactly; implemented in pure Python (source-checked:
   no numpy/torch/sklearn); 54/54 tests green.*
-- [ ] **L2. Weight-recovery test.** Generate data from known weights; learner
-  recovers them.
-  *Verify: recovered weights within tolerance of ground truth on ≥3 seeds.*
+- [x] **L2. Weight-recovery test.** Generate data from known weights; learner
+  recovers them. (`d5c4328`)
+  *Verify: passed — seeds 0/1/2, n=3000: θ̂ within 0.09 of truth (tolerance
+  0.35), context weight within 0.29 (tolerance 0.45), optimizer converged to
+  ~1e-15 deltas; 57/57 tests green.*
 - [ ] **L3. Calibration utilities.** Brier score / log-loss / reliability summaries.
   *Verify: unit tests against hand-computable values.*
 
