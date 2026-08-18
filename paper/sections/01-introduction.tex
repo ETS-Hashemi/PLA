@@ -1,0 +1,59 @@
+\section{Introduction}\label{sec:intro}
+
+In audit, compliance, and clinical settings, a model that cannot show a
+person \emph{why} it concluded something is often unusable regardless of
+its accuracy. Regulators demand justifications for individual decisions,
+auditors must defend every flag they raise, and the case for inherently
+interpretable models over post-hoc explanations of black boxes in
+high-stakes settings is well established~\cite{rudin2019}. At the same
+time, the systems that offer strong probabilistic semantics for logical
+knowledge --- probabilistic logic programming and statistical relational
+learning (Section~\ref{sec:related}) --- present two obstacles to exactly
+these users: their inference machinery (knowledge compilation, MRF
+inference) is opaque to the domain practitioner who must sign off on a
+decision, and their rule weights are fixed at inference time, so a rule's
+reliability cannot respond to the operational context in which it fires.
+
+\pla{} explores the opposite corner of the design space. It is a
+rule-confidence engine simple enough to trace by hand --- a few hundred
+lines of dependency-free Python --- that is honest about \emph{not} being
+a probability distribution, and that invests the saved complexity in
+three places: context-conditioned rule weights, learnability, and
+measured explanation quality.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+\item \textbf{An explicit confidence calculus with verified properties}
+  (Section~\ref{sec:calculus}). All operators are named and formally
+  defined; the definitions are executable --- the test suite extracts and
+  runs every formula in the semantics document --- and fixpoint
+  convergence is machine-checked on 1{,}050 random cyclic rule systems in
+  addition to a proof sketch.
+\item \textbf{Context-conditioned, learnable rule weights}
+  (Section~\ref{sec:learning}). Context variables contribute additive
+  log-odds evidence, avoiding the saturation that afflicts
+  multiply-and-cap certainty-factor updates; on binary facts the model
+  class collapses to logistic regression over rule firings, so
+  maximum-likelihood fitting is convex, provably monotone under
+  full-batch gradient descent, and recovers planted ground truth.
+\item \textbf{Measured explanation fidelity}
+  (Section~\ref{sec:evaluation}). Rule traces are the engine's primary
+  output, and their fidelity is quantified with deletion-based
+  comprehensiveness and sufficiency against a reversed-attribution
+  control, rather than asserted.
+\item \textbf{A reproducibility discipline}
+  (Section~\ref{sec:implementation}). Every number reported in this
+  paper regenerates byte-for-byte from committed scripts; claims about
+  competitor capabilities are themselves verified by tests against the
+  installed competitor packages; and Appendix~\ref{app:provenance} maps
+  each substantive claim to the artifact that verifies it.
+\end{enumerate}
+
+Section~\ref{sec:related} positions \pla{} against probabilistic logic
+programming, weighted-logic learning, and its own certainty-factor
+lineage. Sections~\ref{sec:calculus} and~\ref{sec:learning} present the
+calculus and the learning theory. Section~\ref{sec:implementation}
+describes the tool. Section~\ref{sec:evaluation} reports development
+results on synthetic data --- including a negative finding we consider
+informative --- and specifies the pending real-data study.
+Section~\ref{sec:limitations} lists limitations explicitly.

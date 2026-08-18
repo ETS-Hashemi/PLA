@@ -1,0 +1,77 @@
+\section{Related work}\label{sec:related}
+
+\subsection{Probabilistic logic programming}
+
+ProbLog~\cite{deraedt2007} attaches probabilities to logic programs
+under the \emph{distribution semantics}: a program denotes a measure over
+possible worlds, inference computes exact marginals via knowledge
+compilation to weighted Boolean formulas~\cite{fierens2015}, and the
+system supports conditioning on evidence --- an operation \pla{}
+deliberately lacks. (Both capabilities are verified against the
+installed \texttt{problog} package by our test suite.) aProbLog
+generalizes the semantics to arbitrary commutative
+semirings~\cite{kimmig2011}, which is the correct formal umbrella for
+non-probabilistic confidence calculi such as \pla{}'s. DeepProbLog adds
+neural predicates with end-to-end gradient training~\cite{manhaeve2018},
+and Scallop compiles differentiable reasoning over provenance
+semirings~\cite{li2023}. All of these systems ship as Python packages;
+\pla{} claims no language-based novelty whatsoever.
+
+\subsection{Weighted logic and statistical relational learning}
+
+Markov Logic Networks attach real-valued weights to first-order clauses
+defining a Markov random field~\cite{richardson2006}; Probabilistic Soft
+Logic relaxes truth values to $[0,1]$ with hinge-loss MRFs, making it
+the nearest formally grounded cousin of \pla{}'s soft
+confidences~\cite{bach2017}; Logical Neural Networks make weighted
+real-valued logic differentiable while maintaining truth-value
+bounds~\cite{riegel2020}; recent surveys map this converging
+territory~\cite{marra2024,garcez2023}. In all of these, rule weights are
+\emph{static at inference time}: adapting a rule's reliability to a
+changing operational context is retraining's job, not the semantics'.
+That gap --- context-conditioned weights inside an interpretable
+calculus --- is the opening \pla{} targets, and it connects to the
+concept-drift literature~\cite{gama2014}, where adaptation is studied
+outside logical representations. Bayesian networks (e.g.\ the
+educational-standard pgmpy package~\cite{ankan2015}) provide
+joint-distribution posteriors --- verified against the installed package
+--- but not rule-shaped, trace-first explanations.
+
+A related, newer line uses crisp symbolic solvers to verify the
+reasoning of large language models~\cite{pan2023,olausson2023,ye2023},
+following the generate-and-verify architecture argued for
+in~\cite{kambhampati2024}. A verifier that propagates \emph{uncertain}
+rule confidences rather than crisp truth is an open slot in that
+architecture which \pla{}-style calculi could fill; we leave this as
+future work.
+
+\subsection{Uncertainty calculi: \pla{}'s lineage}
+
+\pla{}'s operators descend from MYCIN's certainty
+factors~\cite{shortliffe1975}: rule-attached confidences, attenuation by
+the weakest antecedent --- Zadeh's G\"odel t-norm~\cite{zadeh1965} ---
+and parallel combination of co-supporting rules. Indeed \pla{}'s default
+noisy-OR \emph{is} the CF parallel-combination formula
+$\mathit{CF} = \mathit{CF}_1 + \mathit{CF}_2(1-\mathit{CF}_1)$, an
+equivalence enforced by a unit test. Heckerman showed that the CF
+calculus is probabilistically coherent only under restrictive
+independence and modularity assumptions~\cite{heckerman1986}, and the
+field's retrospective explains the subsequent migration to belief
+networks~\cite{heckerman1992}. \pla{}'s response is not to dispute the
+critique but to make its subject explicit: it drops the probability
+claim entirely (Section~\ref{sec:notprob}), names the independence
+stance as a per-knowledge-base operator choice, and provides log-odds
+modes that match the likelihood-ratio special case Heckerman identified
+as coherent.
+
+\subsection{Positioning}
+
+\pla{} does not compete with the systems above on semantic guarantees;
+it occupies the point they leave open: a fully readable engine whose
+primary output is the reasoning trace, whose rule weights are
+context-conditioned and learnable, and whose explanation fidelity is
+measured rather than asserted~\cite{rudin2019,jacovi2020}. The intended
+domains are education and audit-style settings~\cite{appelbaum2017},
+where inherent interpretability is a requirement, not a preference, and
+where fraud-detection practice~\cite{west2016,dalpozzolo2015,bao2020}
+supplies public data for evaluation.

@@ -1,0 +1,52 @@
+\section{Scenario format}\label{app:scenario}
+
+\begin{verbatim}
+{
+  "facts": ["PersistentCough", "WeightLoss"],
+  "rules": [
+    {
+      "condition": ["PersistentCough", "WeightLoss"],
+      "result": "LungCancerRisk",
+      "probability": 0.7,
+      "context": {"PatientAge>60": 1.2, "SmokingHistory": 1.5}
+    }
+  ],
+  "queries": ["LungCancerRisk"],
+  "contexts": {
+    "1": ["PatientAge>60"],
+    "2": ["PatientAge>60", "SmokingHistory"]
+  }
+}
+\end{verbatim}
+
+Rule contexts may be flat (weights applying in every set) or nested
+(per-set weights, in which the same variable may carry different weights
+in different sets); \texttt{"context\_mode": "logit"} selects the
+log-odds mode of Section~\ref{sec:context}. Malformed shapes, unknown
+sets, and undeclared variables raise \texttt{ScenarioFormatError}.
+
+\section{Claim provenance}\label{app:provenance}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{p{0.46\linewidth}p{0.46\linewidth}}
+\toprule
+Claim & Verifying artifact (repository)\\
+\midrule
+Calculus formulas match the engine & \texttt{tests/test\_semantics\_doc.py} executes every formula block in \texttt{docs/SEMANTICS.md}\\
+Fixpoint convergence (Prop.~\ref{prop:convergence}) & \texttt{tests/test\_convergence\_properties.py}: 1{,}050 random cyclic systems\\
+noisy-OR $\equiv$ MYCIN parallel combination & \texttt{tests/test\_related\_work\_claims.py}\\
+Logit mode avoids cap saturation & \texttt{tests/test\_context\_modes.py}\\
+Learning convex; monotone loss & \texttt{tests/test\_learning.py}\\
+Learner $\equiv$ engine on logit path & \texttt{tests/test\_learning.py}\\
+Ground-truth weight recovery & \texttt{tests/test\_weight\_recovery.py} (3 seeds)\\
+Symbolic entailment sound, complete, scalable & \texttt{tests/test\_symbolic\_entailment.py}\\
+Table~\ref{tab:suite} & \texttt{scripts/benchmark.py --paper-table} (byte-verified)\\
+Table~\ref{tab:headtohead} & \texttt{results/experiment\_synthetic\_n2000\_seed0.csv}, byte-reproduced by \texttt{scripts/run\_experiments.py}\\
+Table~\ref{tab:fidelity} & \texttt{results/fidelity\_synthetic\_n2000\_seed0.csv}, byte-reproduced by \texttt{scripts/run\_fidelity.py}\\
+ProbLog marginals + conditioning; pgmpy posteriors & \texttt{tests/test\_related\_work\_claims.py} against the installed packages\\
+Trace fidelity beats reversed control & \texttt{tests/test\_fidelity.py} + \texttt{results/fidelity\_*.csv}\\
+\bottomrule
+\end{tabular}
+\end{table}

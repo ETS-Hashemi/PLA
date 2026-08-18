@@ -12,6 +12,13 @@ read end-to-end, which is the point: PLA is built for **teaching, auditing,
 and trace-first prototyping** in domains where you must be able to show a
 human exactly why a conclusion was reached.
 
+**Project status:** the verifiable rebuild roadmap in [`TODO.md`](TODO.md)
+is complete — 29/29 items implemented, tested, and ticked with commit
+hashes. The remaining human steps are the real-data experiment
+(`scripts/fetch_fraud_data.py` on an open network, then
+`scripts/run_experiments.py --data data/creditcard.csv`) and the
+literature pass driven by [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md).
+
 ## What PLA is (and is not)
 
 PLA's calculus sits in the **certainty-factor lineage** (MYCIN, Shortliffe &
@@ -131,11 +138,27 @@ adjustment. 35 ready-made scenarios live in `scenarios/`.
 | `scenarios/` | JSON scenario files across audit, medical, logistics, pharma domains |
 | `tests/` | Pytest suite (run in CI on Python 3.9–3.12) |
 | `examples/` | Runnable demos that generate every number quoted in this README |
-| `docs/` | Framework overview, methodology, manual |
+| `docs/` | Framework overview, formal semantics (`SEMANTICS.md`), methodology, manual |
 | `research/` | Reading list and gap statement driving the research program |
-| `paper/` | Paper draft materials |
-| `TODO.md` | The verifiable rebuild roadmap (each item ticked only when tested) |
+| `paper/` | Overleaf-style LaTeX project: full paper (`main.tex` + `sections/` + `references.bib`) and the 4–6 page workshop cut (`workshop.tex`) |
+| `results/` | Generated experiment and fidelity tables (byte-reproducible from scripts) |
+| `TODO.md` | The verifiable rebuild roadmap — complete, 29/29 ticked with commit hashes |
 | `PROJECT_FEEDBACK.md` | Full technical review and publishability assessment |
+
+## Papers
+
+`paper/` is a self-contained Overleaf project (see `paper/README.md`):
+
+- **Full paper** — `main.tex`, modular `sections/`, BibTeX in
+  `references.bib`; compile with
+  `pdflatex main && bibtex main && pdflatex main && pdflatex main`, or zip
+  the folder and upload to Overleaf with `main.tex` as the main document.
+- **Workshop cut** — `workshop.tex`, self-contained, held to 4–6 pages.
+
+CI compiles both on every push and uploads the PDFs as the `papers`
+artifact on the Actions run; the workshop cut's page budget is enforced
+there. Every number in both documents traces to a generated artifact —
+the claim-to-evidence map is Appendix B of the full paper.
 
 ## Research program
 

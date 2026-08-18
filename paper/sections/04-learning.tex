@@ -1,0 +1,44 @@
+\section{Learning context-conditioned weights}\label{sec:learning}
+
+\subsection{Reduction to logistic regression}
+
+Consider rules $r$ with head $T$, evaluated on binary facts (an example
+is a set of active propositions and active context variables). Under the
+\texttt{logit} context mode \eqref{eq:logit} with \texttt{logit\_pool}
+aggregation \eqref{eq:aggregators}, a fired rule contributes candidate
+$\sigma(z_r)$ with
+\begin{equation}
+z_r \;=\; \logit(p_r) + \sum_{v\ \text{active}} w_r(v),
+\end{equation}
+and folding candidates through \texttt{logit\_pool} telescopes:
+\begin{equation}
+\hat{y} \;=\; \sigma\Bigl(\sum_{r\ \text{fired}} z_r\Bigr).
+\label{eq:lr}
+\end{equation}
+Equation~\eqref{eq:lr} is logistic regression whose features are rule
+firings and rule--context interactions, with parameters
+$\theta_r = \logit(p_r)$ and $w_r(v)$. The binary cross-entropy loss is
+therefore convex in the parameters, and full-batch gradient descent
+decreases it monotonically for a suitable step size --- asserted over
+200 epochs in the test suite, not merely assumed. When no rule fires the
+engine reports zero support; the learner substitutes a small floor so
+the loss stays finite, and such examples contribute no gradient.
+
+\subsection{Fidelity to the engine, and weight recovery}
+
+Two properties tie the learner to the system it serves. First, fitted
+parameters export back into the engine (rule confidences
+$\sigma(\theta_r)$, context weights $w_r$) and the engine's queries then
+match the learner's predictions to $10^{-9}$ --- what is trained is
+literally what is executed. Second, on data sampled from a known model
+in this family ($n=3{,}000$; three seeds), the learner recovers the
+planted rule weights within $0.09$ and the planted context weight within
+$0.29$, with the optimizer converged to $\sim 10^{-15}$ loss deltas; the
+tolerances absorb sampling error only, since data, seeds, and optimizer
+are all deterministic.
+
+The learner is implemented in pure Python --- no numpy, torch, or
+scikit-learn --- preserving the engine's zero-dependency property; the
+training loop compiles the fixed dataset once (fired rules and active
+context per example), which keeps thousand-epoch full-batch fits fast at
+these scales.

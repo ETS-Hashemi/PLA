@@ -1,0 +1,109 @@
+\section{The \pla{} calculus}\label{sec:calculus}
+
+The repository's semantics document states every definition below next
+to an executable block, and the test suite extracts and runs all of
+them, so the paper's formal claims cannot drift from the engine.
+
+\subsection{Values, rules, and operators}
+
+Each proposition $x$ carries a confidence $c(x)\in[0,1]$; base facts
+have $c=1$. A rule is a triple
+$(A_1\wedge\dots\wedge A_n \rightarrow B,\; p,\; w)$ with base
+confidence $p\in[0,1]$ and context weights $w:\mathit{Var}\to\mathbb{R}$.
+Antecedents combine with the G\"odel t-norm, and a firing rule supports
+its head with
+\begin{equation}
+\text{candidate} \;=\; p_{\text{adj}} \cdot \min_i\, c(A_i).
+\label{eq:candidate}
+\end{equation}
+Candidates for the same head fold through a per-knowledge-base
+aggregation operator applied pairwise to the accumulated support $e$ and
+the new candidate $n$:
+\begin{equation}
+\begin{aligned}
+\texttt{max}&: \max(e,n) &
+\texttt{noisy\_or}&: 1-(1-e)(1-n)\\
+\texttt{sum\_cap}&: \min(1, e+n) &
+\texttt{logit\_pool}&: \sigma(\logit e + \logit n),
+\end{aligned}
+\label{eq:aggregators}
+\end{equation}
+where $\logit p = \ln\frac{p}{1-p}$ and $\sigma(t) = (1+e^{-t})^{-1}$.
+The default \texttt{noisy\_or} is identically MYCIN's
+parallel-combination rule for positive evidence.
+
+\subsection{Context adjustment}\label{sec:context}
+
+Context adjustment has two modes. The \texttt{legacy} mode multiplies
+$p$ by the weight of each active context variable and caps at $1$:
+\begin{equation}
+p_{\text{adj}} \;=\; \min\Bigl(1,\; p \cdot \prod_{v\ \text{active}} w(v)\Bigr).
+\label{eq:legacy}
+\end{equation}
+The cap destroys information: with $p=0.7$ and weights $1.2$ and $1.5$,
+the product $1.26$ caps to $1.0$ --- and so does any stronger
+combination, making distinct evidence states indistinguishable. The
+\texttt{logit} mode instead treats weights as additive log-odds
+deltas:
+\begin{equation}
+p_{\text{adj}} \;=\; \sigma\Bigl(\logit(p) + \sum_{v\ \text{active}} w(v)\Bigr),
+\label{eq:logit}
+\end{equation}
+which never saturates below $1$, treats strengthening and weakening
+(negative weights) symmetrically, keeps $p\in\{0,1\}$ as fixed points,
+and matches the naive-Bayes/likelihood-ratio update that is the
+probabilistically coherent special case of certainty-factor
+reasoning~\cite{heckerman1986}.
+
+\subsection{Inference and convergence}
+
+Inference iterates a Jacobi-style round operator $G$: each round
+recomputes every derived confidence from the base facts and the previous
+round's values, stopping when no confidence changes by more than
+$10^{-9}$.
+
+\begin{proposition}[Convergence]\label{prop:convergence}
+Order confidence vectors $x\in[0,1]^V$ pointwise. Every aggregator in
+\eqref{eq:aggregators} is monotone in both arguments and the candidate
+map \eqref{eq:candidate} is monotone in $x$, so $G$ is a monotone map on
+the complete lattice $[0,1]^V$. The start vector $x_0$ (base facts)
+satisfies $x_0 \le G(x_0)$, hence the trajectory
+$x_0 \le G(x_0) \le G^2(x_0) \le \dots$ is pointwise non-decreasing and
+bounded by $1$; each coordinate converges, the round-max delta tends to
+zero, and by Kleene's fixpoint theorem the limit is the least fixpoint
+of $G$ above $x_0$.
+\end{proposition}
+
+Beyond the sketch, the properties --- monotone trajectory, boundedness,
+$\varepsilon$-fixpoint reached, and exact agreement between the engine
+and a reference implementation of $G$ --- are machine-checked on
+1{,}050 random rule systems including seeded cycles, across the three
+bounded aggregators. Property testing also exposed a real defect: a
+$0.95/0.95$ cycle with a $0.05$ seed converges at a geometric rate close
+to $1$ and exhausted the engine's previous iteration cap; the cap is now
+sized for such cases and the example is pinned to its closed-form
+fixpoint as a regression test.
+
+\subsection{Symbolic layer and gating}
+
+A separate crisp layer holds definite-clause facts and rules. Entailment
+is decided by agenda-based forward chaining --- sound and complete for
+definite clauses, linear in KB size --- differential-tested against a
+truth-table oracle on random KBs; a 200-symbol chain answers in well
+under a second. A hybrid engine gates confidences with entailment: a
+\texttt{hard} gate zeroes non-entailed conclusions, a \texttt{soft} gate
+multiplies them by a penalty, and a \texttt{constraint} mode intended to
+zero out \emph{contradicted} conclusions is a documented no-op until the
+symbolic language gains negation.
+
+\subsection{What the numbers are not}\label{sec:notprob}
+
+\pla{} has no distribution semantics: no possible-world measure, no
+conditioning on evidence, and the aggregation operator \emph{chooses} an
+independence stance rather than deriving one. The repository carries an
+executable counterexample: two rules with confidence $0.5$ driven by the
+same antecedent combine by noisy-OR to $0.75$, as if their supports were
+independent, whereas a possible-world semantics would let the rules'
+dependence determine the answer. Users who need that guarantee should
+use ProbLog~\cite{deraedt2007}; \pla{} trades it for hand-traceable
+inference.

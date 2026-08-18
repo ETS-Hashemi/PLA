@@ -201,6 +201,7 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   tests green.*
 - [x] **P3. Workshop-paper cut** (4–6 pages) targeting NeSy / RuleML+RR tool track,
   from P2. (`8453efe`)
-  *Verify: passed — CI paper job (run 32174854855) compiled main.tex with TeX
-  Live, the 4≤pages≤6 gate passed, and the PDF is downloadable as the
-  "workshop-paper" artifact on the Actions run.*
+  *Verify: passed — CI paper job (run 32174854855) compiled the cut with TeX
+  Live, the 4≤pages≤6 gate passed, and the PDF is downloadable from the
+  Actions run. (The cut now lives at `paper/workshop.tex`; `paper/main.tex`
+  became the full paper's Overleaf root in the later restructure.)*

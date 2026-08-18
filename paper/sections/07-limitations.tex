@@ -1,0 +1,26 @@
+\section{Limitations and threats to validity}\label{sec:limitations}
+
+\begin{itemize}
+\item \textbf{No distribution semantics.} \pla{} provides no joint
+  measure and no conditioning; correlated evidence is combined under a
+  \emph{chosen} independence stance (Section~\ref{sec:notprob}). This is
+  a scoping decision, not an oversight, but it bounds the claims the
+  system can make.
+\item \textbf{Propositional, negation-free language.} The symbolic layer
+  accepts definite clauses only; constraint-mode gating cannot block
+  contradicted conclusions until negation lands, and is documented as a
+  no-op.
+\item \textbf{Discretization tax.} Section~\ref{sec:evaluation} shows
+  rule-shaped models paying a visible accuracy cost on continuous
+  signal; rule mining and threshold selection are first-order levers we
+  have not yet tuned.
+\item \textbf{Synthetic-only results so far.} Every number in
+  Section~\ref{sec:evaluation} is a development result; the real-data
+  study is pending, and its kill criterion may falsify the central
+  hypothesis.
+\item \textbf{No human-subject evidence.} The usability and
+  trace-comprehension claims that motivate the design await an
+  ethics-approved study with auditors or students; explanation fidelity
+  as measured here is a necessary, not sufficient, condition for human
+  utility.
+\end{itemize}

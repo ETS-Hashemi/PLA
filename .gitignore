@@ -29,4 +29,7 @@ data/*
 *.aux
 *.log
 *.out
-paper/main.pdf
+*.bbl
+*.blg
+*.toc
+paper/*.pdf

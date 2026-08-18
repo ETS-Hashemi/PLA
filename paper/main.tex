@@ -1,238 +1,67 @@
-\documentclass[10pt]{article}
+% PLA — full paper (Overleaf project root).
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+% The 4-6 page workshop cut is the separate, self-contained workshop.tex.
+\documentclass[11pt]{article}
+
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{booktabs}
-\usepackage{hyperref}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
 
-\title{PLA: A Transparent, Context-Conditioned, Learnable\\
-Rule-Confidence Engine with Measured Trace Fidelity}
+\newtheorem{proposition}{Proposition}
+\newcommand{\pla}{\textsc{pla}}
+\newcommand{\logit}{\operatorname{logit}}
+
+\title{\pla: A Transparent, Context-Conditioned, Learnable\\
+Rule-Confidence Model with Measured Trace Fidelity}
 \author{Seyed Masoud Hashemi Ahmadi\\
 \small École de technologie supérieure (ÉTS), Montréal\\
 \small \texttt{contact@AiCentralLab.com}}
-\date{Working draft --- workshop/tool-track cut}
+\date{Working draft}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We present PLA, a small, fully transparent rule-confidence engine for
-settings where inherent interpretability is a requirement. PLA descends
-openly from MYCIN-style certainty factors: rules carry confidences,
-conjunction is the G\"odel t-norm, and co-supporting rules combine through
-a named aggregation operator (noisy-OR by default, provably MYCIN's
-parallel-combination rule). Three properties distinguish it from its
-lineage and from modern statistical-relational systems: rule confidences
-are \emph{context-conditioned}, with a log-odds mode whose additive
-evidence weights never saturate; rule and context weights are
-\emph{learnable} --- on binary facts the engine's log-odds path reduces
-exactly to logistic regression over rule firings, so training is convex
-and provably monotone; and explanations are \emph{traces whose fidelity is
-measured} with deletion metrics against a reversed-attribution control.
-The calculus carries machine-checked convergence guarantees, the engine is
-a few hundred lines of dependency-free Python, and every reported number
-regenerates byte-for-byte from committed scripts.
+We present \pla{}, a rule-confidence model for domains where inherent
+interpretability is a requirement rather than a preference. \pla{}
+descends openly from MYCIN-style certainty factors: rules carry
+confidences, conjunction is the G\"odel t-norm, and co-supporting rules
+combine through a named, per-knowledge-base aggregation operator
+(noisy-OR by default --- provably MYCIN's parallel-combination rule).
+Three properties distinguish it from its lineage and from modern
+statistical-relational systems: (i)~rule confidences are
+\emph{context-conditioned}, with a log-odds mode in which context
+variables contribute additive evidence weights that never saturate;
+(ii)~both rule and context weights are \emph{learnable} --- on binary
+facts the engine's log-odds path reduces exactly to logistic regression
+over rule firings, making the loss convex and training provably
+monotone; and (iii)~explanations are \emph{traces whose fidelity is
+measured}, via deletion-based comprehensiveness and sufficiency against
+a reversed-attribution control. The calculus has machine-checked
+convergence guarantees, the entire engine is a few hundred lines of
+dependency-free Python, and every experimental number regenerates
+byte-for-byte from committed scripts. Development results on synthetic
+data validate the harness; the real-data evaluation on public fraud
+datasets is the pending experiment that will decide whether context
+conditioning earns its keep.
 \end{abstract}
 
-\section{Introduction}
-In audit, compliance, and clinical settings, a model that cannot show a
-person why it concluded something is often unusable regardless of
-accuracy; the case for inherently interpretable models over post-hoc
-explanations is well established~\cite{rudin2019}. Systems with strong
-probabilistic semantics exist (Section~\ref{sec:related}), but their
-inference is opaque to practitioners and their rule weights are fixed at
-inference time. PLA explores the opposite corner of the design space: a
-calculus simple enough to trace by hand, honest about not being a
-probability distribution, whose weights adapt to context and are learned
-from data.
+\input{sections/01-introduction}
+\input{sections/02-related}
+\input{sections/03-calculus}
+\input{sections/04-learning}
+\input{sections/05-implementation}
+\input{sections/06-evaluation}
+\input{sections/07-limitations}
+\input{sections/08-conclusion}
 
-\textbf{Contributions.} (1)~An explicit confidence calculus whose formal
-definitions execute as tests and whose fixpoint convergence is
-machine-checked on 1{,}050 random cyclic rule systems. (2)~Context-conditioned,
-learnable rule weights: additive log-odds context evidence with convex
-maximum-likelihood fitting that recovers planted ground truth. (3)~Measured
-explanation fidelity: trace attributions out-score a reversed control on
-deletion metrics. (4)~A reproducibility discipline: a zero-dependency
-engine whose every reported number regenerates byte-for-byte, with each
-claim mapped to a verifying artifact in the repository.
+\bibliographystyle{unsrt}
+\bibliography{references}
 
-\section{Related work}\label{sec:related}
-ProbLog attaches probabilities to logic programs under the distribution
-semantics, computing exact possible-world marginals via knowledge
-compilation and supporting conditioning on evidence --- an operation PLA
-deliberately lacks~\cite{deraedt2007,fierens2015}; aProbLog generalizes
-the semantics to commutative semirings, the right formal umbrella for
-non-probabilistic calculi like PLA's~\cite{kimmig2011}; DeepProbLog and
-Scallop add neural predicates and differentiable provenance
-reasoning~\cite{manhaeve2018,li2023}. In weighted-logic systems --- Markov
-Logic Networks~\cite{richardson2006}, Probabilistic Soft
-Logic~\cite{bach2017}, Logical Neural Networks~\cite{riegel2020} --- rule
-weights are static at inference time: adapting rule reliability to a
-changing operational context is retraining's job, not the semantics'.
-That gap, context-conditioned weights inside an interpretable calculus, is
-the one PLA targets, connected to concept-drift
-adaptation~\cite{gama2014}. All of these systems ship as Python packages;
-PLA claims no language-based novelty. Its lineage is instead MYCIN's
-certainty factors~\cite{shortliffe1975} with the G\"odel
-t-norm~\cite{zadeh1965}; Heckerman showed the CF calculus is
-probabilistically coherent only under restrictive
-assumptions~\cite{heckerman1986,heckerman1992}. PLA's response: drop the
-probability claim, name the independence stance as a per-KB operator
-choice, and provide log-odds modes matching the coherent likelihood-ratio
-special case.
-
-\section{The calculus}\label{sec:calculus}
-Propositions carry confidences $c(x)\in[0,1]$; base facts have $c=1$. A
-rule $(A_1\wedge\dots\wedge A_n \rightarrow B,\; p,\; w)$ contributes
-\begin{equation}
-\text{candidate} \;=\; p_{\text{adj}} \cdot \min_i c(A_i),
-\end{equation}
-and candidates for the same head fold through a per-KB aggregator:
-$\max$, noisy-OR $1-(1-e)(1-n)$ (identically MYCIN's parallel
-combination), capped sum, or logit pooling
-$\sigma(\operatorname{logit} e + \operatorname{logit} n)$. Context
-adjustment has two modes: legacy multiply-and-cap, kept for
-compatibility (the cap destroys information: distinct strong-evidence
-combinations saturate identically at $1.0$), and the log-odds mode
-\begin{equation}
-p_{\text{adj}} \;=\; \sigma\bigl(\operatorname{logit}(p) +
-\textstyle\sum_{v\,\text{active}} w(v)\bigr),
-\end{equation}
-in which strengthening never saturates and weakening is symmetric.
-Inference iterates a monotone round operator on the lattice $[0,1]^V$;
-the trajectory from the base facts is pointwise non-decreasing and
-bounded, hence converges to the Kleene least fixpoint. These properties
-are machine-checked on 1{,}050 random cyclic systems, with a closed-form
-regression test for slow high-probability cycles. The symbolic layer
-decides definite-clause entailment by linear forward chaining
-(differential-tested against a truth-table oracle; a 200-symbol KB
-answers in well under a second) and gates confidences in hard/soft modes.
-PLA has \emph{no} distribution semantics: no possible-world measure, no
-conditioning, and aggregation chooses an independence stance --- users
-needing those guarantees should use ProbLog.
-
-\section{Learning}\label{sec:learning}
-On binary facts, the log-odds context mode composed with logit pooling
-collapses to $\hat{y} = \sigma\bigl(\sum_{r\,\text{fired}} z_r\bigr)$ with
-$z_r = \operatorname{logit}(p_r) + \sum w_r(v)$ over active context
-variables: logistic regression whose features are rule firings. The
-binary cross-entropy is therefore convex in the parameters; full-batch
-gradient descent decreases it monotonically (asserted over 200 epochs in
-the test suite), and fitted parameters export back into the engine with
-predictions matching to $10^{-9}$. On data sampled from a known model in
-this family ($n{=}3{,}000$, three seeds), the learner recovers rule
-weights within $0.09$ and the context weight within $0.29$.
-
-\section{Tool and reproducibility}\label{sec:tool}
-PLA ships as a pip-installable package with no core dependencies: a CLI
-(\texttt{pla scenario.json [context-set]}), a Flask REST API behind an
-optional extra, a fail-loud JSON scenario format (malformed context
-shapes, unknown context sets, and undeclared variables raise instead of
-silently applying no adjustment), and per-rule explanation traces as the
-primary output. The repository enforces an unusual discipline for a
-research prototype: 84 tests run in CI on Python 3.9--3.12, every formula
-in the semantics document is extracted and executed by the suite, the
-head-to-head and fidelity result files are regenerated byte-for-byte by
-their scripts, and the paper's claims each map to a verifying artifact.
-Claims about competitor capabilities (ProbLog's marginals and evidence
-conditioning; Bayesian-network posteriors) are themselves verified by
-tests against the installed packages.
-
-\section{Development results}\label{sec:results}
-Numbers below are development results on a seeded synthetic sample with
-planted logistic ground truth ($n{=}2{,}000$); they validate the harness,
-not real-world performance --- the public fraud-data experiment is the
-pending study. Table~\ref{tab:headtohead} compares PLA with static
-empirical-precision rules, PLA with learned weights, and four baselines.
-Reported as measured: the learned variant wins decisively on calibration
-(log-loss $0.478$ vs.\ $1.091$) but trails static on ranking (AUC $0.594$
-vs.\ $0.722$) --- convergence-checked, not an under-training artifact;
-quantile discretization discards most of the planted continuous signal
-and maximum likelihood spends what remains on calibration. Both PLA
-variants trail the raw-feature baselines, as expected when the true model
-is logistic in the raw features. The ProbLog row executes the same rules
-under distribution semantics and cross-validates PLA's noisy-OR.
-
-\begin{table}[t]
-\centering
-\caption{Head-to-head on the synthetic development sample (30\% test).
-Generated by \texttt{scripts/run\_experiments.py}; reproduced
-byte-for-byte from scratch.}
-\label{tab:headtohead}
-\begin{tabular}{lrrrr}
-\toprule
-Model & AUC & Brier & log-loss & ECE\\
-\midrule
-logistic regression (raw features) & 0.9746 & 0.0413 & 0.139 & 0.0298\\
-gradient boosting (raw features) & 0.9171 & 0.0883 & 0.375 & 0.0808\\
-ProbLog on PLA rules (subsample) & 0.7416 & 0.1327 & 1.4447 & 0.0704\\
-pgmpy naive Bayes (propositions) & 0.7228 & 0.0993 & 0.3405 & 0.0288\\
-PLA static (empirical precisions) & 0.7217 & 0.1138 & 1.0908 & 0.0952\\
-PLA learned (logit path) & 0.5945 & 0.1195 & 0.4780 & 0.1118\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Trace fidelity is measured with deletion metrics in the faithfulness
-framing of Jacovi and Goldberg~\cite{jacovi2020}: comprehensiveness (drop
-in prediction when the trace's top rule's facts are removed) and
-sufficiency (gap when only they are kept), against a reversed-attribution
-control. For both variants the faithful trace out-scores the control on
-comprehensiveness ($0.2222$ vs.\ $0.1864$ static; $0.1425$ vs.\ $0.1182$
-learned): the traces name factors that actually drive predictions --- a
-measured property, not an asserted one.
-
-\section{Limitations and roadmap}
-PLA has no joint measure and no conditioning; its language is
-propositional and negation-free (constraint-mode gating is a documented
-no-op until negation lands); rule-shaped models pay a visible
-discretization tax on continuous signal; all results so far are
-synthetic; and the usability claims await a human-subject study. The
-roadmap is kill-criteria-driven: run the public fraud-data head-to-head
-(does context conditioning beat its own static ablation on drifting
-splits?), then either the applied-journal path or an honest negative
-result.
-
-\begin{thebibliography}{19}
-\small
-\bibitem{deraedt2007} L.~De Raedt, A.~Kimmig, H.~Toivonen.
-ProbLog: a probabilistic Prolog and its application in link discovery.
-\emph{IJCAI}, 2007.
-\bibitem{fierens2015} D.~Fierens et al.
-Inference and learning in probabilistic logic programs using weighted
-Boolean formulas. \emph{TPLP} 15(3), 2015.
-\bibitem{kimmig2011} A.~Kimmig, G.~Van den Broeck, L.~De Raedt.
-An algebraic Prolog for reasoning about possible worlds. \emph{AAAI}, 2011.
-\bibitem{manhaeve2018} R.~Manhaeve et al.
-DeepProbLog: neural probabilistic logic programming. \emph{NeurIPS}, 2018.
-\bibitem{li2023} Z.~Li, J.~Huang, M.~Naik.
-Scallop: a language for neurosymbolic programming. \emph{PLDI}, 2023.
-\bibitem{richardson2006} M.~Richardson, P.~Domingos.
-Markov logic networks. \emph{Machine Learning} 62, 2006.
-\bibitem{bach2017} S.~H.~Bach, M.~Broecheler, B.~Huang, L.~Getoor.
-Hinge-loss Markov random fields and probabilistic soft logic.
-\emph{JMLR} 18(109), 2017.
-\bibitem{riegel2020} R.~Riegel et al. Logical neural networks.
-arXiv:2006.13155, 2020.
-\bibitem{gama2014} J.~Gama et al. A survey on concept drift adaptation.
-\emph{ACM Computing Surveys} 46(4), 2014.
-\bibitem{shortliffe1975} E.~H.~Shortliffe, B.~G.~Buchanan.
-A model of inexact reasoning in medicine.
-\emph{Mathematical Biosciences} 23, 1975.
-\bibitem{zadeh1965} L.~A.~Zadeh. Fuzzy sets.
-\emph{Information and Control} 8(3), 1965.
-\bibitem{heckerman1986} D.~Heckerman.
-Probabilistic interpretations for MYCIN's certainty factors.
-\emph{Uncertainty in Artificial Intelligence 1}, North-Holland, 1986.
-\bibitem{heckerman1992} D.~Heckerman, E.~H.~Shortliffe.
-From certainty factors to belief networks.
-\emph{Artificial Intelligence in Medicine} 4(1), 1992.
-\bibitem{rudin2019} C.~Rudin.
-Stop explaining black box machine learning models for high stakes
-decisions and use interpretable models instead.
-\emph{Nature Machine Intelligence} 1, 2019.
-\bibitem{jacovi2020} A.~Jacovi, Y.~Goldberg.
-Towards faithfully interpretable NLP systems: how should we define and
-evaluate faithfulness? \emph{ACL}, 2020.
-\end{thebibliography}
+\appendix
+\input{sections/appendix}
 
 \end{document}
