@@ -1,7 +1,10 @@
-model,n_train,n_test,auc,brier,log_loss,ece,note
-logistic_regression,1400,600,0.9746,0.0413,0.139,0.0298,
-gradient_boosting,1400,600,0.9171,0.0883,0.375,0.0808,
-pla_static,1400,600,0.7217,0.1138,1.0908,0.0952,"empirical precisions, noisy-OR, neutral context"
-pla_learned,1400,600,0.7227,0.0999,0.342,0.029,"logit path + bias, fitted rule + context weights"
-problog_rules,1400,150,0.7416,0.1327,1.4447,0.0704,subset n=150
-pgmpy_naive_bayes,1400,600,0.7228,0.0993,0.3405,0.0288,
+model,n_train,n_test,auc,auc_lo,auc_hi,brier,log_loss,ece,note
+logistic_regression,1400,600,0.9746,0.9602,0.9857,0.0413,0.139,0.0298,
+gradient_boosting,1400,600,0.9171,0.888,0.943,0.0883,0.375,0.0808,
+decision_tree,1400,600,0.7208,0.6668,0.771,0.1886,0.5492,0.1933,"interpretable baseline: depth 4, balanced"
+ebm_interpretml,1400,600,0.9572,0.9376,0.9729,0.0588,0.1917,0.0449,interpretable baseline: EBM defaults
+pla_static,1400,600,0.7217,0.6579,0.7785,0.1138,1.0908,0.0952,"empirical precisions, noisy-OR, neutral context"
+pla_learned,1400,600,0.7227,0.6568,0.7834,0.0999,0.342,0.029,"logit path + bias, fitted rule + context weights"
+pla_learned_noctx,1400,600,0.7187,0.6529,0.7792,0.0999,0.3422,0.0307,ablation: context weights disabled
+problog_rules,1400,150,0.7416,0.6351,0.8413,0.1327,1.4447,0.0704,subset n=150
+pgmpy_naive_bayes,1400,600,0.7228,0.6594,0.7791,0.0993,0.3405,0.0288,

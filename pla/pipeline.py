@@ -34,28 +34,43 @@ class Schema:
     column (active when it equals "1"). Rows whose feature values fail to
     parse are skipped by build_examples (complete-case)."""
 
-    def __init__(self, features, label, quantile_context=None, binary_context=None):
+    def __init__(self, features, label, quantile_context=None, binary_context=None,
+                 extra_contexts=()):
         self.features = list(features)
         self.label = label
         self.quantile_context = quantile_context  # (column, context var name)
         self.binary_context = binary_context      # (column, context var name)
+        # extra_contexts: ("binary", column, var) — active when column == "1";
+        #                 ("ge", column, threshold, var) — active when value >= threshold.
+        self.extra_contexts = tuple(extra_contexts)
+
+    @property
+    def all_context_vars(self):
+        names = []
+        if self.quantile_context:
+            names.append(self.quantile_context[1])
+        if self.binary_context:
+            names.append(self.binary_context[1])
+        for spec in self.extra_contexts:
+            names.append(spec[-1])
+        return tuple(names)
 
     @property
     def context_var(self):
-        if self.quantile_context:
-            return self.quantile_context[1]
-        if self.binary_context:
-            return self.binary_context[1]
-        return None
+        names = self.all_context_vars
+        return names[0] if names else None
 
     @property
     def numeric_columns(self):
-        """Feature columns plus the context source, for raw-feature models."""
+        """Feature columns plus the context sources, for raw-feature models."""
         columns = list(self.features)
         if self.quantile_context:
             columns.append(self.quantile_context[0])
         if self.binary_context:
             columns.append(self.binary_context[0])
+        for spec in self.extra_contexts:
+            if spec[1] not in columns:
+                columns.append(spec[1])
         return columns
 
 
@@ -64,14 +79,21 @@ CREDITCARD = Schema(FEATURES, "Class", quantile_context=(CONTEXT_FEATURE, CONTEX
 # Bao et al. (2020, JAR) accounting-fraud replication data: the paper's 14
 # financial ratios, with the binary issuance indicator as the context
 # variable and the other 13 as discretized features.
-BAO2020 = Schema(
-    ["dch_wc", "ch_rsst", "dch_rec", "dch_inv", "soft_assets", "dpi",
-     "reoa", "EBIT", "bm", "ch_cs", "ch_cm", "ch_roa", "ch_fcf"],
+BAO_RATIOS = ["dch_wc", "ch_rsst", "dch_rec", "dch_inv", "soft_assets", "dpi",
+              "reoa", "EBIT", "bm", "ch_cs", "ch_cm", "ch_roa", "ch_fcf"]
+
+BAO2020 = Schema(BAO_RATIOS, "misstate", binary_context=("issue", "Issuance"))
+
+# SOX-boundary design: training spans the 2003 regime change so the learner
+# can fit a PostSOX context weight; the test period is entirely post-SOX.
+BAO2020SOX = Schema(
+    BAO_RATIOS,
     "misstate",
     binary_context=("issue", "Issuance"),
+    extra_contexts=(("ge", "fyear", 2003, "PostSOX"),),
 )
 
-SCHEMAS = {"creditcard": CREDITCARD, "bao2020": BAO2020}
+SCHEMAS = {"creditcard": CREDITCARD, "bao2020": BAO2020, "bao2020sox": BAO2020SOX}
 
 
 def load_rows(path):
@@ -123,6 +145,17 @@ def propositionalize(record, thresholds, schema=CREDITCARD):
         column, var = schema.binary_context
         if record[column].strip() == "1":
             context.add(var)
+    for spec in schema.extra_contexts:
+        if spec[0] == "binary":
+            _, column, var = spec
+            if record[column].strip() == "1":
+                context.add(var)
+        elif spec[0] == "ge":
+            _, column, threshold, var = spec
+            if float(record[column]) >= threshold:
+                context.add(var)
+        else:
+            raise ValueError(f"Unknown extra context kind: {spec[0]!r}")
     return frozenset(facts), frozenset(context)
 
 
@@ -218,7 +251,7 @@ def run_pipeline(data_path, scenario_path=None, schema=CREDITCARD):
     rows = load_rows(data_path)
     thresholds = fit_discretizer(rows, schema=schema)
     examples = build_examples(rows, thresholds, schema=schema)
-    context_vars = (schema.context_var,) if schema.context_var else ()
+    context_vars = schema.all_context_vars
     specs, precisions = generate_rule_specs(examples, context_vars=context_vars)
 
     scenario = None

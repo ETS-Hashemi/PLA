@@ -46,6 +46,8 @@ claim:
   generated file --- that verifies it.
 \end{itemize}
 
-The full suite (84 tests at the time of writing) runs in continuous
+The full suite (86 tests at the time of writing) runs in continuous
 integration on Python 3.9--3.12, together with smoke runs of the CLI and
-examples and a job that compiles this paper.
+examples and a job that compiles this paper. Reported AUCs carry seeded
+percentile-bootstrap 95\% confidence intervals ($B{=}500$), and the
+credit-card study is repeated over three split seeds.

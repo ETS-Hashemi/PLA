@@ -45,6 +45,21 @@ rule confidences rather than crisp truth is an open slot in that
 architecture which \pla{}-style calculi could fill; we leave this as
 future work.
 
+\subsection{Interpretable rule learning}
+
+A separate line learns compact rule models directly from data: RIPPER's
+sequential covering~\cite{cohen1995}, rule ensembles distilled into
+sparse linear models (RuleFit~\cite{friedman2008}), Bayesian rule
+lists~\cite{letham2015}, certifiably optimal rule lists
+(CORELS~\cite{angelino2018}), and additive models with intelligible
+shape functions (GA$^2$M/EBM~\cite{lou2013,nori2019}). These systems
+produce interpretable \emph{classifiers}; \pla{} differs in what
+surrounds the rules: an inference engine with named uncertainty
+semantics (aggregation operators, symbolic gating), context-conditioned
+weights, and traces as the primary output with fidelity measured against
+a control. We include a depth-limited decision tree and EBM as
+equal-interpretability baselines in Section~\ref{sec:evaluation}.
+
 \subsection{Uncertainty calculi: \pla{}'s lineage}
 
 \pla{}'s operators descend from MYCIN's certainty

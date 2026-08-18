@@ -68,11 +68,37 @@ def numeric_matrix(rows, schema=CREDITCARD):
     return [[float(r[f]) for f in schema.numeric_columns] for r in rows]
 
 
+def _auc_ci(y_true, y_prob, n_bootstrap=500, seed=7):
+    """Seeded percentile-bootstrap 95% CI for AUC. Needs numpy+sklearn;
+    returns ("", "") when unavailable or a resample is single-class-only."""
+    try:
+        import numpy as np
+        from sklearn.metrics import roc_auc_score
+    except ImportError:
+        return "", ""
+    y = np.asarray(y_true)
+    p = np.asarray(y_prob)
+    rng = np.random.Generator(np.random.PCG64(seed))
+    scores = []
+    for _ in range(n_bootstrap):
+        index = rng.integers(0, len(y), len(y))
+        if y[index].min() == y[index].max():
+            continue
+        scores.append(roc_auc_score(y[index], p[index]))
+    if not scores:
+        return "", ""
+    lo, hi = np.percentile(scores, [2.5, 97.5])
+    return round(float(lo), 4), round(float(hi), 4)
+
+
 def evaluate(name, y_true, y_prob, note=""):
+    lo, hi = _auc_ci(y_true, y_prob)
     return {
         "model": name,
         "n_test": len(y_true),
         "auc": round(roc_auc(y_true, y_prob), 4),
+        "auc_lo": lo,
+        "auc_hi": hi,
         "brier": round(brier_score(y_true, y_prob), 4),
         "log_loss": round(log_loss(y_true, y_prob), 4),
         "ece": round(reliability_summary(y_true, y_prob)["ece"], 4),
@@ -81,28 +107,47 @@ def evaluate(name, y_true, y_prob, note=""):
 
 
 def skipped(name, reason):
-    return {"model": name, "n_test": 0, "auc": "", "brier": "", "log_loss": "",
-            "ece": "", "note": f"skipped: {reason}"}
+    return {"model": name, "n_test": 0, "auc": "", "auc_lo": "", "auc_hi": "",
+            "brier": "", "log_loss": "", "ece": "", "note": f"skipped: {reason}"}
 
 
 def sklearn_rows(train_rows, test_rows, schema=CREDITCARD):
     try:
         from sklearn.ensemble import HistGradientBoostingClassifier
         from sklearn.linear_model import LogisticRegression
+        from sklearn.tree import DecisionTreeClassifier
     except ImportError as err:
-        return [skipped("logistic_regression", err), skipped("gradient_boosting", err)]
+        return [skipped(name, err) for name in
+                ("logistic_regression", "gradient_boosting", "decision_tree")]
 
     X_train, X_test = numeric_matrix(train_rows, schema), numeric_matrix(test_rows, schema)
     y_train, y_test = labels_of(train_rows, schema), labels_of(test_rows, schema)
 
+    models = [
+        ("logistic_regression", LogisticRegression(max_iter=2000), ""),
+        ("gradient_boosting", HistGradientBoostingClassifier(random_state=0), ""),
+        ("decision_tree", DecisionTreeClassifier(
+            max_depth=4, class_weight="balanced", random_state=0),
+         "interpretable baseline: depth 4, balanced"),
+    ]
+
     rows = []
-    for name, model in [
-        ("logistic_regression", LogisticRegression(max_iter=2000)),
-        ("gradient_boosting", HistGradientBoostingClassifier(random_state=0)),
-    ]:
+    for name, model, note in models:
         model.fit(X_train, y_train)
         probs = [float(p[1]) for p in model.predict_proba(X_test)]
-        rows.append(evaluate(name, y_test, probs))
+        rows.append(evaluate(name, y_test, probs, note=note))
+
+    try:
+        from interpret.glassbox import ExplainableBoostingClassifier
+        ebm = ExplainableBoostingClassifier(random_state=0)
+        ebm.fit(X_train, y_train)
+        probs = [float(p[1]) for p in ebm.predict_proba(X_test)]
+        rows.append(evaluate("ebm_interpretml", y_test, probs,
+                             note="interpretable baseline: EBM defaults"))
+    except ImportError as err:
+        rows.append(skipped("ebm_interpretml", err))
+    except Exception as err:  # noqa: BLE001 — record, don't crash the run
+        rows.append(skipped("ebm_interpretml", err))
     return rows
 
 
@@ -195,7 +240,7 @@ def run_all(data_path, out_path, fast=False, schema=CREDITCARD):
     thresholds = fit_discretizer(train_rows, schema=schema)  # train data only
     train_examples = build_examples(train_rows, thresholds, schema=schema)
     test_examples = build_examples(test_rows, thresholds, schema=schema)
-    context_vars = (schema.context_var,) if schema.context_var else ()
+    context_vars = schema.all_context_vars
     rule_specs, precisions = generate_rule_specs(train_examples, context_vars=context_vars)
 
     results = sklearn_rows(train_rows, test_rows, schema)
@@ -209,7 +254,8 @@ def run_all(data_path, out_path, fast=False, schema=CREDITCARD):
 
     out_path = pathlib.Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fields = ["model", "n_train", "n_test", "auc", "brier", "log_loss", "ece", "note"]
+    fields = ["model", "n_train", "n_test", "auc", "auc_lo", "auc_hi",
+              "brier", "log_loss", "ece", "note"]
     with open(out_path, "w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()

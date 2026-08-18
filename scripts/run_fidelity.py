@@ -52,10 +52,12 @@ def run(data_path, tag, schema=CREDITCARD, temporal=None):
         train_rows, test_rows = rx.split_rows_temporal(rows, column, train_end, test_start)
     else:
         train_rows, test_rows = rb.split_rows(rows)
+    if schema.label == "misstate":
+        train_rows, _ = rx.drop_post_first_fraud(train_rows)
     thresholds = fit_discretizer(train_rows, schema=schema)
     train_examples = build_examples(train_rows, thresholds, schema=schema)
     test_examples = build_examples(test_rows, thresholds, schema=schema)
-    context_vars = (schema.context_var,) if schema.context_var else ()
+    context_vars = schema.all_context_vars
     rule_specs, precisions = generate_rule_specs(train_examples, context_vars=context_vars)
 
     learner = RuleWeightLearner(rule_specs, use_bias=True)

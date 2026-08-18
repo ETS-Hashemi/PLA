@@ -1,0 +1,62 @@
+\section{Discussion}\label{sec:discussion}
+
+\paragraph{Why eleven rules nearly match logistic regression on
+credit-card fraud.} The ULB features are PCA components; the fraud
+signal concentrates in the tails of a handful of them, and quantile
+propositions capture exactly those tails. Where the signal is
+tail-shaped, a small rule set loses little discrimination and buys full
+traceability. The synthetic study shows the opposite regime: when the
+generating process is linear in the raw continuous features,
+discretization pays a visible tax. The practical guidance for
+audit-style deployments is therefore diagnostic, not dogmatic: measure
+whether the domain's signal survives propositionalization (the static
+rules' AUC against a raw-feature reference makes that a one-table
+check) before committing to a rule-shaped model.
+
+\paragraph{What maximum likelihood buys, and what it does not.} Across
+every study, learning the weights improves calibration --- on the real
+credit-card data the learned variant's log-loss is roughly $40\%$ below
+the static rules' and its expected calibration error is an order of
+magnitude smaller. Ranking, by contrast, is already fixed by \emph{which
+rules fire}: static noisy-OR and fitted weights order test cases almost
+identically. In deployments where scores feed thresholds, queues, or
+cost-sensitive decisions, calibration is the property that matters, and
+it is the one learning delivers.
+
+\paragraph{The intercept lesson generalizes.} The rank inversion of
+Section~\ref{sec:learning} is not a quirk of one dataset: any additive
+log-odds pooling of rules that are strong lifts but weak absolute
+probabilities will invert on rare-event data unless a global intercept
+absorbs the base rate. Static noisy-OR is immune because it is monotone
+in the fired set --- more support can only raise the score. This
+suggests a design rule for confidence calculi generally: monotonicity in
+evidence is a rank-robustness property worth preserving, and learnable
+calculi should carry an explicit prior term. The engine's export of the
+intercept as a base-rate prior rule makes the repaired model exactly
+representable in the same trace vocabulary.
+
+\paragraph{What the drift studies say about context conditioning.} The
+accounting experiments are the honest frontier of this paper. Under the
+strict pre/post-2003 split, rules mined before the regime change barely
+rank later frauds, and no reweighting --- context-conditioned or not ---
+can rescue antecedents that have stopped being informative; the
+SOX-boundary design of Section~\ref{sec:evaluation}, whose training
+spans the regime change so the context weight is identifiable, isolates
+the mechanism's genuine contribution beyond the static ablation. The
+broader reading is that context conditioning operates on rule
+\emph{reliability}, not rule \emph{vocabulary}: when drift replaces the
+vocabulary itself, rule re-mining --- not reweighting --- is the needed
+adaptation, which connects this line to concept-drift
+taxonomies~\cite{gama2014} that distinguish real from virtual drift.
+
+\paragraph{Traces as the deliverable.} The case study in
+Section~\ref{sec:evaluation} shows what the auditor actually receives:
+the fired rules with their empirical precisions, the aggregation
+arithmetic line by line, and a deletion counterfactual quantifying the
+top factor's contribution. None of the baselines --- including the
+interpretable ones --- produce this artifact: a decision tree yields a
+path, EBM yields shape functions, but neither names weighted domain
+rules whose provenance is an auditable training-set measurement. The
+fidelity results license trusting these traces for the static model;
+for calibrated rare-event models the absolute-probability deletion
+metrics compress, and log-odds-scale variants are the right refinement.

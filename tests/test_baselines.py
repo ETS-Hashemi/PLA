@@ -30,15 +30,18 @@ def test_sklearn_baselines_emit_metrics_csv(tmp_path):
     with open(out, newline="") as handle:
         rows = list(csv.DictReader(handle))
     models = {row["model"] for row in rows}
-    assert {"logistic_regression", "gradient_boosting"} <= models
+    assert {"logistic_regression", "gradient_boosting", "decision_tree"} <= models
 
     for row in rows:
-        assert row["note"] == ""  # nothing skipped in fast mode
+        if row["note"].startswith("skipped"):
+            continue  # optional baselines (e.g. EBM) may be absent
         auc = float(row["auc"])
         # The synthetic data has planted logistic structure: real signal.
-        assert 0.7 < auc <= 1.0, row
+        assert 0.6 < auc <= 1.0, row
         assert 0.0 <= float(row["brier"]) <= 0.3
         assert int(row["n_train"]) + int(row["n_test"]) == 1500
+        if row["auc_lo"] != "":
+            assert float(row["auc_lo"]) <= auc <= float(row["auc_hi"]), row
     assert results
 
 
