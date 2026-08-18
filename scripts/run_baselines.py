@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 from pla.metrics import brier_score, log_loss, reliability_summary, roc_auc  # noqa: E402
 from pla.pipeline import (  # noqa: E402
-    FEATURES,
+    CREDITCARD,
     build_examples,
     fit_discretizer,
     generate_rule_specs,
@@ -46,12 +46,26 @@ def split_rows(rows, test_fraction=0.3, seed=42):
     return [rows[i] for i in order[:cut]], [rows[i] for i in order[cut:]]
 
 
-def labels_of(rows):
-    return [1 if r["Class"].strip() in ("1", "1.0") else 0 for r in rows]
+def parseable_rows(rows, schema):
+    """Complete-case filter: keep rows whose numeric columns all parse, so
+    every model sees the same population."""
+    kept = []
+    for record in rows:
+        try:
+            for column in schema.numeric_columns:
+                float(record[column])
+        except ValueError:
+            continue
+        kept.append(record)
+    return kept
 
 
-def numeric_matrix(rows):
-    return [[float(r[f]) for f in FEATURES + ["Amount"]] for r in rows]
+def labels_of(rows, schema=CREDITCARD):
+    return [1 if r[schema.label].strip() in ("1", "1.0") else 0 for r in rows]
+
+
+def numeric_matrix(rows, schema=CREDITCARD):
+    return [[float(r[f]) for f in schema.numeric_columns] for r in rows]
 
 
 def evaluate(name, y_true, y_prob, note=""):
@@ -71,15 +85,15 @@ def skipped(name, reason):
             "ece": "", "note": f"skipped: {reason}"}
 
 
-def sklearn_rows(train_rows, test_rows):
+def sklearn_rows(train_rows, test_rows, schema=CREDITCARD):
     try:
         from sklearn.ensemble import HistGradientBoostingClassifier
         from sklearn.linear_model import LogisticRegression
     except ImportError as err:
         return [skipped("logistic_regression", err), skipped("gradient_boosting", err)]
 
-    X_train, X_test = numeric_matrix(train_rows), numeric_matrix(test_rows)
-    y_train, y_test = labels_of(train_rows), labels_of(test_rows)
+    X_train, X_test = numeric_matrix(train_rows, schema), numeric_matrix(test_rows, schema)
+    y_train, y_test = labels_of(train_rows, schema), labels_of(test_rows, schema)
 
     rows = []
     for name, model in [
@@ -121,6 +135,12 @@ def problog_row(rule_specs, precisions, test_examples, limit=SLOW_SUBSAMPLE):
         return skipped("problog_rules", err)
     try:
         subset = test_examples[:limit]
+        # On heavily imbalanced data a head subsample can miss the positive
+        # class entirely (AUC undefined); deterministically add the first
+        # positives from the full test set and rebalance the head.
+        if not any(label for _, _, label in subset):
+            positives = [e for e in test_examples if e[2] == 1][: max(10, limit // 10)]
+            subset = positives + [e for e in test_examples if e[2] == 0][: limit - len(positives)]
         y_true = [label for _, _, label in subset]
         y_prob = [
             problog_probability(rule_specs, precisions, facts)
@@ -131,7 +151,7 @@ def problog_row(rule_specs, precisions, test_examples, limit=SLOW_SUBSAMPLE):
         return skipped("problog_rules", err)
 
 
-def pgmpy_row(train_examples, test_examples, propositions):
+def pgmpy_row(train_examples, test_examples, propositions, limit=2000):
     try:
         import pandas as pd
         try:
@@ -150,6 +170,11 @@ def pgmpy_row(train_examples, test_examples, propositions):
                 ]
             )
 
+        note = ""
+        if len(test_examples) > limit:
+            test_examples = test_examples[:limit]  # deterministic head, like problog
+            note = f"subset n={limit}"
+
         train_df = frame(train_examples)
         test_df = frame(test_examples)
         model = Network([("Class", p) for p in propositions])
@@ -158,21 +183,22 @@ def pgmpy_row(train_examples, test_examples, propositions):
         column = "Class_1" if "Class_1" in posterior.columns else posterior.columns[-1]
         y_prob = [float(v) for v in posterior[column]]
         y_true = [label for _, _, label in test_examples]
-        return evaluate("pgmpy_naive_bayes", y_true, y_prob)
+        return evaluate("pgmpy_naive_bayes", y_true, y_prob, note=note)
     except Exception as err:  # noqa: BLE001 — record, don't crash the run
         return skipped("pgmpy_naive_bayes", err)
 
 
-def run_all(data_path, out_path, fast=False):
-    rows = load_rows(data_path)
+def run_all(data_path, out_path, fast=False, schema=CREDITCARD):
+    rows = parseable_rows(load_rows(data_path), schema)
     train_rows, test_rows = split_rows(rows)
 
-    thresholds = fit_discretizer(train_rows)  # thresholds from training data only
-    train_examples = build_examples(train_rows, thresholds)
-    test_examples = build_examples(test_rows, thresholds)
-    rule_specs, precisions = generate_rule_specs(train_examples)
+    thresholds = fit_discretizer(train_rows, schema=schema)  # train data only
+    train_examples = build_examples(train_rows, thresholds, schema=schema)
+    test_examples = build_examples(test_rows, thresholds, schema=schema)
+    context_vars = (schema.context_var,) if schema.context_var else ()
+    rule_specs, precisions = generate_rule_specs(train_examples, context_vars=context_vars)
 
-    results = sklearn_rows(train_rows, test_rows)
+    results = sklearn_rows(train_rows, test_rows, schema)
     if not fast:
         results.append(problog_row(rule_specs, precisions, test_examples))
         propositions = sorted({a for spec in rule_specs for a in spec.antecedents})

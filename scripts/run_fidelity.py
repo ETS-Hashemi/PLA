@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import fetch_fraud_data as ffd  # noqa: E402
 import run_baselines as rb  # noqa: E402
+import run_experiments as rx  # noqa: E402
 
 from pla.fidelity import (  # noqa: E402
     evaluate_fidelity,
@@ -32,6 +33,8 @@ from pla.fidelity import (  # noqa: E402
 )
 from pla.learn import RuleWeightLearner  # noqa: E402
 from pla.pipeline import (  # noqa: E402
+    CREDITCARD,
+    SCHEMAS,
     build_examples,
     fit_discretizer,
     generate_rule_specs,
@@ -42,15 +45,20 @@ from pla.pipeline import (  # noqa: E402
 RESULTS_DIR = ROOT / "results"
 
 
-def run(data_path, tag):
-    rows = load_rows(data_path)
-    train_rows, test_rows = rb.split_rows(rows)
-    thresholds = fit_discretizer(train_rows)
-    train_examples = build_examples(train_rows, thresholds)
-    test_examples = build_examples(test_rows, thresholds)
-    rule_specs, precisions = generate_rule_specs(train_examples)
+def run(data_path, tag, schema=CREDITCARD, temporal=None):
+    rows = rb.parseable_rows(load_rows(data_path), schema)
+    if temporal:
+        column, train_end, test_start = temporal
+        train_rows, test_rows = rx.split_rows_temporal(rows, column, train_end, test_start)
+    else:
+        train_rows, test_rows = rb.split_rows(rows)
+    thresholds = fit_discretizer(train_rows, schema=schema)
+    train_examples = build_examples(train_rows, thresholds, schema=schema)
+    test_examples = build_examples(test_rows, thresholds, schema=schema)
+    context_vars = (schema.context_var,) if schema.context_var else ()
+    rule_specs, precisions = generate_rule_specs(train_examples, context_vars=context_vars)
 
-    learner = RuleWeightLearner(rule_specs)
+    learner = RuleWeightLearner(rule_specs, use_bias=True)
     learner.fit(train_examples, epochs=400, learning_rate=1.0)
 
     def static_predict(facts, _context):
@@ -115,12 +123,15 @@ def main():
     parser.add_argument("--synthetic", type=int, metavar="N")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--tag")
+    parser.add_argument("--schema", choices=sorted(SCHEMAS), default="creditcard")
     args = parser.parse_args()
 
     if bool(args.data) == bool(args.synthetic):
         sys.exit("pass exactly one of --data or --synthetic N")
 
     if args.synthetic:
+        if args.schema != "creditcard":
+            sys.exit("--synthetic generates creditcard-schema data only")
         data_path = ffd.DATA_DIR / f"creditcard_synthetic_seed{args.seed}.csv"
         ffd.generate_synthetic(args.synthetic, args.seed, data_path)
         tag = args.tag or f"synthetic_n{args.synthetic}_seed{args.seed}"
@@ -129,7 +140,9 @@ def main():
         data_path = args.data
         tag = args.tag or pathlib.Path(args.data).stem
 
-    results, csv_path, md_path = run(data_path, tag)
+    schema = SCHEMAS[args.schema]
+    temporal = rx.TEMPORAL_SPLITS.get(args.schema)
+    results, csv_path, md_path = run(data_path, tag, schema=schema, temporal=temporal)
     for row in results:
         print(row)
     print(f"written: {csv_path} and {md_path}")

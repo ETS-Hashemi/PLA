@@ -10,5 +10,5 @@ The reversed control must score worse on comprehensiveness than the trace.
 |---|---|---|---|---|
 | pla_static | trace | 350 | 0.2222 | 0.0527 |
 | pla_static | reversed_control | 350 | 0.1864 | 0.1016 |
-| pla_learned | trace | 350 | 0.1425 | -0.0656 |
-| pla_learned | reversed_control | 350 | 0.1182 | -0.0421 |
+| pla_learned | trace | 350 | 0.0939 | 0.0583 |
+| pla_learned | reversed_control | 350 | 0.0807 | 0.0576 |

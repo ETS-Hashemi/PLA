@@ -49,8 +49,19 @@ class RuleWeightLearner:
 
     NO_FIRE_FLOOR = 1e-3
 
-    def __init__(self, rules):
+    def __init__(self, rules, use_bias=False):
+        """use_bias adds a learnable global intercept b: predictions become
+        sigmoid(b + sum of fired z_r), and examples with no fired rule
+        predict sigmoid(b) instead of the fixed floor. This is standard
+        logistic regression with an intercept; without it, rules that are
+        individually weak in absolute terms (precision far below 0.5) but
+        strong lifts over a rare base rate are forced to negative weights,
+        and stacking several fired rules then *inverts* the ranking —
+        observed on real fraud data (see tests). The bias maps exactly onto
+        the engine as a base-rate prior rule folded first by logit_pool."""
         self.rules = list(rules)
+        self.use_bias = use_bias
+        self.bias = 0.0
         self.theta = [0.0] * len(self.rules)
         self.context_weights = [
             {var: 0.0 for var in rule.context_vars} for rule in self.rules
@@ -71,9 +82,12 @@ class RuleWeightLearner:
 
     def predict_proba(self, facts, context=()):
         fired = self._fired(facts)
+        z = sum(self._z(index, context) for index in fired)
+        if self.use_bias:
+            return _sigmoid(self.bias + z)
         if not fired:
             return self.NO_FIRE_FLOOR
-        return _sigmoid(sum(self._z(index, context) for index in fired))
+        return _sigmoid(z)
 
     def loss(self, dataset):
         total = 0.0
@@ -100,11 +114,13 @@ class RuleWeightLearner:
         def compiled_loss():
             total = 0.0
             for fired, active, label in compiled:
-                if fired:
-                    z = sum(
-                        self.theta[i] + sum(self.context_weights[i][v] for v in vars_)
-                        for i, vars_ in zip(fired, active)
-                    )
+                z = sum(
+                    self.theta[i] + sum(self.context_weights[i][v] for v in vars_)
+                    for i, vars_ in zip(fired, active)
+                )
+                if self.use_bias:
+                    p = _sigmoid(self.bias + z)
+                elif fired:
                     p = _sigmoid(z)
                 else:
                     p = self.NO_FIRE_FLOOR
@@ -114,20 +130,27 @@ class RuleWeightLearner:
 
         history = [compiled_loss()]
         for _ in range(epochs):
+            grad_bias = 0.0
             grad_theta = [0.0] * len(self.rules)
             grad_ctx = [{var: 0.0 for var in w} for w in self.context_weights]
             for fired, active, label in compiled:
-                if not fired:
+                if not fired and not self.use_bias:
                     continue  # floor prediction: no parameters involved
                 z = sum(
                     self.theta[i] + sum(self.context_weights[i][v] for v in vars_)
                     for i, vars_ in zip(fired, active)
                 )
+                if self.use_bias:
+                    z += self.bias
                 err = (_sigmoid(z) - label) / n  # d BCE / d z, averaged
+                if self.use_bias:
+                    grad_bias += err
                 for i, vars_ in zip(fired, active):
                     grad_theta[i] += err
                     for var in vars_:
                         grad_ctx[i][var] += err
+            if self.use_bias:
+                self.bias -= learning_rate * grad_bias
             for index in range(len(self.rules)):
                 self.theta[index] -= learning_rate * grad_theta[index]
                 for var in self.context_weights[index]:
@@ -136,11 +159,20 @@ class RuleWeightLearner:
         return history
 
     def to_prob_kb(self, target="Target"):
-        """Export learned parameters as a ProbKB on the engine's logit path."""
+        """Export learned parameters as a ProbKB on the engine's logit path.
+
+        With use_bias, the intercept exports as a base-rate prior: an
+        always-true fact "BaseRate" and a rule BaseRate -> target with
+        confidence sigmoid(bias). logit_pool folds it with the fired rules
+        as sigmoid(bias + sum z_r) — exactly the learner's prediction."""
         from .prob import ProbKB, ProbRule, ProbSymbol
 
         kb = ProbKB(aggregation_method="logit_pool", context_mode="logit")
         head = ProbSymbol(target)
+        if self.use_bias:
+            base = ProbSymbol("BaseRate")
+            kb.add_fact(base)
+            kb.add_rule(ProbRule([base], head, _sigmoid(self.bias)))
         for index, rule in enumerate(self.rules):
             kb.add_rule(
                 ProbRule(

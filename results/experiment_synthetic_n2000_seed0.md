@@ -8,6 +8,6 @@ Dataset: `creditcard_synthetic_seed0.csv`. Split seed 42, 30% test.
 | logistic_regression | 1400 | 600 | 0.9746 | 0.0413 | 0.139 | 0.0298 |  |
 | gradient_boosting | 1400 | 600 | 0.9171 | 0.0883 | 0.375 | 0.0808 |  |
 | pla_static | 1400 | 600 | 0.7217 | 0.1138 | 1.0908 | 0.0952 | empirical precisions, noisy-OR, neutral context |
-| pla_learned | 1400 | 600 | 0.5945 | 0.1195 | 0.478 | 0.1118 | logit path, fitted rule + context weights |
+| pla_learned | 1400 | 600 | 0.7227 | 0.0999 | 0.342 | 0.029 | logit path + bias, fitted rule + context weights |
 | problog_rules | 1400 | 150 | 0.7416 | 0.1327 | 1.4447 | 0.0704 | subset n=150 |
 | pgmpy_naive_bayes | 1400 | 600 | 0.7228 | 0.0993 | 0.3405 | 0.0288 |  |

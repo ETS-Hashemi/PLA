@@ -27,6 +27,53 @@ CONTEXT_VAR = "Amount_high"
 TARGET = "Fraud"
 
 
+class Schema:
+    """Dataset schema: numeric feature columns to discretize, the label
+    column, and the context source — either a quantile flag on a numeric
+    column (active when the value reaches the upper threshold) or a binary
+    column (active when it equals "1"). Rows whose feature values fail to
+    parse are skipped by build_examples (complete-case)."""
+
+    def __init__(self, features, label, quantile_context=None, binary_context=None):
+        self.features = list(features)
+        self.label = label
+        self.quantile_context = quantile_context  # (column, context var name)
+        self.binary_context = binary_context      # (column, context var name)
+
+    @property
+    def context_var(self):
+        if self.quantile_context:
+            return self.quantile_context[1]
+        if self.binary_context:
+            return self.binary_context[1]
+        return None
+
+    @property
+    def numeric_columns(self):
+        """Feature columns plus the context source, for raw-feature models."""
+        columns = list(self.features)
+        if self.quantile_context:
+            columns.append(self.quantile_context[0])
+        if self.binary_context:
+            columns.append(self.binary_context[0])
+        return columns
+
+
+CREDITCARD = Schema(FEATURES, "Class", quantile_context=(CONTEXT_FEATURE, CONTEXT_VAR))
+
+# Bao et al. (2020, JAR) accounting-fraud replication data: the paper's 14
+# financial ratios, with the binary issuance indicator as the context
+# variable and the other 13 as discretized features.
+BAO2020 = Schema(
+    ["dch_wc", "ch_rsst", "dch_rec", "dch_inv", "soft_assets", "dpi",
+     "reoa", "EBIT", "bm", "ch_cs", "ch_cm", "ch_roa", "ch_fcf"],
+    "misstate",
+    binary_context=("issue", "Issuance"),
+)
+
+SCHEMAS = {"creditcard": CREDITCARD, "bao2020": BAO2020}
+
+
 def load_rows(path):
     with open(path, newline="") as handle:
         return [dict(record) for record in csv.DictReader(handle)]
@@ -37,19 +84,30 @@ def _quantile(sorted_values, q):
     return sorted_values[index]
 
 
-def fit_discretizer(rows, q_low=0.1, q_high=0.9):
-    """Per-feature (low, high) thresholds from quantiles of the given rows."""
+def fit_discretizer(rows, q_low=0.1, q_high=0.9, schema=CREDITCARD):
+    """Per-feature (low, high) thresholds from quantiles of the given rows.
+    Rows with unparseable values are ignored per feature (complete-case)."""
     thresholds = {}
-    for feature in FEATURES + [CONTEXT_FEATURE]:
-        values = sorted(float(record[feature]) for record in rows)
+    columns = list(schema.features)
+    if schema.quantile_context:
+        columns.append(schema.quantile_context[0])
+    for feature in columns:
+        values = []
+        for record in rows:
+            try:
+                values.append(float(record[feature]))
+            except ValueError:
+                continue
+        values.sort()
         thresholds[feature] = (_quantile(values, q_low), _quantile(values, q_high))
     return thresholds
 
 
-def propositionalize(record, thresholds):
-    """Map one row to (facts, context) proposition sets."""
+def propositionalize(record, thresholds, schema=CREDITCARD):
+    """Map one row to (facts, context) proposition sets.
+    Raises ValueError when a feature value does not parse."""
     facts = set()
-    for feature in FEATURES:
+    for feature in schema.features:
         low, high = thresholds[feature]
         value = float(record[feature])
         if value >= high:
@@ -57,16 +115,27 @@ def propositionalize(record, thresholds):
         elif value <= low:
             facts.add(f"{feature}_low")
     context = set()
-    if float(record[CONTEXT_FEATURE]) >= thresholds[CONTEXT_FEATURE][1]:
-        context.add(CONTEXT_VAR)
+    if schema.quantile_context:
+        column, var = schema.quantile_context
+        if float(record[column]) >= thresholds[column][1]:
+            context.add(var)
+    if schema.binary_context:
+        column, var = schema.binary_context
+        if record[column].strip() == "1":
+            context.add(var)
     return frozenset(facts), frozenset(context)
 
 
-def build_examples(rows, thresholds):
+def build_examples(rows, thresholds, schema=CREDITCARD):
+    """(facts, context, label) triples; rows with unparseable feature
+    values are skipped (complete-case) — compare len() against the input."""
     examples = []
     for record in rows:
-        facts, context = propositionalize(record, thresholds)
-        label = 1 if record["Class"].strip() in ("1", "1.0") else 0
+        try:
+            facts, context = propositionalize(record, thresholds, schema)
+        except ValueError:
+            continue
+        label = 1 if record[schema.label].strip() in ("1", "1.0") else 0
         examples.append((facts, context, label))
     return examples
 
@@ -81,7 +150,8 @@ def _precision(examples, antecedents):
 
 
 def generate_rule_specs(examples, top_singles=8, top_pairs=3,
-                        min_single_support=20, min_pair_support=10):
+                        min_single_support=20, min_pair_support=10,
+                        context_vars=(CONTEXT_VAR,)):
     """Precision-ranked candidate rules with support floors. Deterministic."""
     propositions = sorted({p for facts, _, _ in examples for p in facts})
 
@@ -105,10 +175,10 @@ def generate_rule_specs(examples, top_singles=8, top_pairs=3,
 
     specs, precisions = [], []
     for precision, proposition, _ in selected_singles:
-        specs.append(RuleSpec((proposition,), context_vars=(CONTEXT_VAR,)))
+        specs.append(RuleSpec((proposition,), context_vars=context_vars))
         precisions.append(precision)
     for precision, antecedents, _ in selected_pairs:
-        specs.append(RuleSpec(antecedents, context_vars=(CONTEXT_VAR,)))
+        specs.append(RuleSpec(antecedents, context_vars=context_vars))
         precisions.append(precision)
     return specs, precisions
 
@@ -143,12 +213,13 @@ def export_scenario(rule_specs, precisions, example_facts, example_context, path
     return scenario
 
 
-def run_pipeline(data_path, scenario_path=None):
+def run_pipeline(data_path, scenario_path=None, schema=CREDITCARD):
     """End to end: rows -> thresholds -> examples -> rules (+ scenario)."""
     rows = load_rows(data_path)
-    thresholds = fit_discretizer(rows)
-    examples = build_examples(rows, thresholds)
-    specs, precisions = generate_rule_specs(examples)
+    thresholds = fit_discretizer(rows, schema=schema)
+    examples = build_examples(rows, thresholds, schema=schema)
+    context_vars = (schema.context_var,) if schema.context_var else ()
+    specs, precisions = generate_rule_specs(examples, context_vars=context_vars)
 
     scenario = None
     if scenario_path is not None:
