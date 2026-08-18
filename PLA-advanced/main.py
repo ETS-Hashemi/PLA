@@ -1,25 +1,27 @@
 import sys
-from scenario_loader import load_scenario
+from scenario_loader import load_scenario, ScenarioFormatError
 from prob import InferenceEngine
 
 def main():
     # Check if scenario file is provided as an argument
     if len(sys.argv) < 2:
-        print("Usage: python main.py <scenario_config.json> [context_number]")
+        print("Usage: python main.py <scenario_config.json> [context_set]")
         sys.exit(1)
 
-    # Load the scenario from the configuration file
     config_path = sys.argv[1]
-    # Default context_number to "1" if not provided
-    context_number = sys.argv[2] if len(sys.argv) >= 3 else "1"
+    # Default context set to "1" if not provided
+    context_set = sys.argv[2] if len(sys.argv) >= 3 else "1"
     try:
-        kb, queries = load_scenario(config_path)
+        scenario = load_scenario(config_path)
+        scenario.activate(context_set)
     except FileNotFoundError:
         print(f"Error: The file '{config_path}' was not found. Please check the file name and path.")
         sys.exit(1)
-    except ValueError as e:
+    except ScenarioFormatError as e:
         print(f"Error: {e}")
         sys.exit(1)
+
+    kb, queries = scenario.kb, scenario.queries
 
     # Display the knowledge base
     print("=" * 60)
@@ -33,31 +35,17 @@ def main():
         print(f"  - {rule}")
     print("=" * 60)
 
-    # Set the context based on the context number
-    context = {}
-    try:
-        for rule in kb.rules:
-            if hasattr(rule, "context") and context_number in rule.context:
-                context.update(rule.context[context_number])
-    except KeyError:
-        print(f"Error: Context number '{context_number}' not found in the scenario.")
-        sys.exit(1)
-
-    kb.set_context(context)
-
-    # Flatten rule contexts to use active context directly
-    for rule in kb.rules:
-        if isinstance(rule.context, dict) and context_number in rule.context:
-            rule.context = rule.context[context_number]
-
     # Display the active context
     print("\n                  ACTIVE CONTEXT")
     print("=" * 60)
-    if context:
-        for var, weight in context.items():
-            print(f"  - {var}: Weight = {weight}")
+    if scenario.active_variables:
+        print(f"  Context set: {scenario.active_set}")
+        for var in scenario.active_variables:
+            print(f"  - {var}")
     else:
         print("  No active context variables.")
+    if scenario.context_sets:
+        print(f"  Available sets: {', '.join(sorted(scenario.context_sets))}")
     print("=" * 60)
 
     # Initialize the inference engine

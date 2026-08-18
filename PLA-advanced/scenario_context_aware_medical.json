@@ -32,5 +32,10 @@
     "LungCancerRisk",
     "BiopsyRequired",
     "TreatmentPlanRequired"
-  ]
+  ],
+  "contexts": {
+    "1": ["PatientAge>60"],
+    "2": ["PatientAge>60", "SmokingHistory"],
+    "3": ["PatientAge>60", "SmokingHistory", "FamilyHistoryOfCancer"]
+  }
 }

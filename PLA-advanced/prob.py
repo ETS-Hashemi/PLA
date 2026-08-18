@@ -111,7 +111,7 @@ class ProbRule:
         """
         adjusted_prob = self.probability
         for var, weight in self.context.items():
-            if var in current_context:
+            if current_context.get(var):
                 adjusted_prob *= weight
         return min(adjusted_prob, 1.0)  # Ensure probability does not exceed 1.0
 
