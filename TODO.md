@@ -130,10 +130,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 4 — Learnable weights
 
-- [ ] **L1. Differentiable inference + weight learning.** Gradient fitting of rule
-  and context weights through the logit-pool path (numpy only).
-  *Verify: loss decreases monotonically on a fixed synthetic training set; no
-  external ML deps required.*
+- [x] **L1. Differentiable inference + weight learning.** Gradient fitting of rule
+  and context weights through the logit-pool path (numpy only). (`626b707`)
+  *Verify: passed — BCE history over 200 epochs on the fixed synthetic set is
+  monotonically non-increasing with a real decrease; learner predictions match
+  engine logit-path queries exactly; implemented in pure Python (source-checked:
+  no numpy/torch/sklearn); 54/54 tests green.*
 - [ ] **L2. Weight-recovery test.** Generate data from known weights; learner
   recovers them.
   *Verify: recovered weights within tolerance of ground truth on ≥3 seeds.*
