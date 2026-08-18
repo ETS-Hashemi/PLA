@@ -34,13 +34,14 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 1 — Correctness (before anything else ships)
 
-- [ ] **C1. Fix the context-format bug.** One canonical scenario format; the loader
+- [x] **C1. Fix the context-format bug.** One canonical scenario format; the loader
   must accept the existing flat (`{"Var": w}`) and nested (`{"1": {"Var": w}}`)
   formats explicitly — silent no-op contexts become impossible (unknown shapes fail
-  loudly).
-  *Verify: new tests load `scenario_context_aware_medical.json` via the CLI path and
-  assert LungCancerRisk = 0.84 with only `PatientAge>60` active and 1.0 (capped)
-  with both vars active; a malformed context raises.*
+  loudly). (`321bd87`)
+  *Verify: passed — CLI tests assert LungCancerRisk 0.840 (set 1) and 1.000 capped
+  (set 2) on `scenario_context_aware_medical.json`; malformed/mixed contexts,
+  unknown sets, and undeclared variables all raise ScenarioFormatError; 16/16
+  tests green; all 35 scenario files load and activate.*
 - [ ] **C2. REST API parity with CLI.** The API applies the same context resolution
   (today it never applies adjustments).
   *Verify: Flask test-client tests assert identical probabilities from CLI and API
