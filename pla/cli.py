@@ -1,11 +1,11 @@
 import sys
-from scenario_loader import load_scenario, ScenarioFormatError
-from prob import InferenceEngine
+from .scenario_loader import load_scenario, ScenarioFormatError
+from .prob import InferenceEngine
 
 def main():
     # Check if scenario file is provided as an argument
     if len(sys.argv) < 2:
-        print("Usage: python main.py <scenario_config.json> [context_set]")
+        print("Usage: pla <scenario_config.json> [context_set]")
         sys.exit(1)
 
     config_path = sys.argv[1]

@@ -3,10 +3,10 @@ import pathlib
 import sys
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1] / "examples"))
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[1] / "PLA-advanced"))
+
 
 from run_hybrid_demo import build_kbs  # noqa: E402
-from engine import HybridEngine  # noqa: E402
+from pla.engine import HybridEngine  # noqa: E402
 
 
 def test_hard_gate_passes_entailed_query_with_nonzero_probability():

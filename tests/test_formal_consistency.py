@@ -1,12 +1,8 @@
 import math
-import pathlib
-import sys
 
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[1] / "PLA-advanced"))
-
-from prob import ProbKB, ProbRule, ProbSymbol
-from kb import KnowledgeBase
-from engine import HybridEngine
+from pla.prob import ProbKB, ProbRule, ProbSymbol
+from pla.kb import KnowledgeBase
+from pla.engine import HybridEngine
 
 
 def _build_multi_support_kb(aggregation_method):

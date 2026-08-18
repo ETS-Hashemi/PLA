@@ -1,4 +1,4 @@
-from prob import InferenceEngine
+from .prob import InferenceEngine
 
 
 class HybridEngine:

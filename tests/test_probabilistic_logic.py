@@ -1,7 +1,7 @@
 import unittest
-from prob import ProbSymbol, ProbRule, ProbKB, InferenceEngine
-from engine import HybridEngine
-from kb import KnowledgeBase
+from pla.prob import ProbSymbol, ProbRule, ProbKB, InferenceEngine
+from pla.engine import HybridEngine
+from pla.kb import KnowledgeBase
 
 class TestProbabilisticLogic(unittest.TestCase):
 

@@ -1,7 +1,7 @@
 import time
 import sys
-from scenario_loader import load_scenario
-from prob import InferenceEngine
+from pla.scenario_loader import load_scenario
+from pla.prob import InferenceEngine
 
 def benchmark_scenario(config_path, context_set="1"):
     scenario = load_scenario(config_path)
@@ -19,7 +19,7 @@ def benchmark_scenario(config_path, context_set="1"):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python benchmark.py <scenario_config.json> [context_set]")
+        print("Usage: python scripts/benchmark.py <scenario_config.json> [context_set]")
         sys.exit(1)
 
     config_path = sys.argv[1]

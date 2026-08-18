@@ -6,14 +6,15 @@ import sys
 
 import pytest
 
-PLA_DIR = pathlib.Path(__file__).resolve().parents[1] / "PLA-advanced"
-sys.path.append(str(PLA_DIR))
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+SCENARIOS = ROOT / "scenarios"
 
-import rest_api  # noqa: E402
-from scenario_loader import load_scenario  # noqa: E402
 
-MEDICAL = str(PLA_DIR / "scenario_context_aware_medical.json")
-NESTED = str(PLA_DIR / "scenario_context_parallel.json")
+import pla.rest_api as rest_api  # noqa: E402
+from pla.scenario_loader import load_scenario  # noqa: E402
+
+MEDICAL = str(SCENARIOS / "scenario_context_aware_medical.json")
+NESTED = str(SCENARIOS / "scenario_context_parallel.json")
 
 
 @pytest.fixture()
@@ -36,8 +37,8 @@ def api_probability(client, config_path, context_set, query):
 
 def cli_probability(config_path, context_set, query):
     result = subprocess.run(
-        [sys.executable, "main.py", config_path, context_set],
-        cwd=PLA_DIR,
+        [sys.executable, "-m", "pla.cli", config_path, context_set],
+        cwd=ROOT,
         capture_output=True,
         text=True,
         timeout=60,

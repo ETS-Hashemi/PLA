@@ -15,11 +15,11 @@ NOT entail. That makes the gate observable:
 import pathlib
 import sys
 
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[1] / "PLA-advanced"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from engine import HybridEngine
-from kb import KnowledgeBase
-from prob import ProbKB, ProbRule, ProbSymbol
+from pla.engine import HybridEngine
+from pla.kb import KnowledgeBase
+from pla.prob import ProbKB, ProbRule, ProbSymbol
 
 
 def build_kbs():

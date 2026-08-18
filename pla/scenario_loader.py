@@ -40,7 +40,7 @@ unknown variables in "contexts", selecting an undeclared set — raises
 import json
 import numbers
 
-from prob import ProbSymbol, ProbRule, ProbKB
+from .prob import ProbSymbol, ProbRule, ProbKB
 
 
 class ScenarioFormatError(ValueError):

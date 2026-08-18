@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-from scenario_loader import load_scenario, ScenarioFormatError
-from prob import InferenceEngine
+from .scenario_loader import load_scenario, ScenarioFormatError
+from .prob import InferenceEngine
 
 app = Flask(__name__)
 
