@@ -67,9 +67,13 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 - [x] **H2. `.gitignore` + purge tracked `__pycache__`/`.pyc`.** (`45079d6`)
   *Verify: passed — 20 tracked bytecode files removed from the index, 0 remain;
   status clean after a full 30-test run; packaging/coverage ignores added for H4.*
-- [ ] **H3. Remove duplicates:** `scenario_supply_chain_optimization copy.json`,
-  `Archive/` trees (git history is the archive; tag the old state first).
-  *Verify: tag pushed; directories gone; tests pass.*
+- [x] **H3. Remove duplicates:** `scenario_supply_chain_optimization copy.json`,
+  `Archive/` trees (git history is the archive; tag the old state first). (`c9767b6`)
+  *Verify (amended — tag pushes are 403-denied in this environment, like branch
+  deletion): pre-removal state anchored at commit `b16e843` (local tag
+  `legacy-archive`; recreate remotely with `git tag legacy-archive b16e843 &&
+  git push origin legacy-archive`); directories gone from index and disk ✓;
+  30/30 tests pass ✓.*
 - [ ] **H4. Installable package.** Restructure `PLA-advanced/` into a `pla/` package
   with `pyproject.toml`, console entry point, scenarios under `scenarios/`.
   *Verify: `pip install -e .` in a fresh venv, `pla scenarios/<file>.json` runs,
