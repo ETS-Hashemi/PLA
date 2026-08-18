@@ -140,7 +140,7 @@ adjustment. 35 ready-made scenarios live in `scenarios/`.
 | `examples/` | Runnable demos that generate every number quoted in this README |
 | `docs/` | Framework overview, formal semantics (`SEMANTICS.md`), methodology, manual |
 | `research/` | Reading list and gap statement driving the research program |
-| `paper/` | Overleaf-style LaTeX project: full paper (`main.tex` + `sections/` + `references.bib`) and the 4–6 page workshop cut (`workshop.tex`) |
+| `paper/` | Overleaf project: journal manuscript in `elsarticle` (`main.tex` + `sections/` + `references.bib`) and the 4–6 page workshop cut (`workshop.tex`) |
 | `results/` | Generated experiment and fidelity tables (byte-reproducible from scripts) |
 | `TODO.md` | The verifiable rebuild roadmap — complete, 29/29 ticked with commit hashes |
 | `PROJECT_FEEDBACK.md` | Full technical review and publishability assessment |
@@ -149,11 +149,16 @@ adjustment. 35 ready-made scenarios live in `scenarios/`.
 
 `paper/` is a self-contained Overleaf project (see `paper/README.md`):
 
-- **Full paper** — `main.tex`, modular `sections/`, BibTeX in
-  `references.bib`; compile with
-  `pdflatex main && bibtex main && pdflatex main && pdflatex main`, or zip
-  the folder and upload to Overleaf with `main.tex` as the main document.
-- **Workshop cut** — `workshop.tex`, self-contained, held to 4–6 pages.
+- **Journal manuscript** — `main.tex` in Elsevier's `elsarticle` class
+  (the class of the target journals: *Knowledge-Based Systems*, *ESWA*,
+  *Information Sciences*), with frontmatter, keywords, modular
+  `sections/`, and numbered natbib references from `references.bib`.
+  Compile with `pdflatex main && bibtex main && pdflatex main && pdflatex
+  main`, or zip the folder and upload to Overleaf with `main.tex` as the
+  main document. Class options switch between `review` (submission,
+  line-numbered), `preprint`, and `final,3p` (journal layout).
+- **Workshop cut** — `workshop.tex`, self-contained, held to 4–6 pages
+  (secondary artifact from the rebuild roadmap).
 
 CI compiles both on every push and uploads the PDFs as the `papers`
 artifact on the Actions run; the workshop cut's page budget is enforced
