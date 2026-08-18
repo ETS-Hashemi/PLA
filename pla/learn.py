@@ -85,27 +85,54 @@ class RuleWeightLearner:
     def fit(self, dataset, epochs=300, learning_rate=0.5):
         """Full-batch gradient descent. Returns the per-epoch loss history,
         starting with the pre-training loss."""
-        history = [self.loss(dataset)]
         n = len(dataset)
+        # The dataset is fixed during fit: compile each example once into
+        # (fired rule indices, active context vars per fired rule, label).
+        compiled = []
+        for facts, context, label in dataset:
+            fired = self._fired(facts)
+            active = [
+                tuple(v for v in self.context_weights[i] if v in context)
+                for i in fired
+            ]
+            compiled.append((fired, active, label))
+
+        def compiled_loss():
+            total = 0.0
+            for fired, active, label in compiled:
+                if fired:
+                    z = sum(
+                        self.theta[i] + sum(self.context_weights[i][v] for v in vars_)
+                        for i, vars_ in zip(fired, active)
+                    )
+                    p = _sigmoid(z)
+                else:
+                    p = self.NO_FIRE_FLOOR
+                p = min(max(p, 1e-9), 1.0 - 1e-9)
+                total += -(label * math.log(p) + (1 - label) * math.log(1.0 - p))
+            return total / n
+
+        history = [compiled_loss()]
         for _ in range(epochs):
             grad_theta = [0.0] * len(self.rules)
             grad_ctx = [{var: 0.0 for var in w} for w in self.context_weights]
-            for facts, context, label in dataset:
-                fired = self._fired(facts)
+            for fired, active, label in compiled:
                 if not fired:
                     continue  # floor prediction: no parameters involved
-                p = _sigmoid(sum(self._z(index, context) for index in fired))
-                err = (p - label) / n  # d BCE / d z, averaged
-                for index in fired:
-                    grad_theta[index] += err
-                    for var in self.context_weights[index]:
-                        if var in context:
-                            grad_ctx[index][var] += err
+                z = sum(
+                    self.theta[i] + sum(self.context_weights[i][v] for v in vars_)
+                    for i, vars_ in zip(fired, active)
+                )
+                err = (_sigmoid(z) - label) / n  # d BCE / d z, averaged
+                for i, vars_ in zip(fired, active):
+                    grad_theta[i] += err
+                    for var in vars_:
+                        grad_ctx[i][var] += err
             for index in range(len(self.rules)):
                 self.theta[index] -= learning_rate * grad_theta[index]
                 for var in self.context_weights[index]:
                     self.context_weights[index][var] -= learning_rate * grad_ctx[index][var]
-            history.append(self.loss(dataset))
+            history.append(compiled_loss())
         return history
 
     def to_prob_kb(self, target="Target"):

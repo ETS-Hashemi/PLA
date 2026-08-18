@@ -1,39 +1,7 @@
 import math
-import random
 
-from pla.learn import RuleSpec, RuleWeightLearner, _sigmoid
-
-
-RULES = [
-    RuleSpec(("LargeTransaction", "NoReceipt"), context_vars=("EconomicDownturn",)),
-    RuleSpec(("UnusualVendor",)),
-]
-
-TRUE_THETA = [1.5, -0.5]
-TRUE_CTX = [{"EconomicDownturn": 1.0}, {}]
-
-
-def make_dataset(n=400, seed=0):
-    """Fixed synthetic set: features and labels drawn from the true model."""
-    rng = random.Random(seed)
-    propositions = ["LargeTransaction", "NoReceipt", "UnusualVendor"]
-    dataset = []
-    for _ in range(n):
-        facts = frozenset(p for p in propositions if rng.random() < 0.6)
-        context = frozenset(
-            v for v in ("EconomicDownturn",) if rng.random() < 0.5
-        )
-        z = 0.0
-        fired = False
-        for index, rule in enumerate(RULES):
-            if all(a in facts for a in rule.antecedents):
-                fired = True
-                z += TRUE_THETA[index] + sum(
-                    w for v, w in TRUE_CTX[index].items() if v in context
-                )
-        p = _sigmoid(z) if fired else 0.001
-        dataset.append((facts, context, 1 if rng.random() < p else 0))
-    return dataset
+from pla.learn import RuleWeightLearner
+from synthetic import RULES, make_dataset
 
 
 def test_loss_decreases_monotonically_on_fixed_dataset():
