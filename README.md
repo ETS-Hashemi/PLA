@@ -13,11 +13,14 @@ and trace-first prototyping** in domains where you must be able to show a
 human exactly why a conclusion was reached.
 
 **Project status:** the verifiable rebuild roadmap in [`TODO.md`](TODO.md)
-is complete — 29/29 items implemented, tested, and ticked with commit
-hashes. The remaining human steps are the real-data experiment
-(`scripts/fetch_fraud_data.py` on an open network, then
-`scripts/run_experiments.py --data data/creditcard.csv`) and the
-literature pass driven by [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md).
+is complete (29/29 ticked with commit hashes), and the **real-data
+studies have been run**: the ULB credit-card dataset
+(invariant-verified) and the Bao et al. 2020 accounting-fraud
+replication data — results and headline findings in
+[`results/`](results/README.md), provenance in
+[`data/README.md`](data/README.md). The main remaining human step is the
+literature pass driven by
+[`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md).
 
 ## What PLA is (and is not)
 

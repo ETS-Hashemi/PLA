@@ -14,10 +14,18 @@
   rule-shaped models paying a visible accuracy cost on continuous
   signal; rule mining and threshold selection are first-order levers we
   have not yet tuned.
-\item \textbf{Synthetic-only results so far.} Every number in
-  Section~\ref{sec:evaluation} is a development result; the real-data
-  study is pending, and its kill criterion may falsify the central
-  hypothesis.
+\item \textbf{Simplified real-data protocols.} The credit-card study
+  uses a random split (the dataset spans two days; temporal structure is
+  limited), and the accounting-fraud study simplifies the original
+  protocol of~\cite{bao2020}: complete-case deletion of the 13.4\% of
+  firm-years with missing ratios, no serial-fraud handling, and a much
+  coarser rule vocabulary. Its negative result binds this protocol, not
+  the hypothesis space. Baselines run untuned defaults by design, which
+  flatters no one but understates gradient boosting in particular.
+\item \textbf{Scale-dependent fidelity metrics.} Deletion metrics in
+  absolute probability units compress toward zero for calibrated
+  rare-event models (Section~\ref{sec:evaluation}); log-odds-scale
+  variants are future work.
 \item \textbf{No human-subject evidence.} The usability and
   trace-comprehension claims that motivate the design await an
   ethics-approved study with auditors or students; explanation fidelity

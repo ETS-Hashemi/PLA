@@ -2,6 +2,6 @@ model,n_train,n_test,auc,brier,log_loss,ece,note
 logistic_regression,199364,85443,0.9796,0.0006,0.0036,0.0003,
 gradient_boosting,199364,85443,0.7159,0.0013,0.0262,0.0009,
 pla_static,199364,85443,0.9687,0.0018,0.0172,0.0138,"empirical precisions, noisy-OR, neutral context"
-pla_learned,199364,85443,0.0762,0.0032,0.0553,0.023,"logit path, fitted rule + context weights"
-problog_rules,199364,0,,,,,skipped: roc_auc needs both classes present
+pla_learned,199364,85443,0.9625,0.0017,0.0113,0.0022,"logit path + bias, fitted rule + context weights"
+problog_rules,199364,150,0.961,0.0439,0.1502,0.0553,subset n=150
 pgmpy_naive_bayes,199364,2000,0.9322,0.0016,0.0195,0.0016,subset n=2000

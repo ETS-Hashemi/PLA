@@ -183,33 +183,56 @@ scenario.
 
 `results/experiment_synthetic_n2000_seed0.{csv,md}` (regenerated
 byte-for-byte by `scripts/run_experiments.py --synthetic 2000 --seed 0`)
-compares PLA static (empirical-precision rules, noisy-OR), PLA learned,
-and four baselines on the seeded synthetic sample. Headline development
-findings, reported as measured: the learned variant wins decisively on
-calibration (log-loss 0.478 vs 1.0908 for static) but trails on ranking
-(AUC 0.5945 vs 0.7217) — convergence-checked, not an under-training
-artifact: quantile discretization discards most of the planted continuous
-signal, and maximum likelihood spends what remains on calibration. Both
-PLA variants trail the raw-feature baselines (logistic regression 0.9746,
-gradient boosting 0.9171), as expected on data whose true model is
-logistic in the raw features. The ProbLog row (0.7416 on a subsample)
-executes the same rules under distribution semantics and cross-validates
-PLA's noisy-OR.
+compares PLA static (empirical-precision rules, noisy-OR), PLA learned
+(with the standard logistic intercept), and four baselines on the seeded
+synthetic sample. Reported as measured: learning matches static ranking
+(AUC 0.7227 vs 0.7217) and wins calibration decisively (log-loss 0.342
+vs 1.0908) — raw empirical precisions are badly overconfident when
+several rules fire together, and maximum likelihood repairs exactly
+that. Both PLA variants trail the raw-feature baselines (logistic
+regression 0.9746, gradient boosting 0.9171), as expected on data whose
+true model is logistic in the raw features. The ProbLog row (0.7416 on a
+subsample) executes the same rules under distribution semantics and
+cross-validates PLA's noisy-OR.
 
-**Real-data results: PENDING.** `scripts/run_experiments.py --data
-data/creditcard.csv` produces the equivalent table on the ULB fraud
-dataset once fetched (`scripts/fetch_fraud_data.py`); those numbers — not
-the synthetic ones — carry any claim about practical performance.
+### 5.3 Real data I: ULB credit-card fraud
 
-### 5.3 Explanation fidelity
+`results/experiment_creditcard_real.{csv,md}` (obtained and
+invariant-verified per `data/README.md`; 199,364 train / 85,443 test):
+an 11-rule PLA model reaches AUC 0.9687 (static) and 0.9625 (learned,
+log-loss 0.0113, ECE 0.0022) against 0.9796 for raw-feature logistic
+regression; ProbLog on the same rules scores 0.9610 (subset), pgmpy
+naive Bayes 0.9322 (subset), and untuned gradient boosting 0.7159.
+The study also surfaced a model-class pathology (recorded pre-fix in git
+history): with no intercept, the learned model's AUC was 0.076 —
+inverted — because individually-weak-but-jointly-strong rules force
+negative weights and five co-firing rules then rank strongest signals
+lowest; the standard intercept (a base-rate prior rule under logit_pool)
+repairs it, with a deterministic regression test.
 
-`results/fidelity_synthetic_n2000_seed0.{csv,md}` (regenerated
-byte-for-byte by `scripts/run_fidelity.py`) reports deletion-based
-comprehensiveness and sufficiency [R1-23] with a reversed-attribution
-control. For both PLA variants the faithful trace out-scores the control
-on comprehensiveness (static 0.2222 vs 0.1864; learned 0.1425 vs 0.1182),
-i.e. the traces name factors that actually drive predictions — a measured
-property, not an asserted one.
+### 5.4 Real data II: Bao et al. accounting fraud, temporal drift
+
+`results/experiment_bao2020_real.{csv,md}` (authors' replication data;
+temporal split: train fyear ≤ 2001, gap 2002, test ≥ 2003; complete-case
+62,689 train / 58,405 test). An honest negative on a simplified
+protocol: tail rules mined pre-2002 barely beat chance post-2003 (PLA
+static 0.5312, learned 0.5343; the issuance context variable does not
+rescue them) while raw-ratio logistic regression reaches 0.6771 and
+untuned gradient boosting 0.6349. Reported per the pre-registered kill
+criterion; protocol gaps that scope the next iteration: 13.4%
+complete-case deletion, no serial-fraud handling, and an 11-rule
+vocabulary far coarser than the original 28-feature ensembles [R1-24].
+
+### 5.5 Explanation fidelity
+
+`results/fidelity_*.{csv,md}` report deletion-based comprehensiveness
+and sufficiency [R1-23] with a reversed-attribution control. The static
+model's traces out-score the control on every dataset (synthetic 0.2222
+vs 0.1864; credit card 0.0202 vs 0.0166; accounting 0.0163 vs 0.0127);
+the calibrated learned model's deltas compress toward zero on rare-event
+data (predictions live near the base rate), still ordered correctly but
+at noise level — deletion metrics should move to log-odds units for such
+models (limitation §6).
 
 ## 6. Limitations and threats to validity
 
@@ -281,6 +304,9 @@ selects the log-odds mode.
 | Symbolic entailment sound, complete, scalable | `tests/test_symbolic_entailment.py` (oracle differential + 200-symbol timing) |
 | Section 5.1 table | `scripts/benchmark.py --paper-table` (byte-verified) |
 | Section 5.2 numbers | `results/experiment_synthetic_n2000_seed0.csv` (byte-reproduced by `scripts/run_experiments.py`) |
-| Section 5.3 numbers | `results/fidelity_synthetic_n2000_seed0.csv` (byte-reproduced by `scripts/run_fidelity.py`) |
+| Section 5.3 numbers | `results/experiment_creditcard_real.csv` (real ULB data, invariant-verified; provenance in `data/README.md`) |
+| Section 5.4 numbers | `results/experiment_bao2020_real.csv` (authors' replication data, temporal split) |
+| Section 5.5 numbers | `results/fidelity_*.csv` (byte-reproduced by `scripts/run_fidelity.py`) |
+| Intercept fixes rank inversion | `tests/test_bias_learning.py` (deterministic reproduction + repair); pre-fix table in git history |
 | ProbLog marginals + conditioning; pgmpy posteriors | `tests/test_related_work_claims.py` against installed packages |
 | Trace fidelity beats reversed control | `tests/test_fidelity.py` + `results/fidelity_*.csv` |

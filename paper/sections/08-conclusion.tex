@@ -8,11 +8,13 @@ explanation fidelity measured against a control --- all inside a
 dependency-free package whose every reported number regenerates from
 committed scripts.
 
-The immediate next step is the pre-registered real-data study: does
-context conditioning beat its own static ablation on drifting fraud
-data, at equal interpretability? Beyond it, three directions are
-specified with hypotheses and kill criteria in the repository's gap
-statement: negation in the symbolic layer (making constraint gating
-real), a human-subject study of trace utility in audit decisions, and
-\pla{} as the uncertain-rule verifier in LLM
+The real-data studies are in (Section~\ref{sec:evaluation}):
+near-parity with raw-feature logistic regression on credit-card fraud
+with near-perfect calibration, and an honest negative under
+accounting-fraud drift that scopes the next iteration --- richer rule
+mining and the original serial-fraud protocol of~\cite{bao2020}. Beyond
+those, three directions are specified with hypotheses and kill criteria
+in the repository's gap statement: negation in the symbolic layer
+(making constraint gating real), a human-subject study of trace utility
+in audit decisions, and \pla{} as the uncertain-rule verifier in LLM
 generate-and-verify pipelines~\cite{kambhampati2024}.

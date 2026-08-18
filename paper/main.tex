@@ -55,10 +55,11 @@ measured}, via deletion-based comprehensiveness and sufficiency against
 a reversed-attribution control. The calculus has machine-checked
 convergence guarantees, the entire engine is a few hundred lines of
 dependency-free Python, and every experimental number regenerates
-byte-for-byte from committed scripts. Development results on synthetic
-data validate the harness; the real-data evaluation on public fraud
-datasets is the pending experiment that will decide whether context
-conditioning earns its keep.
+byte-for-byte from committed scripts. On the real ULB credit-card data an
+11-rule model reaches AUC $0.96$--$0.97$ (raw-feature logistic
+regression: $0.98$) with near-perfect calibration; on accounting-fraud
+data under temporal drift, a deliberately simplified protocol yields an
+honest negative result, reported per its pre-registered kill criterion.
 \end{abstract}
 
 \begin{keyword}

@@ -24,6 +24,23 @@ decreases it monotonically for a suitable step size --- asserted over
 engine reports zero support; the learner substitutes a small floor so
 the loss stays finite, and such examples contribute no gradient.
 
+\paragraph{The intercept matters.} The reduction makes one classical
+requirement visible the hard way. On rare-positive data, rules that are
+strong \emph{lifts} but weak absolute probabilities (precision far below
+$0.5$) force every $\theta_r$ negative in the interceptless model; an
+example firing five such rules --- typically the most suspicious one ---
+then receives the \emph{lowest} score, inverting the ranking. We
+observed exactly this on the real credit-card data (fitted
+$\theta_r \approx -2.5$; frauds concentrated at five fired rules; AUC
+$0.076$). Adding the standard logistic intercept $b$,
+$\hat{y} = \sigma(b + \sum_r z_r)$, lets $b$ absorb the base rate
+($\approx \logit(0.0017)$) and the $\theta_r$ become positive lifts,
+restoring AUC to $0.9625$ (Section~\ref{sec:evaluation}). The intercept
+maps exactly onto the engine as a base-rate prior rule folded first by
+logit pooling (an always-true antecedent with confidence $\sigma(b)$;
+equivalence tested), and a deterministic regression test reproduces the
+inversion and its repair.
+
 \subsection{Fidelity to the engine, and weight recovery}
 
 Two properties tie the learner to the system it serves. First, fitted

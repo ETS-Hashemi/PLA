@@ -1,0 +1,5 @@
+model,attribution,n_explained,comprehensiveness,sufficiency
+pla_static,trace,21668,0.0163,0.0085
+pla_static,reversed_control,21668,0.0127,0.0125
+pla_learned,trace,21668,0.0003,-0.0002
+pla_learned,reversed_control,21668,-0.0004,0.0005

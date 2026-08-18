@@ -30,7 +30,10 @@ and provably monotone; and explanations are \emph{traces whose fidelity is
 measured} with deletion metrics against a reversed-attribution control.
 The calculus carries machine-checked convergence guarantees, the engine is
 a few hundred lines of dependency-free Python, and every reported number
-regenerates byte-for-byte from committed scripts.
+regenerates byte-for-byte from committed scripts. Real-data studies on the
+ULB credit-card and Bao et al.\ accounting-fraud datasets are included:
+near-parity with logistic regression on the former, an honest negative
+under temporal drift on the latter.
 \end{abstract}
 
 \section{Introduction}
@@ -139,15 +142,15 @@ tests against the installed packages.
 
 \section{Development results}\label{sec:results}
 Numbers below are development results on a seeded synthetic sample with
-planted logistic ground truth ($n{=}2{,}000$); they validate the harness,
-not real-world performance --- the public fraud-data experiment is the
-pending study. Table~\ref{tab:headtohead} compares PLA with static
+planted logistic ground truth ($n{=}2{,}000$) that validate the harness;
+the repository also carries two real-data studies (regenerated
+byte-for-byte the same way), summarized at the end of this section. Table~\ref{tab:headtohead} compares PLA with static
 empirical-precision rules, PLA with learned weights, and four baselines.
-Reported as measured: the learned variant wins decisively on calibration
-(log-loss $0.478$ vs.\ $1.091$) but trails static on ranking (AUC $0.594$
-vs.\ $0.722$) --- convergence-checked, not an under-training artifact;
-quantile discretization discards most of the planted continuous signal
-and maximum likelihood spends what remains on calibration. Both PLA
+Reported as measured: with the standard logistic intercept included,
+the learned variant matches static ranking (AUC $0.7227$ vs.\ $0.7217$)
+and wins calibration decisively (log-loss $0.342$ vs.\ $1.091$) ---
+raw empirical precisions are badly overconfident when several rules fire
+together, and maximum likelihood repairs exactly that. Both PLA
 variants trail the raw-feature baselines, as expected when the true model
 is logistic in the raw features. The ProbLog row executes the same rules
 under distribution semantics and cross-validates PLA's noisy-OR.
@@ -167,7 +170,7 @@ gradient boosting (raw features) & 0.9171 & 0.0883 & 0.375 & 0.0808\\
 ProbLog on PLA rules (subsample) & 0.7416 & 0.1327 & 1.4447 & 0.0704\\
 pgmpy naive Bayes (propositions) & 0.7228 & 0.0993 & 0.3405 & 0.0288\\
 PLA static (empirical precisions) & 0.7217 & 0.1138 & 1.0908 & 0.0952\\
-PLA learned (logit path) & 0.5945 & 0.1195 & 0.4780 & 0.1118\\
+PLA learned (logit path + bias) & 0.7227 & 0.0999 & 0.3420 & 0.0290\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -177,20 +180,34 @@ framing of Jacovi and Goldberg~\cite{jacovi2020}: comprehensiveness (drop
 in prediction when the trace's top rule's facts are removed) and
 sufficiency (gap when only they are kept), against a reversed-attribution
 control. For both variants the faithful trace out-scores the control on
-comprehensiveness ($0.2222$ vs.\ $0.1864$ static; $0.1425$ vs.\ $0.1182$
+comprehensiveness ($0.2222$ vs.\ $0.1864$ static; $0.0939$ vs.\ $0.0807$
 learned): the traces name factors that actually drive predictions --- a
 measured property, not an asserted one.
+
+\paragraph{Real data.} The same scripts run on two real datasets. On the
+ULB credit-card data (284{,}807 transactions, 492 frauds) an 11-rule PLA
+model reaches AUC $0.9687$ (static) and $0.9625$ (learned, ECE $0.0022$)
+against $0.9796$ for raw-feature logistic regression --- and the
+interceptless learner's \emph{inverted} AUC of $0.076$, repaired to
+$0.9625$ by the standard intercept, is a model-class lesson the logistic
+reduction made obvious. On the Bao et al.\ accounting data~\cite{bao2020}
+under a simplified temporal protocol (train $\le 2001$, test $\ge 2003$),
+tail rules mined pre-2002 barely beat chance post-2003 (AUC
+$\approx 0.53$; raw-ratio logistic regression: $0.677$): an honest
+negative result, reported per its pre-registered kill criterion.
 
 \section{Limitations and roadmap}
 PLA has no joint measure and no conditioning; its language is
 propositional and negation-free (constraint-mode gating is a documented
 no-op until negation lands); rule-shaped models pay a visible
-discretization tax on continuous signal; all results so far are
-synthetic; and the usability claims await a human-subject study. The
-roadmap is kill-criteria-driven: run the public fraud-data head-to-head
-(does context conditioning beat its own static ablation on drifting
-splits?), then either the applied-journal path or an honest negative
-result.
+discretization tax on continuous signal; the accounting-fraud study
+simplifies the original protocol (complete-case deletion, no
+serial-fraud handling, a coarse rule vocabulary), so its negative result
+binds that protocol, not the hypothesis space; and the usability claims
+await a human-subject study. The roadmap: richer rule mining and the
+full protocol of~\cite{bao2020} for the drift study, log-odds-scale
+fidelity metrics for calibrated rare-event models, then the
+applied-journal path.
 
 \begin{thebibliography}{19}
 \small
@@ -233,6 +250,10 @@ decisions and use interpretable models instead.
 \bibitem{jacovi2020} A.~Jacovi, Y.~Goldberg.
 Towards faithfully interpretable NLP systems: how should we define and
 evaluate faithfulness? \emph{ACL}, 2020.
+\bibitem{bao2020} Y.~Bao, B.~Ke, B.~Li, Y.~J.~Yu, J.~Zhang.
+Detecting accounting fraud in publicly traded U.S. firms using a
+machine learning approach. \emph{Journal of Accounting Research} 58(1),
+2020.
 \end{thebibliography}
 
 \end{document}
