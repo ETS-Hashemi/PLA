@@ -91,7 +91,9 @@ curl -X POST -H "Content-Type: application/json" \
 ## Semantics in five lines
 
 - **Antecedent conjunction**: `min(p(a1), ..., p(an))`
-- **Context adjustment**: `p_rule_adjusted = min(1, p_rule × Π weights of active context variables)`
+- **Context adjustment**: `min(1, p_rule × Π weights)` in the default `legacy`
+  mode, or additive log-odds deltas (`sigmoid(logit(p_rule) + Σ weights)`) with
+  scenario-level `"context_mode": "logit"` — the latter never saturates at the cap
 - **Support from one rule**: `candidate = p_rule_adjusted × min_antecedent`
 - **Support aggregation** (configurable): `noisy_or` (default), `max`, `sum_cap`, `logit_pool`
 - **Fixpoint**: rules re-fire until probabilities change by < 1e-9

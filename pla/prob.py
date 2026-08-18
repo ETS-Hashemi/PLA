@@ -4,6 +4,16 @@ import math
 
 EPSILON = 1e-9
 
+CONTEXT_MODES = ("legacy", "logit")
+
+
+def _logit(p):
+    return math.log(p / (1.0 - p))
+
+
+def _sigmoid(x):
+    return 1.0 / (1.0 + math.exp(-x))
+
 
 def aggregate_supports(existing_p, new_p, method="noisy_or"):
     """Aggregate two supports for the same fact."""
@@ -23,13 +33,6 @@ def aggregate_supports(existing_p, new_p, method="noisy_or"):
             return existing_p
         if existing_p >= 1 or new_p >= 1:
             return 1.0
-
-        def _logit(p):
-            return math.log(p / (1 - p))
-
-        def _sigmoid(x):
-            return 1 / (1 + math.exp(-x))
-
         return _sigmoid(_logit(existing_p) + _logit(new_p))
 
     raise ValueError(f"Unsupported aggregation method: {method}")
@@ -63,17 +66,32 @@ class ProbRule:
         self.probability = probability
         self.context = context or {}
 
-    def adjusted_probability(self, current_context):
+    def adjusted_probability(self, current_context, mode="legacy"):
         """
         Adjust the rule's probability based on the current context.
         :param current_context: Dictionary of active context variables.
+        :param mode: "legacy" multiplies by each active weight and caps at
+            1.0 (weights are multipliers; strong evidence saturates).
+            "logit" adds each active weight in log-odds space (weights are
+            log-odds deltas, may be negative; never saturates below 1.0).
         :return: Adjusted probability.
         """
-        adjusted_prob = self.probability
-        for var, weight in self.context.items():
-            if current_context.get(var):
-                adjusted_prob *= weight
-        return min(adjusted_prob, 1.0)  # Ensure probability does not exceed 1.0
+        if mode == "legacy":
+            adjusted_prob = self.probability
+            for var, weight in self.context.items():
+                if current_context.get(var):
+                    adjusted_prob *= weight
+            return min(adjusted_prob, 1.0)  # Ensure probability does not exceed 1.0
+        if mode == "logit":
+            if self.probability <= 0.0 or self.probability >= 1.0:
+                return self.probability
+            total = sum(
+                weight
+                for var, weight in self.context.items()
+                if current_context.get(var)
+            )
+            return _sigmoid(_logit(self.probability) + total)
+        raise ValueError(f"Unsupported context mode: {mode}")
 
     def __repr__(self):
         conditions = " and ".join([str(c) for c in self.condition])
@@ -81,12 +99,17 @@ class ProbRule:
 
 
 class ProbKB:
-    def __init__(self, aggregation_method="noisy_or"):
+    def __init__(self, aggregation_method="noisy_or", context_mode="legacy"):
+        if context_mode not in CONTEXT_MODES:
+            raise ValueError(
+                f"Unsupported context mode: {context_mode!r}; choose from {CONTEXT_MODES}."
+            )
         self.facts = set()
         self.rules = []
         self.cache = {}
         self.current_context = {}
         self.aggregation_method = aggregation_method
+        self.context_mode = context_mode
 
     def add_fact(self, fact):
         if isinstance(fact, str):
@@ -121,7 +144,7 @@ class ProbKB:
                     continue
 
                 antecedent_probs = [fact_probs[c] for c in rule.condition]
-                adjusted_rule_prob = rule.adjusted_probability(self.current_context)
+                adjusted_rule_prob = rule.adjusted_probability(self.current_context, self.context_mode)
                 candidate_p = adjusted_rule_prob * min(antecedent_probs)
 
                 existing = next_fact_probs.get(rule.result, 0.0)

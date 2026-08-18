@@ -166,7 +166,13 @@ def load_scenario(config_path):
     except json.JSONDecodeError:
         raise ScenarioFormatError(f"Scenario file '{config_path}' is not valid JSON.")
 
-    kb = ProbKB()
+    context_mode = config.get("context_mode", "legacy")
+    if context_mode not in ("legacy", "logit"):
+        raise ScenarioFormatError(
+            f"'context_mode' must be 'legacy' or 'logit', got {context_mode!r}."
+        )
+
+    kb = ProbKB(context_mode=context_mode)
     for fact in config.get("facts", []):
         kb.add_fact(ProbSymbol(fact))
 
