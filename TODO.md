@@ -42,10 +42,11 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   (set 2) on `scenario_context_aware_medical.json`; malformed/mixed contexts,
   unknown sets, and undeclared variables all raise ScenarioFormatError; 16/16
   tests green; all 35 scenario files load and activate.*
-- [ ] **C2. REST API parity with CLI.** The API applies the same context resolution
-  (today it never applies adjustments).
-  *Verify: Flask test-client tests assert identical probabilities from CLI and API
-  for the same scenario + context.*
+- [x] **C2. REST API parity with CLI.** The API applies the same context resolution
+  (today it never applies adjustments). (`80724b7`; shared code path landed in C1)
+  *Verify: passed — five parametrized Flask test-client cases assert API == CLI
+  probabilities on flat and nested scenarios, plus an exact loader match (0.84);
+  26/26 tests green.*
 - [ ] **C3. Coherent hybrid demo.** Add one scenario where symbolic and probabilistic
   layers share symbols so gating actually demonstrates something; document that
   constraint mode is a no-op without negation.
