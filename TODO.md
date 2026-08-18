@@ -64,8 +64,9 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 - [x] **H1. LICENSE file** (Apache 2.0, matching README claims). (`02f28a7`)
   *Verify: passed — all 9 sections + appendix present, canonical word/byte count
   (1581 words / 11362 chars), copyright line for the author included.*
-- [ ] **H2. `.gitignore` + purge tracked `__pycache__`/`.pyc`.**
-  *Verify: `git ls-files | grep pyc` empty; `git status` stays clean after a test run.*
+- [x] **H2. `.gitignore` + purge tracked `__pycache__`/`.pyc`.** (`45079d6`)
+  *Verify: passed — 20 tracked bytecode files removed from the index, 0 remain;
+  status clean after a full 30-test run; packaging/coverage ignores added for H4.*
 - [ ] **H3. Remove duplicates:** `scenario_supply_chain_optimization copy.json`,
   `Archive/` trees (git history is the archive; tag the old state first).
   *Verify: tag pushed; directories gone; tests pass.*
