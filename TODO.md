@@ -47,11 +47,13 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — five parametrized Flask test-client cases assert API == CLI
   probabilities on flat and nested scenarios, plus an exact loader match (0.84);
   26/26 tests green.*
-- [ ] **C3. Coherent hybrid demo.** Add one scenario where symbolic and probabilistic
+- [x] **C3. Coherent hybrid demo.** Add one scenario where symbolic and probabilistic
   layers share symbols so gating actually demonstrates something; document that
-  constraint mode is a no-op without negation.
-  *Verify: test asserts hard-gate blocks a non-entailed query and passes an entailed
-  one with nonzero probability.*
+  constraint mode is a no-op without negation. (`2be25dd`)
+  *Verify: passed — hard gate blocks RegulatorReport (raw 0.51 → 0.0) and passes
+  entailed AuditRequired at 0.85; soft (0.255) and constraint (pass-through +
+  warning) modes covered; limitation documented in engine.py, README, and demo;
+  30/30 tests green.*
 - [ ] **C4. Delete dead code.** Remove `ProbabilisticReasoner` (incompatible rule
   syntax) and the unused `ProbRule.context_weight`.
   *Verify: grep clean; full test suite passes.*
