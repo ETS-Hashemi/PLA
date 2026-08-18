@@ -25,11 +25,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   all 30 URLs ✓; run `python3 scripts/check_links.py` on an open network to
   finish link resolution — uncertain identifiers were omitted in favor of
   text citations.*
-- [ ] **R2. `research/GAP_STATEMENT.md`** — 2-page skeleton with the three candidate
+- [x] **R2. `research/GAP_STATEMENT.md`** — 2-page skeleton with the three candidate
   research questions (context-conditioned weights vs. static SRL; explanation
   fidelity for auditors; probabilistic-logic verification of LLM-extracted facts),
-  each with hypothesis, baseline pool, dataset candidates, and target venue.
-  *Verify: structure review; every claim about prior work carries a citation from R1.*
+  each with hypothesis, baseline pool, dataset candidates, and target venue. (`8f2dd2e`)
+  *Verify: structure checked (3 RQs × hypothesis/kill-criterion/venue/datasets ✓);
+  all 20 distinct [R1-n] citations resolve to READING_LIST entries ✓.*
 
 ## Phase 1 — Correctness (before anything else ships)
 
