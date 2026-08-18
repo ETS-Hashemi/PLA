@@ -161,9 +161,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — end-to-end on E1-format data (2000 examples, 11 rules with
   empirical precisions; top pair 0.722 vs 0.107 base rate); exported scenario
   loads and queries in the engine; deterministic; 73/73 tests green.*
-- [ ] **E3. Baselines.** Logistic regression + gradient boosting (sklearn), and
-  ProbLog/pgmpy where installable in this environment.
-  *Verify: one script trains and evaluates all baselines, emitting a metrics CSV.*
+- [x] **E3. Baselines.** Logistic regression + gradient boosting (sklearn), and
+  ProbLog/pgmpy where installable in this environment. (`901b760`)
+  *Verify: passed — all four baselines ran and emitted data/baseline_metrics.csv
+  (LR 0.975 / GBT 0.917 / ProbLog-rules 0.742 / pgmpy-NB 0.723 AUC on the
+  synthetic sample); ProbLog scoring pinned to noisy-OR closed form; 75/75
+  tests green.*
 - [ ] **E4. Head-to-head experiment.** PLA (hand weights) vs. PLA (learned) vs.
   baselines; AUC + calibration; results committed as generated CSV/Markdown.
   *Verify: `scripts/run_experiments.py` reproduces the committed table from scratch.*
