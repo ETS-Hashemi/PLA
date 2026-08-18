@@ -26,3 +26,29 @@ jobs:
           pla scenarios/scenario_context_aware_medical.json 1
           python examples/run_readme_scenario.py
           python examples/run_hybrid_demo.py
+
+  paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended texlive-latex-extra \
+            poppler-utils
+      - name: Compile workshop paper
+        working-directory: paper
+        run: |
+          pdflatex -interaction=nonstopmode -halt-on-error main.tex
+          pdflatex -interaction=nonstopmode -halt-on-error main.tex
+      - name: Enforce the 4-6 page budget
+        run: |
+          PAGES=$(pdfinfo paper/main.pdf | awk '/^Pages:/ {print $2}')
+          echo "compiled pages: $PAGES"
+          test "$PAGES" -ge 4 && test "$PAGES" -le 6
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: workshop-paper
+          path: paper/main.pdf

@@ -24,3 +24,9 @@ htmlcov/
 # Datasets (cached, never committed)
 data/*
 !data/README.md
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+paper/main.pdf
