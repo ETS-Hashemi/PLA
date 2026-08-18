@@ -142,3 +142,67 @@ The foundation is worth building on — the discipline shown in PR #1 (explicit
 operators, reproducible README numbers, tests) is exactly the right
 trajectory. The project's risk is not the code; it is overclaiming in the
 framing while the flagship feature has a wiring bug.
+
+## Publishability assessment: is this Q1-journal material?
+
+**Not in its current form — and the gap is the contribution itself, not the
+writing.** Scored against what Q1 venues (JAIR, AIJ, Machine Learning;
+Q1-applied: Knowledge-Based Systems, Expert Systems with Applications,
+Information Sciences) actually require:
+
+- **Novelty.** The mechanisms are textbook model checking plus a confidence
+  calculus structurally equivalent to MYCIN certainty factors (1975) with
+  configurable aggregation. ProbLog/DeepProbLog, MLNs, PSL, LNN, and Scallop
+  are mature, uncited, and unbeaten on any axis. Known trap: Heckerman (1986)
+  showed the certainty-factor calculus is only probabilistically coherent
+  under restrictive conditions — reviewers will apply that critique to the
+  multiply-and-cap scheme directly. The only potentially novel element is
+  context-modulated rule weights + trace-first explanations, and only if
+  formalized and evaluated.
+- **Theory.** No formal semantics, no theorems (soundness, fixpoint
+  convergence, complexity). Outputs are not probabilities of any defined
+  event space.
+- **Evidence.** No real data, no baselines, placeholder benchmark numbers.
+  The O(2^n) truth-table checker caps the symbolic layer at ~20 propositions,
+  contradicting the scalability claims.
+- **Artifact soundness.** Contribution #1 (context-aware reasoning) does not
+  currently fire through the CLI or REST API (see the bug above).
+
+The current `paper_draft.md` would likely be desk-rejected at a Q1 journal.
+
+### Realistic venue ladder
+
+1. **Now (weeks):** workshop/tool/demo paper — NeSy, XAI workshops,
+   RuleML+RR tool track, AAAI EAAI (the education angle is the strongest
+   current claim: a transparent, dependency-free engine students can read
+   end-to-end is something ProbLog is not). JOSS or SoftwareX for a citable
+   software paper.
+2. **6–12 months:** Q1-applied journals (ESWA, KBS, Information Sciences)
+   become plausible with a real application study.
+3. **12–24 months:** JAIR/AIJ/MLJ only with a genuine formal contribution.
+
+### Recipe for a credible Q1 submission
+
+1. **Formalize the calculus.** Context adjustment in log-odds (the
+   `logit_pool` machinery already exists) — additive evidence weights fix
+   cap saturation and give a defensible semantics. Prove fixpoint
+   convergence for the monotone aggregators, give complexity bounds, and
+   position explicitly against certainty factors, including why the scheme
+   escapes Heckerman's incoherence critique.
+2. **Make the weights learnable.** Logit-pool is differentiable; fitting
+   rule and context weights from labeled data turns PLA from a hand-authored
+   demo into a benchmarkable model. This is the step that converts the
+   project into publishable science.
+3. **Evaluate for real.** Public fraud / financial-statement datasets;
+   baselines: ProbLog, PSL, a Bayesian network, logistic regression,
+   gradient boosting; metrics: AUC plus explanation fidelity, ideally a
+   small domain-expert study.
+4. **Resulting honest claim:** "an interpretable, context-modulated
+   rule-confidence model with learnable weights, competitive accuracy on
+   real fraud/audit data, and faithful reasoning traces" — a credible
+   Q1-applied submission.
+
+Practical sequencing: fix the context bug, submit a workshop/tool paper this
+cycle to collect expert reviews and a citable artifact, and treat the
+learnable-weights + real-data study as the Q1 campaign. Venue strategy is
+also a PhD-milestone question — pressure-test this plan with the supervisor.
