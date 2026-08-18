@@ -10,7 +10,7 @@ class used by the target journals in `research/GAP_STATEMENT.md`
 |---|---|
 | `main.tex` | **Journal manuscript** root (`elsarticle`) — frontmatter with abstract and keywords, inputs `sections/*.tex`, numbered natbib references from `references.bib` |
 | `sections/` | One file per section (introduction … conclusion, appendices) |
-| `references.bib` | BibTeX for every citation (26 entries, all cited) |
+| `references.bib` | BibTeX for every citation (32 entries, all cited) |
 | `workshop.tex` | Secondary: self-contained 4–6 page workshop/tool-track cut (page-gated in CI) |
 | `paper_draft.md` | Markdown working draft; its generated benchmark table is byte-verified against `scripts/benchmark.py` |
 

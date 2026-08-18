@@ -4,52 +4,65 @@
 
 A small, fully transparent Python engine that forward-chains **rule
 confidences** over propositional facts — with configurable support
-aggregation, **context-conditioned rule weights**, symbolic entailment
-gating, and per-rule **explanation traces** as the primary output.
+aggregation, a maximum-likelihood **rule-weight learner**, symbolic
+entailment gating, and per-rule **explanation traces** as the primary
+output.
 
-The entire engine is a few hundred lines of dependency-free Python you can
-read end-to-end, which is the point: PLA is built for **teaching, auditing,
-and trace-first prototyping** in domains where you must be able to show a
-human exactly why a conclusion was reached.
+The engine is a few hundred lines of dependency-free Python you can read
+end-to-end, which is the point: PLA is built for **teaching, auditing,
+and trace-first prototyping** in domains where you must show a human
+exactly why a conclusion was reached. It has been **measured on real
+fraud data against strong baselines**, and the results — including one
+clean, pre-registered negative — are summarized below and reported in
+full in the accompanying manuscript.
 
-**Project status:** the verifiable rebuild roadmap in [`TODO.md`](TODO.md)
-is complete (29/29 ticked with commit hashes), and the **real-data
-studies have been run** — the ULB credit-card dataset (three split
-seeds, bootstrap CIs) and the Bao et al. 2020 accounting-fraud data
-under two temporal designs, with equal-interpretability baselines
-(decision tree, EBM) and pre-registered context ablations whose verdict
-(no reliable benefit) is reported as such. Results and headline findings
-in [`results/`](results/README.md), provenance in
-[`data/README.md`](data/README.md), the manuscript in
-[`paper/`](paper/README.md). The main remaining human step is the
-literature pass driven by
-[`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md).
+## What the studies found
 
-## What PLA is (and is not)
+Five findings, all regenerable from the committed scripts (details,
+confidence intervals, and caveats in [`results/`](results/README.md) and
+[`paper/`](paper/README.md)):
 
-PLA's calculus sits in the **certainty-factor lineage** (MYCIN, Shortliffe &
-Buchanan 1975): rules carry confidences, conjunction is `min(...)` (the
-Gödel t-norm), and multiple supports for the same conclusion aggregate by a
-configurable operator (noisy-OR by default). It is **not** a probability
-distribution over possible worlds.
+- **Near-frontier ranking from 11 auditable rules.** On the ULB
+  credit-card data (284,807 transactions, 0.17% fraud) the accuracy
+  frontier is itself interpretable — EBM 0.9815 AUC, logistic regression
+  0.9796 — and an 11-rule PLA model sits 0.013–0.019 below it (static
+  0.9687, learned 0.9625), stable across three split seeds, confidence
+  intervals overlapping.
+- **Learning buys calibration, not ranking.** Fitting the weights leaves
+  the ordering essentially unchanged but cuts log-loss by roughly a third
+  and calibration error by a factor of six (ECE 0.0022).
+- **Context-conditioned weights: a pre-registered negative.** Under the
+  SOX-boundary design built specifically to make the context weight
+  identifiable, learned vs. no-context ablation is 0.4651 vs. 0.464 —
+  nothing — matching the null on credit card (0.9625 vs. 0.963). Reported
+  plainly per the kill criterion recorded in
+  [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md) before the
+  experiments ran.
+- **Drift breaks rule *vocabulary*, not rule *reliability*.** On the Bao
+  et al. accounting-fraud data, rules mined before the 2003 regime change
+  rank later frauds near chance while raw-ratio logistic regression
+  reaches 0.68–0.70 — reweighting (context-conditioned or otherwise)
+  cannot rescue antecedents that stopped being informative.
+- **Traces are measurably faithful, and they are the deliverable.**
+  Static-model traces beat a reversed-attribution control on all four
+  datasets, and the generated case study walks one real fraud through the
+  engine: 11 rules fire, noisy-OR folds to 0.4929 against a 0.0017 base
+  rate, and deleting the top rule's facts drops the score to 0.2552 — a
+  rule-level counterfactual none of the baselines produce.
 
-If you need proper distribution semantics, use
-[ProbLog](https://dtai.cs.kuleuven.be/problog/) (`pip install problog`);
-for weighted-logic learning at scale, see
-[PSL](https://psl.linqs.org) (`pslpython`),
-[pracmln](https://github.com/danielnyga/pracmln) (Markov Logic Networks in
-Python), [pgmpy](https://github.com/pgmpy/pgmpy) (Bayesian networks), or
-[DeepProbLog](https://github.com/ML-KULeuven/deepproblog) (neural-symbolic).
-PLA trades their semantic guarantees for a calculus a student can trace by
-hand, a JSON scenario format, and rule weights that adjust to **context** —
-see `research/GAP_STATEMENT.md` for how that difference is being turned into
-research questions.
+One engineering lesson worth advertising: **keep the intercept.** Without
+the standard logistic bias term, additive log-odds pooling of
+strong-lift/low-probability rules *inverted* the ranking on real data
+(AUC 0.076); with it, 0.9625. The regression test is
+`tests/test_bias_learning.py`, and the pre-fix table is preserved in git
+history.
 
 ## Install
 
 ```bash
-pip install -e .            # core engine + CLI (no dependencies)
-pip install -e ".[api,dev]" # + Flask REST API and pytest
+pip install -e .                    # core engine + CLI (no dependencies)
+pip install -e ".[api,dev]"         # + Flask REST API, pytest, hypothesis
+pip install -e ".[experiments]"     # + scikit-learn, ProbLog, EBM baselines
 ```
 
 ## Quickstart
@@ -62,7 +75,7 @@ pla scenarios/scenario_context_aware_medical.json 1
 ```
 
 Reproduce the worked example below (its numbers are generated by this
-script, not hand-written):
+script, not hand-written, and CI smoke-runs it on every push):
 
 ```bash
 python examples/run_readme_scenario.py
@@ -77,17 +90,11 @@ Aggregated EscalationRequired probability: 0.747040
 CustomerNotification probability: 0.709688
 ```
 
-See symbolic gating block, penalize, and pass a conclusion the policy layer
-does not entail:
+See symbolic gating block, penalize, and pass a conclusion the policy
+layer does not entail:
 
 ```bash
 python examples/run_hybrid_demo.py
-```
-
-Run the tests:
-
-```bash
-python -m pytest tests/
 ```
 
 Serve the REST API (needs the `[api]` extra) and query it:
@@ -101,6 +108,13 @@ curl -X POST -H "Content-Type: application/json" \
      -d '{"query": "LungCancerRisk"}' http://127.0.0.1:5000/query
 ```
 
+Run the tests (87 collected; CI runs them on Python 3.9–3.12, where one
+network-dependent download test skips itself):
+
+```bash
+python -m pytest tests/
+```
+
 ## Semantics in five lines
 
 - **Antecedent conjunction**: `min(p(a1), ..., p(an))`
@@ -111,8 +125,42 @@ curl -X POST -H "Content-Type: application/json" \
 - **Support aggregation** (configurable): `noisy_or` (default), `max`, `sum_cap`, `logit_pool`
 - **Fixpoint**: rules re-fire until probabilities change by < 1e-9
 
-Details, scenario format, and the context-set mechanism: `docs/framework.md`
+Every formula block in [`docs/SEMANTICS.md`](docs/SEMANTICS.md) is
+executed by the test suite, so the documentation cannot drift from the
+code. Scenario format and the context-set mechanism: `docs/framework.md`
 and `docs/methodology.md`.
+
+## Learning rule weights
+
+`RuleWeightLearner` fits rule confidences (and optional per-rule context
+deltas) by maximum likelihood on `(facts, active_contexts, label)`
+examples, then exports the fitted model back into the engine so the
+learned weights speak the same trace vocabulary:
+
+```python
+from pla import RuleSpec, RuleWeightLearner
+
+rules = [
+    RuleSpec(("V14_low", "V12_low")),
+    RuleSpec(("Amount_high",), context_vars=("NightTime",)),
+]
+data = [
+    ({"V14_low", "V12_low"}, (), 1),          # (facts, active contexts, label)
+    ({"Amount_high"}, ("NightTime",), 0),
+    # ...
+]
+
+learner = RuleWeightLearner(rules, use_bias=True)   # keep the intercept!
+learner.fit(data)
+p = learner.predict_proba({"V14_low", "V12_low"})
+kb = learner.to_prob_kb(target="Fraud")             # back into the engine,
+                                                    # bias as a base-rate prior rule
+```
+
+On rare-event data, `use_bias=True` is not optional — see the intercept
+lesson above. `scripts/build_rules.py` mines candidate rules (quantile
+propositions scored by empirical precision) and `pla/pipeline.py` holds
+the dataset schemas that turn CSV rows into examples.
 
 ## Scenario format
 
@@ -132,53 +180,99 @@ and `docs/methodology.md`.
 }
 ```
 
-Context handling is fail-loud: malformed shapes, unknown context sets, and
-typo'd variables raise `ScenarioFormatError` instead of silently applying no
-adjustment. 35 ready-made scenarios live in `scenarios/`.
+Context handling is fail-loud: malformed shapes, unknown context sets,
+and typo'd variables raise `ScenarioFormatError` instead of silently
+applying no adjustment. 34 ready-made scenarios live in `scenarios/`.
+
+## What PLA is (and is not)
+
+PLA's calculus sits in the **certainty-factor lineage** (MYCIN, Shortliffe
+& Buchanan 1975): rules carry confidences, conjunction is `min(...)` (the
+Gödel t-norm), and multiple supports for the same conclusion aggregate by
+a configurable operator (noisy-OR by default). It is **not** a
+probability distribution over possible worlds.
+
+If you need proper distribution semantics, use
+[ProbLog](https://dtai.cs.kuleuven.be/problog/) (`pip install problog`);
+for weighted-logic learning at scale, see
+[PSL](https://psl.linqs.org) (`pslpython`),
+[pracmln](https://github.com/danielnyga/pracmln) (Markov Logic Networks in
+Python), [pgmpy](https://github.com/pgmpy/pgmpy) (Bayesian networks), or
+[DeepProbLog](https://github.com/ML-KULeuven/deepproblog) (neural-symbolic).
+PLA trades their semantic guarantees for a calculus a student can trace
+by hand, a JSON scenario format, and weights that remain auditable after
+learning. The experiments run ProbLog and pgmpy *on PLA's own rules* as
+cross-checks — that comparison is part of the test suite, not just prose.
+
+## Reproducing the studies
+
+Datasets are never committed (see [`data/README.md`](data/README.md) for
+provenance, licenses, and integrity checks — row/label invariants plus a
+trust-on-first-use sha256 sidecar). With the `[experiments]` extra
+installed:
+
+```bash
+python scripts/fetch_fraud_data.py                  # ULB credit card (or --file your_download.csv)
+python scripts/run_experiments.py --data data/creditcard.csv --tag creditcard_real
+python scripts/run_fidelity.py    --data data/creditcard.csv --tag creditcard_real
+python scripts/make_case_study.py --data data/creditcard.csv
+```
+
+The Bao et al. accounting-fraud runs use the same scripts with
+`--schema bao2020` (strict temporal split) or `--schema bao2020sox` (the
+SOX-boundary design); `--split-seed` reproduces the multi-seed study.
+Every model, split, and bootstrap is seeded, so the scripts regenerate
+the committed `results/` files **byte for byte** — regenerate, never
+hand-edit. Every AUC carries a seeded percentile-bootstrap 95% CI.
+
+## The paper
+
+[`paper/`](paper/README.md) is a self-contained Overleaf project:
+
+- **Journal manuscript** — *"PLA: A Transparent, Learnable
+  Rule-Confidence Engine with Measured Trace Fidelity"* (`main.tex`,
+  Elsevier `elsarticle` class, numbered natbib references). Compile with
+  `pdflatex main && bibtex main && pdflatex main && pdflatex main`, or
+  zip the folder and upload to Overleaf with `main.tex` as the main
+  document. Class options switch between `review` (submission,
+  line-numbered), `preprint`, and `final,3p` (journal layout).
+- **Workshop cut** — `workshop.tex`, self-contained, held to 4–6 pages by
+  a CI gate.
+
+CI compiles both on every push and uploads the PDFs as the `papers`
+artifact on the Actions run. Every number in both documents traces to a
+generated artifact — the claim-to-evidence map is Appendix B of the
+manuscript, and the competitor-positioning claims in the related-work
+section are machine-verified by `tests/test_related_work_claims.py`.
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| `pla/` | The engine: `prob.py`, `kb.py`, `engine.py`, `scenario_loader.py`, CLI, REST API |
-| `scenarios/` | JSON scenario files across audit, medical, logistics, pharma domains |
-| `tests/` | Pytest suite (run in CI on Python 3.9–3.12) |
+| `pla/` | The engine: `prob.py`, `kb.py`, `engine.py`, `learn.py`, `pipeline.py`, `fidelity.py`, `metrics.py`, scenario loader, CLI, REST API |
+| `scenarios/` | 34 JSON scenarios across audit, medical, logistics, pharma domains |
+| `scripts/` | Data fetching, rule mining, experiments, baselines, fidelity, case study — everything that generates `results/` |
+| `tests/` | 87-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
 | `examples/` | Runnable demos that generate every number quoted in this README |
-| `docs/` | Framework overview, formal semantics (`SEMANTICS.md`), methodology, manual |
-| `research/` | Reading list and gap statement driving the research program |
-| `paper/` | Overleaf project: journal manuscript in `elsarticle` (`main.tex` + `sections/` + `references.bib`) and the 4–6 page workshop cut (`workshop.tex`) |
-| `results/` | Generated experiment and fidelity tables (byte-reproducible from scripts) |
+| `data/` | Dataset cache (gitignored) + provenance README |
+| `results/` | Generated experiment, fidelity, and case-study tables (byte-reproducible) |
+| `docs/` | Framework overview, executable formal semantics (`SEMANTICS.md`), methodology |
+| `research/` | Reading list and the gap statement (hypotheses, baselines, kill criteria) |
+| `paper/` | Overleaf project: `elsarticle` journal manuscript + 4–6 page workshop cut |
 | `TODO.md` | The verifiable rebuild roadmap — complete, 29/29 ticked with commit hashes |
 | `PROJECT_FEEDBACK.md` | Full technical review and publishability assessment |
-
-## Papers
-
-`paper/` is a self-contained Overleaf project (see `paper/README.md`):
-
-- **Journal manuscript** — `main.tex` in Elsevier's `elsarticle` class
-  (the class of the target journals: *Knowledge-Based Systems*, *ESWA*,
-  *Information Sciences*), with frontmatter, keywords, modular
-  `sections/`, and numbered natbib references from `references.bib`.
-  Compile with `pdflatex main && bibtex main && pdflatex main && pdflatex
-  main`, or zip the folder and upload to Overleaf with `main.tex` as the
-  main document. Class options switch between `review` (submission,
-  line-numbered), `preprint`, and `final,3p` (journal layout).
-- **Workshop cut** — `workshop.tex`, self-contained, held to 4–6 pages
-  (secondary artifact from the rebuild roadmap).
-
-CI compiles both on every push and uploads the PDFs as the `papers`
-artifact on the Actions run; the workshop cut's page budget is enforced
-there. Every number in both documents traces to a generated artifact —
-the claim-to-evidence map is Appendix B of the full paper.
 
 ## Research program
 
 PLA is developed as part of the PhD research of **Seyed Masoud Hashemi
-Ahmadi** at **École de technologie supérieure (ÉTS), Montréal**. The active
-research questions — context-conditioned learnable rule weights, explanation
-fidelity for audit decisions, and uncertainty-aware verification of
-LLM-extracted facts — are specified with hypotheses, baselines, and kill
-criteria in `research/GAP_STATEMENT.md`.
+Ahmadi** at **École de technologie supérieure (ÉTS), Montréal**. The gap
+statement in `research/GAP_STATEMENT.md` specifies each research question
+with hypotheses, baselines, and kill criteria — and is held to: the
+context-conditioning question was answered there **negatively** for the
+coarse single-bit contexts tested. The questions it leaves open are
+richer context features, rule re-mining under vocabulary drift,
+log-odds-scale fidelity metrics, and uncertainty-aware verification of
+LLM-extracted facts.
 
 Contact: [contact@AiCentralLab.com](mailto:contact@AiCentralLab.com)
 
