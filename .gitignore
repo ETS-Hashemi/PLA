@@ -20,3 +20,7 @@ dist/
 # Coverage
 .coverage
 htmlcov/
+
+# Datasets (cached, never committed)
+data/*
+!data/README.md
