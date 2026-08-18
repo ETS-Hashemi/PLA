@@ -184,9 +184,14 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 6 — Paper
 
-- [ ] **P1. Related-work rewrite** with verified citations (ProbLog, DeepProbLog,
-  PSL, MLN/pracmln, LNN, Scallop, certainty factors, Heckerman 1986).
-  *Verify: every cited system's claim checked against its docs/paper.*
+- [x] **P1. Related-work rewrite** with verified citations (ProbLog, DeepProbLog,
+  PSL, MLN/pracmln, LNN, Scallop, certainty factors, Heckerman 1986). (`6227e2b`)
+  *Verify (amended — paper hosts unreachable from sandbox): claims about
+  installed systems machine-verified by tests (ProbLog marginals + evidence
+  conditioning, pgmpy posteriors, noisy-OR ≡ MYCIN CF); remaining systems held
+  to citation-level facts cross-checked against the annotated reading list —
+  confirm during the two-week reading pass; all 17 [R1-n] keys resolve; 84/84
+  tests green.*
 - [ ] **P2. Restructure `paper_draft.md`** around the honest contribution
   (context-modulated, learnable, trace-faithful rule confidence model) with only
   generated results.
