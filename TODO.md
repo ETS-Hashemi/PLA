@@ -167,9 +167,14 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   (LR 0.975 / GBT 0.917 / ProbLog-rules 0.742 / pgmpy-NB 0.723 AUC on the
   synthetic sample); ProbLog scoring pinned to noisy-OR closed form; 75/75
   tests green.*
-- [ ] **E4. Head-to-head experiment.** PLA (hand weights) vs. PLA (learned) vs.
+- [x] **E4. Head-to-head experiment.** PLA (hand weights) vs. PLA (learned) vs.
   baselines; AUC + calibration; results committed as generated CSV/Markdown.
-  *Verify: `scripts/run_experiments.py` reproduces the committed table from scratch.*
+  (`138ad44`)
+  *Verify: passed — deleted the committed results and the dataset, reran
+  `run_experiments.py --synthetic 2000 --seed 0` from scratch: byte-for-byte
+  identical (git diff clean). Six models in the table; honest development
+  finding recorded (learned wins calibration 0.478 vs 1.091 log-loss, trails
+  on AUC; convergence-checked). 76/76 tests green.*
 - [ ] **E5. Explanation fidelity metric.** Quantify whether traces reflect the
   factors that drive predictions.
   *Verify: metric implemented with tests; report generated for E4 models.*
