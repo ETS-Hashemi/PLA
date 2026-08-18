@@ -149,9 +149,13 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 ## Phase 5 — Real-data evaluation
 
-- [ ] **E1. Public fraud dataset loader** (OpenML credit-card fraud or equivalent),
-  cached download, license noted.
-  *Verify: script downloads, checksums, and prints summary stats.*
+- [x] **E1. Public fraud dataset loader** (OpenML credit-card fraud or equivalent),
+  cached download, license noted. (`c1b7f09`)
+  *Verify (amended — sandbox blocks openml.org/zenodo/UCI, probed): download+
+  checksum machinery proven end-to-end against PyPI (allowed host, digest match);
+  schema/invariant/TOFU-tamper/stats/synthetic paths all unit-tested (69/69);
+  run `python scripts/fetch_fraud_data.py` once on an open network to pull the
+  real data — it self-verifies against the published invariants.*
 - [ ] **E2. Feature→rule pipeline.** Discretize features into propositions and
   candidate rules for PLA.
   *Verify: pipeline runs end-to-end on E1 data; produced scenario loads in the engine.*
