@@ -5,6 +5,22 @@ Skeleton to be filled in during the two-week literature pass
 list. The rule for this document: **every claim about prior work carries a
 citation; every hypothesis names the evidence that would kill it.**
 
+## 0. Status update (August 2026): RQ1 executed — kill criterion fired
+
+RQ1 below was run to completion on both planned datasets. **The kill
+criterion fired**: on the credit-card data the context ablation is a
+null (learned 0.9625 vs. no-context 0.9630); on the accounting data the
+strict temporal design shows a within-CI sliver (0.4905 vs. 0.4733) and
+the SOX-boundary design — built specifically so the context weight is
+identifiable — shows nothing (0.4651 vs. 0.4640). Per the criterion,
+the negative is reported as such in the journal manuscript (`paper/`),
+which recenters on what *was* demonstrated: near-frontier ranking from
+11 auditable rules, calibration as the value of learning, measured
+trace fidelity, and the intercept lesson. The negative sharpens the
+follow-ups: richer context features than single-bit indicators, rule
+re-mining under vocabulary drift, and the full serial-fraud protocol of
+[R1-24]. RQ2 and RQ3 remain open candidates, unchanged.
+
 ## 1. Starting point (honest one-paragraph summary)
 
 PLA today is a small, fully transparent Python engine that forward-chains
@@ -60,6 +76,10 @@ ablation = same model, context weights frozen; report AUC, calibration
 **Kill criterion.** If the context-conditioned model fails to beat its own
 static ablation on drifting splits, the mechanism has no measurable value —
 report the negative result and pivot to RQ2.
+
+**Outcome (recorded August 2026).** Fired — see the status update at the
+top of this document and `paper/sections/06-evaluation.tex` for the
+regenerable numbers.
 
 **Venue.** Knowledge-Based Systems / ESWA / Information Sciences (Q1
 applied); workshop cut first (NeSy or RuleML+RR).

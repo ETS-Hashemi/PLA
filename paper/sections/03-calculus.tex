@@ -3,6 +3,22 @@
 The repository's semantics document states every definition below next
 to an executable block, and the test suite extracts and runs all of
 them, so the paper's formal claims cannot drift from the engine.
+Figure~\ref{fig:overview} shows the pieces this section and the next
+two define: the confidence engine, the symbolic gate, and the learner
+that exports its fit back into the same rule vocabulary.
+
+\begin{figure}[t]
+\centering
+{\linespread{1}\selectfont\small
+\input{figures/overview}}
+\caption{\pla{} in one picture. A JSON scenario supplies facts, rules
+with base confidences and context weights, and named context sets; the
+engine folds fired rules by the chosen aggregator inside a fixpoint
+iteration and emits per-rule traces; a crisp definite-clause layer can
+gate conclusions; the learner of Section~\ref{sec:learning} fits rule,
+context, and intercept weights and exports them back as engine rules.}
+\label{fig:overview}
+\end{figure}
 
 \subsection{Values, rules, and operators}
 
@@ -63,22 +79,36 @@ round's values, stopping when no confidence changes by more than
 $10^{-9}$.
 
 \begin{proposition}[Convergence]\label{prop:convergence}
-Order confidence vectors $x\in[0,1]^V$ pointwise. Every aggregator in
-\eqref{eq:aggregators} is monotone in both arguments and the candidate
-map \eqref{eq:candidate} is monotone in $x$, so $G$ is a monotone map on
-the complete lattice $[0,1]^V$. The start vector $x_0$ (base facts)
-satisfies $x_0 \le G(x_0)$, hence the trajectory
+Order confidence vectors $x\in[0,1]^V$ pointwise, and let the
+aggregation operator be one of \texttt{max}, \texttt{noisy\_or},
+\texttt{sum\_cap}. Each of these is monotone in both arguments and the
+candidate map \eqref{eq:candidate} is monotone in $x$, so $G$ is a
+monotone map on the complete lattice $[0,1]^V$. The start vector $x_0$
+(base facts) satisfies $x_0 \le G(x_0)$, hence the trajectory
 $x_0 \le G(x_0) \le G^2(x_0) \le \dots$ is pointwise non-decreasing and
 bounded by $1$; each coordinate converges, the round-max delta tends to
 zero, and by Kleene's fixpoint theorem the limit is the least fixpoint
 of $G$ above $x_0$.
 \end{proposition}
 
+\texttt{logit\_pool} is deliberately excluded from
+Proposition~\ref{prop:convergence}: log-odds pooling treats a candidate
+below $1/2$ as \emph{negative} evidence that lowers the accumulated
+support, so the operator is not monotone, and its zero-support
+convention (a first candidate replaces the empty accumulator) is
+discontinuous at the boundary. The Kleene argument therefore does not
+apply to it; termination is still guaranteed by the engine's iteration
+cap (the last iterate is returned), and in practice the operator is
+used on the acyclic learning path of Section~\ref{sec:learning}, where
+scoring is a single fold rather than a fixpoint iteration.
+Section~\ref{sec:discussion} returns to monotonicity in evidence as a
+rank-robustness property in its own right.
+
 Beyond the sketch, the properties --- monotone trajectory, boundedness,
 $\varepsilon$-fixpoint reached, and exact agreement between the engine
 and a reference implementation of $G$ --- are machine-checked on
 1{,}050 random rule systems including seeded cycles, across the three
-bounded aggregators. Property testing also exposed a real defect: a
+monotone aggregators. Property testing also exposed a real defect: a
 $0.95/0.95$ cycle with a $0.05$ seed converges at a geometric rate close
 to $1$ and exhausted the engine's previous iteration cap; the cap is now
 sized for such cases and the example is pinned to its closed-form

@@ -31,5 +31,6 @@ data/*
 *.out
 *.bbl
 *.blg
+*.spl
 *.toc
 paper/*.pdf

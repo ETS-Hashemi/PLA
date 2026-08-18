@@ -98,3 +98,33 @@ def roc_auc(y_true, y_prob):
             elif pos == neg:
                 wins += 0.5
     return wins / (len(positives) * len(negatives))
+
+
+def average_precision(y_true, y_prob):
+    """Area under the precision-recall curve, step-wise (no interpolation):
+    AP = sum_k (R_k - R_{k-1}) * P_k over descending unique scores, ties
+    grouped — the same estimator as scikit-learn's average_precision_score.
+
+    Requires at least one positive and one negative label.
+    """
+    _validate(y_true, y_prob)
+    pairs = sorted(zip(y_prob, y_true), key=lambda item: -item[0])
+    total_positives = sum(y for _, y in pairs)
+    if total_positives == 0 or total_positives == len(pairs):
+        raise ValueError("average_precision needs both classes present")
+
+    ap = 0.0
+    true_positives = seen = 0
+    previous_recall = 0.0
+    index, n = 0, len(pairs)
+    while index < n:
+        threshold = pairs[index][0]
+        while index < n and pairs[index][0] == threshold:
+            true_positives += pairs[index][1]
+            seen += 1
+            index += 1
+        recall = true_positives / total_positives
+        precision = true_positives / seen
+        ap += (recall - previous_recall) * precision
+        previous_recall = recall
+    return ap

@@ -36,24 +36,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             texlive-latex-base texlive-latex-recommended texlive-latex-extra \
-            texlive-publishers poppler-utils
-      - name: Compile workshop cut
-        working-directory: paper
-        run: |
-          pdflatex -interaction=nonstopmode -halt-on-error workshop.tex
-          pdflatex -interaction=nonstopmode -halt-on-error workshop.tex
+            texlive-publishers texlive-pictures poppler-utils zip unzip
+      - name: Build papers and packages (compiles all docs, verifies Overleaf zip)
+        run: bash scripts/build_paper_package.sh
       - name: Enforce the 4-6 page budget (workshop cut)
         run: |
           PAGES=$(pdfinfo paper/workshop.pdf | awk '/^Pages:/ {print $2}')
           echo "workshop pages: $PAGES"
           test "$PAGES" -ge 4 && test "$PAGES" -le 6
-      - name: Compile journal manuscript (Overleaf project)
-        working-directory: paper
-        run: |
-          pdflatex -interaction=nonstopmode -halt-on-error main.tex
-          bibtex main
-          pdflatex -interaction=nonstopmode -halt-on-error main.tex
-          pdflatex -interaction=nonstopmode -halt-on-error main.tex
       - name: Upload PDFs
         uses: actions/upload-artifact@v4
         with:
@@ -61,3 +51,12 @@ jobs:
           path: |
             paper/workshop.pdf
             paper/main.pdf
+            paper/highlights.pdf
+            paper/cover_letter.pdf
+      - name: Upload Overleaf and submission packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: submission-packages
+          path: |
+            dist/overleaf_package.zip
+            dist/submission_package.zip

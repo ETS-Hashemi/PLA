@@ -1,0 +1,39 @@
+% System overview (TikZ fragment, \input from a figure environment).
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt},
+  stage/.style={box, fill=black!4, text width=0.26\linewidth},
+  io/.style={box, text width=0.20\linewidth},
+  side/.style={box, densely dashed, text width=0.26\linewidth},
+  arr/.style={-{Stealth[length=2.2mm]}, thick},
+  lbl/.style={font=\footnotesize, midway, fill=white, inner sep=1.5pt},
+  node distance=5mm and 9mm]
+
+\node[io] (scenario) {\textbf{Scenario (JSON)}\\[1pt]
+  facts \\ rules $(\vec{A}{\to}B,\,p,\,w)$ \\
+  context sets \\ queries};
+
+\node[stage, right=of scenario] (engine) {\textbf{Confidence engine}\\[2pt]
+  antecedents: G\"odel t-norm (min)\\
+  context adjust: \texttt{legacy} $|$ \texttt{logit}\\
+  aggregate: noisy-OR (default)\\
+  Jacobi fixpoint (Prop.~\ref{prop:convergence})};
+
+\node[io, right=of engine] (out) {\textbf{Outputs}\\[1pt]
+  confidence $c(B)$ \\ per-rule trace \\ deletion counterfactual};
+
+\node[side, below=of engine] (symbolic) {\textbf{Symbolic layer}\\
+  definite clauses, forward chaining\\
+  gate: hard $|$ soft};
+
+\node[side, above=of engine] (learner) {\textbf{Learner (Sec.~\ref{sec:learning})}\\
+  logistic reduction: $\theta_r,\ w_r(v),\ b$};
+
+\draw[arr] (scenario) -- (engine);
+\draw[arr] (engine) -- (out);
+\draw[arr] (symbolic) -- (engine) node[lbl, right=2pt] {entailment gate};
+\draw[arr] ([xshift=-9mm]learner.south) -- ([xshift=-9mm]engine.north)
+  node[lbl, left=2pt] {export weights + prior};
+\draw[arr] ([xshift=9mm]engine.north) -- ([xshift=9mm]learner.south)
+  node[lbl, right=2pt] {rule firings};
+\end{tikzpicture}

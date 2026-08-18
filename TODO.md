@@ -4,8 +4,9 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
 
 **Conventions**
 - An item is ticked `[x]` only when it is implemented, its **Verify** step passes,
-  and the work is committed to `claude/project-feedback-5b3369` (commit hash noted
-  beside the item).
+  and the work is committed (hash noted beside the item). Early items landed on
+  `claude/project-feedback-5b3369`; after the single-branch decision that branch
+  was merged and everything since goes directly to `main`.
 - No hand-written numbers anywhere: every table/metric in docs must be generated
   by a committed script.
 - Phases are ordered by dependency, but items within a phase are independent

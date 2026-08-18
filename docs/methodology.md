@@ -125,11 +125,20 @@ Context-aware reasoning dynamically adjusts rule probabilities based on the curr
 
 ### **4.1 Context Variables and Adjustment**
 
-Each rule can specify context variables along with their weights. The adjusted probability of a rule is computed as:
+Each rule can specify context variables along with their weights. In the
+default `legacy` mode the adjusted probability of a rule is computed as:
 ```
 P_adjusted = P_rule * ∏(weight for each active context variable)
 ```
-If the computed value exceeds 1.0, it is capped at 1.0.
+If the computed value exceeds 1.0, it is capped at 1.0 — which makes
+distinct strong-evidence combinations indistinguishable. The scenario-level
+setting `"context_mode": "logit"` selects the saturation-free log-odds mode
+instead:
+```
+P_adjusted = sigmoid(logit(P_rule) + Σ(weight for each active context variable))
+```
+where weights act as additive log-odds evidence (negative weights weaken
+symmetrically). Formal definitions with executable blocks: `docs/SEMANTICS.md`.
 
 ### **4.2 Context Flattening**
 

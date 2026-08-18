@@ -10,8 +10,9 @@ Baselines:
   propositions.
 
 Rows that cannot run (missing package, API failure) are recorded in the
-CSV with a "skipped:" note instead of crashing the run. Metrics: ROC AUC,
-Brier, log-loss, ECE (pla.metrics).
+CSV with a "skipped:" note instead of crashing the run. Metrics: ROC AUC
+and average precision (both with seeded bootstrap 95% CIs), Brier,
+log-loss, ECE (pla.metrics).
 
 Usage:
     python scripts/run_baselines.py --data data/creditcard_synthetic_seed0.csv \
@@ -27,7 +28,13 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from pla.metrics import brier_score, log_loss, reliability_summary, roc_auc  # noqa: E402
+from pla.metrics import (  # noqa: E402
+    average_precision,
+    brier_score,
+    log_loss,
+    reliability_summary,
+    roc_auc,
+)
 from pla.pipeline import (  # noqa: E402
     CREDITCARD,
     build_examples,
@@ -68,46 +75,53 @@ def numeric_matrix(rows, schema=CREDITCARD):
     return [[float(r[f]) for f in schema.numeric_columns] for r in rows]
 
 
-def _auc_ci(y_true, y_prob, n_bootstrap=500, seed=7):
-    """Seeded percentile-bootstrap 95% CI for AUC. Needs numpy+sklearn;
-    returns ("", "") when unavailable or a resample is single-class-only."""
+def _bootstrap_cis(y_true, y_prob, n_bootstrap=500, seed=7):
+    """Seeded percentile-bootstrap 95% CIs for ROC AUC and average
+    precision, from one shared set of resamples. Needs numpy+sklearn;
+    returns four "" when unavailable or every resample is single-class."""
     try:
         import numpy as np
-        from sklearn.metrics import roc_auc_score
+        from sklearn.metrics import average_precision_score, roc_auc_score
     except ImportError:
-        return "", ""
+        return "", "", "", ""
     y = np.asarray(y_true)
     p = np.asarray(y_prob)
     rng = np.random.Generator(np.random.PCG64(seed))
-    scores = []
+    auc_scores, ap_scores = [], []
     for _ in range(n_bootstrap):
         index = rng.integers(0, len(y), len(y))
         if y[index].min() == y[index].max():
             continue
-        scores.append(roc_auc_score(y[index], p[index]))
-    if not scores:
-        return "", ""
-    lo, hi = np.percentile(scores, [2.5, 97.5])
-    return round(float(lo), 4), round(float(hi), 4)
+        auc_scores.append(roc_auc_score(y[index], p[index]))
+        ap_scores.append(average_precision_score(y[index], p[index]))
+    if not auc_scores:
+        return "", "", "", ""
+    auc_lo, auc_hi = np.percentile(auc_scores, [2.5, 97.5])
+    ap_lo, ap_hi = np.percentile(ap_scores, [2.5, 97.5])
+    return (f"{auc_lo:.4f}", f"{auc_hi:.4f}", f"{ap_lo:.4f}", f"{ap_hi:.4f}")
 
 
 def evaluate(name, y_true, y_prob, note=""):
-    lo, hi = _auc_ci(y_true, y_prob)
+    auc_lo, auc_hi, ap_lo, ap_hi = _bootstrap_cis(y_true, y_prob)
     return {
         "model": name,
         "n_test": len(y_true),
-        "auc": round(roc_auc(y_true, y_prob), 4),
-        "auc_lo": lo,
-        "auc_hi": hi,
-        "brier": round(brier_score(y_true, y_prob), 4),
-        "log_loss": round(log_loss(y_true, y_prob), 4),
-        "ece": round(reliability_summary(y_true, y_prob)["ece"], 4),
+        "auc": f"{roc_auc(y_true, y_prob):.4f}",
+        "auc_lo": auc_lo,
+        "auc_hi": auc_hi,
+        "ap": f"{average_precision(y_true, y_prob):.4f}",
+        "ap_lo": ap_lo,
+        "ap_hi": ap_hi,
+        "brier": f"{brier_score(y_true, y_prob):.4f}",
+        "log_loss": f"{log_loss(y_true, y_prob):.4f}",
+        "ece": f"{reliability_summary(y_true, y_prob)['ece']:.4f}",
         "note": note,
     }
 
 
 def skipped(name, reason):
     return {"model": name, "n_test": 0, "auc": "", "auc_lo": "", "auc_hi": "",
+            "ap": "", "ap_lo": "", "ap_hi": "",
             "brier": "", "log_loss": "", "ece": "", "note": f"skipped: {reason}"}
 
 
@@ -126,6 +140,9 @@ def sklearn_rows(train_rows, test_rows, schema=CREDITCARD):
     models = [
         ("logistic_regression", LogisticRegression(max_iter=2000), ""),
         ("gradient_boosting", HistGradientBoostingClassifier(random_state=0), ""),
+        ("gradient_boosting_balanced", HistGradientBoostingClassifier(
+            random_state=0, class_weight="balanced"),
+         "class_weight=balanced, otherwise defaults"),
         ("decision_tree", DecisionTreeClassifier(
             max_depth=4, class_weight="balanced", random_state=0),
          "interpretable baseline: depth 4, balanced"),
@@ -255,7 +272,7 @@ def run_all(data_path, out_path, fast=False, schema=CREDITCARD):
     out_path = pathlib.Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fields = ["model", "n_train", "n_test", "auc", "auc_lo", "auc_hi",
-              "brier", "log_loss", "ece", "note"]
+              "ap", "ap_lo", "ap_hi", "brier", "log_loss", "ece", "note"]
     with open(out_path, "w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()

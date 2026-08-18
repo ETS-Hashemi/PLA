@@ -38,6 +38,11 @@ def evaluate_fidelity(predict, attributions, examples):
         "n_explained": n,
         "comprehensiveness": sum(comprehensiveness) / n if n else None,
         "sufficiency": sum(sufficiency) / n if n else None,
+        # Per-example deltas, in example order over the explained subset —
+        # two attribution functions over the same examples explain the same
+        # subset, so these lists pair index-by-index (paired bootstrap).
+        "comprehensiveness_values": comprehensiveness,
+        "sufficiency_values": sufficiency,
     }
 
 

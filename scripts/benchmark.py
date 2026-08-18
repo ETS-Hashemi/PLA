@@ -5,11 +5,10 @@ Usage:
     python scripts/benchmark.py --paper-table                   # deterministic
                                                                 # Markdown table
 
-The --paper-table output is embedded verbatim in paper/paper_draft.md
-between the GENERATED BENCHMARK TABLE markers; regenerate and re-embed it
-whenever engine semantics change. It contains only deterministic
-quantities (scenario sizes and query probabilities) so the document can be
-byte-for-byte verified against this script. Wall-clock timings are
+The --paper-table output is the scenario-suite benchmark table (34
+scenarios; deterministic quantities only — scenario sizes and query
+probabilities — so any document embedding it can be byte-for-byte
+verified against this script). Wall-clock timings are
 machine-dependent and are printed by the timing mode instead of being
 embedded anywhere.
 """

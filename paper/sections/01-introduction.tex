@@ -19,7 +19,12 @@ rule-confidence engine simple enough to trace by hand --- a few hundred
 lines of dependency-free Python --- that is honest about \emph{not} being
 a probability distribution, and that invests the saved complexity in
 three places: context-conditioned rule weights, learnability, and
-measured explanation quality.
+measured explanation quality. The first of these enters as a
+hypothesis, not a claim: the paper's own pre-registered ablations end
+up rejecting it for the coarse context features tested, and we keep the
+mechanism in the exposition precisely because the negative result is
+informative about \emph{what kind} of adaptation drift actually
+demands.
 
 \paragraph{Contributions.}
 \begin{enumerate}

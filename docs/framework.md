@@ -36,24 +36,24 @@ This framework is ideal for applications in:
 ## Installation
 
 ### Prerequisites
-- Python 3.8 or higher
+- Python 3.9 or higher
 - pip (Python package manager)
 
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/probabilistic-logic-agent.git
-   cd probabilistic-logic-agent
+   git clone https://github.com/ETS-Hashemi/PLA.git
+   cd PLA
    ```
 
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements.txt   # equivalent to pip install -e ".[api,dev]"
    ```
 
 3. Verify the installation:
    ```bash
-   python main.py --help
+   pla scenarios/scenario_context_aware_medical.json 1
    ```
 
 ---
@@ -85,7 +85,7 @@ Scenarios are defined in JSON files with the following structure:
 
 Run the framework with the desired scenario configuration:
 ```bash
-python main.py <scenario_config.json> [context_number]
+pla <scenario_config.json> [context_number]   # or: python -m pla ...
 ```
 If the context number is omitted, it defaults to "1".
 
@@ -96,7 +96,11 @@ If the context number is omitted, it defaults to "1".
 The probabilistic layer uses explicit operators:
 
 - **Antecedent conjunction**: `min(p(a1), ..., p(an))`
-- **Context adjustment**: `p_rule_adjusted = min(1, p_rule * Π active_context_weights)`
+- **Context adjustment** (two modes): the default `legacy` mode
+  `p_rule_adjusted = min(1, p_rule * Π active_context_weights)`, or the
+  saturation-free log-odds mode
+  `p_rule_adjusted = sigmoid(logit(p_rule) + Σ active_context_weights)`
+  selected by scenario-level `"context_mode": "logit"`
 - **Support candidate from one rule**: `candidate = p_rule_adjusted * min_antecedent`
 - **Support aggregation (configurable)**:
   - `max`: `max(existing, candidate)`

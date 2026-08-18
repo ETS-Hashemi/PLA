@@ -1,5 +1,13 @@
 # PLA Project Review
 
+> **Historical document.** This is the review that produced the rebuild
+> roadmap in `TODO.md`; everything below describes the repository **as it
+> was before that rebuild** (7 tests, the silent context bug, no real-data
+> studies). All issues identified here were subsequently addressed —
+> `TODO.md` records the 29/29 completed items with commit hashes, and
+> `paper/INTERNAL_REVIEW.md` records the manuscript-level referee rounds
+> that followed. Kept unedited as the point-in-time assessment.
+
 An end-to-end review of this repository: the three code generations
 (`Archive/PLA/PLA-V1-Archive/`, `Archive/PLA/`, `PLA-advanced/`), the engine,
 KB and probabilistic modules, the paper draft, methodology, tests, and

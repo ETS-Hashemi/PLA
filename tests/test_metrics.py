@@ -4,7 +4,13 @@ import math
 
 import pytest
 
-from pla.metrics import brier_score, log_loss, reliability_summary, roc_auc
+from pla.metrics import (
+    average_precision,
+    brier_score,
+    log_loss,
+    reliability_summary,
+    roc_auc,
+)
 
 
 def test_brier_score_hand_computed():
@@ -52,6 +58,34 @@ def test_roc_auc_hand_computed():
     assert roc_auc([1, 0], [0.5, 0.5]) == 0.5
     # perfect separation
     assert roc_auc([1, 1, 0], [0.9, 0.8, 0.2]) == 1.0
+
+
+def test_average_precision_hand_computed():
+    # Descending: 0.9(+) P=1 R=1/2 -> +0.5*1; 0.8(-); 0.7(+) P=2/3 R=1 -> +0.5*2/3
+    assert math.isclose(
+        average_precision([1, 0, 1], [0.9, 0.8, 0.7]), 0.5 + 0.5 * (2 / 3),
+        abs_tol=1e-12,
+    )
+    # Perfect ranking puts every positive first: AP = 1.
+    assert average_precision([1, 1, 0], [0.9, 0.8, 0.2]) == 1.0
+    # Ties are grouped into one block: both examples land at the single
+    # threshold 0.5 with P=1/2, R=1 -> AP = 1/2.
+    assert average_precision([1, 0], [0.5, 0.5]) == 0.5
+
+
+def test_average_precision_matches_sklearn():
+    sklearn_metrics = pytest.importorskip("sklearn.metrics")
+    import random
+
+    rng = random.Random(11)
+    y = [rng.random() < 0.3 and 1 or 0 for _ in range(400)]
+    y[0], y[1] = 1, 0  # both classes guaranteed
+    p = [round(rng.random(), 3) for _ in y]  # rounding forces score ties
+    assert math.isclose(
+        average_precision(y, p),
+        float(sklearn_metrics.average_precision_score(y, p)),
+        abs_tol=1e-12,
+    )
 
 
 def test_validation_errors():
