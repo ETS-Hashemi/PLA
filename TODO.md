@@ -114,10 +114,13 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — tests/test_semantics_doc.py extracts and executes all 6
   formula blocks (F1–F5d, fixpoint, non-distribution caveat) against the engine;
   44/44 tests green.*
-- [ ] **S3. Convergence guarantees.** Property-based tests (hypothesis) that the
+- [x] **S3. Convergence guarantees.** Property-based tests (hypothesis) that the
   fixpoint iteration converges and is monotone for `max`/`noisy_or`/`sum_cap` on
-  random cyclic KBs; proof sketch added to SEMANTICS.md.
-  *Verify: hypothesis suite passes ≥1000 random cases including cycles.*
+  random cyclic KBs; proof sketch added to SEMANTICS.md. (`df5f9b9`)
+  *Verify: passed — 350 examples × 3 aggregators = 1050 random systems (seeded
+  cycles included): monotone, bounded, ε-fixpoint reached, engine ≡ reference;
+  slow-cycle regression matches closed form under the raised iteration cap;
+  48/48 tests green.*
 - [ ] **S4. Scalable symbolic layer.** Replace O(2^n) truth-table entailment with
   forward chaining for definite clauses; keep the truth-table checker as a test
   oracle.
