@@ -175,9 +175,12 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   identical (git diff clean). Six models in the table; honest development
   finding recorded (learned wins calibration 0.478 vs 1.091 log-loss, trails
   on AUC; convergence-checked). 76/76 tests green.*
-- [ ] **E5. Explanation fidelity metric.** Quantify whether traces reflect the
-  factors that drive predictions.
-  *Verify: metric implemented with tests; report generated for E4 models.*
+- [x] **E5. Explanation fidelity metric.** Quantify whether traces reflect the
+  factors that drive predictions. (`9b17dee`)
+  *Verify: passed — comprehensiveness/sufficiency hand-computed cases exact;
+  faithful trace beats reversed control for both PLA models (0.222>0.186,
+  0.143>0.118); results/fidelity_* generated for the E4 models and reproduced
+  byte-for-byte from scratch; 80/80 tests green.*
 
 ## Phase 6 — Paper
 
