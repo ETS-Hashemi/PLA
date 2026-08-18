@@ -74,10 +74,11 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   `legacy-archive`; recreate remotely with `git tag legacy-archive b16e843 &&
   git push origin legacy-archive`); directories gone from index and disk ✓;
   30/30 tests pass ✓.*
-- [ ] **H4. Installable package.** Restructure `PLA-advanced/` into a `pla/` package
-  with `pyproject.toml`, console entry point, scenarios under `scenarios/`.
-  *Verify: `pip install -e .` in a fresh venv, `pla scenarios/<file>.json` runs,
-  `pytest` passes from repo root.*
+- [x] **H4. Installable package.** Restructure `PLA-advanced/` into a `pla/` package
+  with `pyproject.toml`, console entry point, scenarios under `scenarios/`. (`c7b8e09`)
+  *Verify: passed — fresh venv `pip install -e ".[api,dev]"` clean;
+  `pla scenarios/scenario_context_aware_medical.json 1` reports 0.840; 30/30
+  tests pass from repo root both installed and uninstalled.*
 - [ ] **H5. Dependency cleanup.** Drop `unittest2` (Python-2 era), move Flask to an
   optional extra, sane pins.
   *Verify: fresh-venv install + tests with core deps only.*
