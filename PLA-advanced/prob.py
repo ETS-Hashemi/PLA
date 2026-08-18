@@ -35,44 +35,6 @@ def aggregate_supports(existing_p, new_p, method="noisy_or"):
     raise ValueError(f"Unsupported aggregation method: {method}")
 
 
-class ProbabilisticReasoner:
-    def __init__(self, aggregation_method="noisy_or"):
-        self.rules = {}
-        self.aggregation_method = aggregation_method
-
-    def add_rule(self, rule):
-        """Add a probabilistic rule to the reasoner."""
-        condition, probability = rule.split("=")
-        condition = condition.strip()[2:-1]  # Extract condition inside P()
-        probability = float(probability.strip())
-        self.rules[condition] = probability
-
-    def query(self, query, facts):
-        """
-        Return the probability of the query if conditions are satisfied.
-        :param query: The query symbol.
-        :param facts: A set of facts from the knowledge base.
-        """
-        aggregated_probability = 0.0
-        explanations = []
-
-        for condition, probability in self.rules.items():
-            condition_symbols = [symbol.strip() for symbol in condition.split(",")]
-            if query in condition_symbols:
-                if all(symbol in facts for symbol in condition_symbols if symbol != query):
-                    aggregated_probability = aggregate_supports(
-                        aggregated_probability,
-                        probability,
-                        self.aggregation_method,
-                    )
-                    explanations.append(f"Rule P({condition}) = {probability}")
-
-        if explanations:
-            return aggregated_probability, " | ".join(explanations)
-
-        return 0.0, f"No rule found for P({query})"
-
-
 class ProbSymbol:
     def __init__(self, name):
         self.name = name
@@ -88,20 +50,18 @@ class ProbSymbol:
 
 
 class ProbRule:
-    def __init__(self, condition, result, probability, context=None, context_weight=1.0):
+    def __init__(self, condition, result, probability, context=None):
         """
         Initialize a probabilistic rule.
         :param condition: List of ProbSymbols representing the rule's antecedents.
         :param result: ProbSymbol representing the rule's consequent.
         :param probability: Base probability of the rule.
         :param context: Optional dictionary of context variables and their weights.
-        :param context_weight: Default weight for the context adjustment.
         """
         self.condition = condition
         self.result = result
         self.probability = probability
         self.context = context or {}
-        self.context_weight = context_weight
 
     def adjusted_probability(self, current_context):
         """
