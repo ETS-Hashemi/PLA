@@ -209,8 +209,10 @@ optional:
 ## 8. Symbolic layer
 
 The symbolic KB is a separate, crisp system: definite-clause facts and
-rules checked by truth-table entailment (`KB ⊨ q` iff every model of KB
-satisfies q). The hybrid engine gates confidences with entailment (`hard`,
+rules. Entailment (`KB ⊨ q` iff every model of KB satisfies q) is decided
+by forward chaining to the least model — sound and complete for definite
+clauses and linear in KB size; the O(2ⁿ) truth-table checker is retained
+as the differential-test oracle (`tests/test_symbolic_entailment.py`). The hybrid engine gates confidences with entailment (`hard`,
 `soft`, `constraint` modes); constraint mode is a documented no-op until
 the symbolic language gains negation. See `pla/engine.py` and
 `examples/run_hybrid_demo.py`.

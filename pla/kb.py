@@ -1,4 +1,5 @@
 import itertools
+from collections import defaultdict
 
 
 class Symbol:
@@ -59,7 +60,10 @@ def evaluate(sentence, model):
 
 def model_check(knowledge, query):
     """
-    Propositional entailment by truth-table model checking.
+    Propositional entailment by truth-table model checking — O(2^n).
+
+    Kept as the reference oracle for differential tests; the production
+    query path is forward_chain_entails below.
     KB |= query iff every model that satisfies KB also satisfies query.
     """
     all_symbols = sorted(symbols(knowledge) | symbols(query), key=lambda s: s.name)
@@ -70,6 +74,41 @@ def model_check(knowledge, query):
             return False
 
     return True
+
+
+def forward_chain_entails(facts, rules, query):
+    """
+    Entailment of an atomic query by forward chaining (AIMA PL-FC-Entails).
+
+    Sound and complete for definite-clause KBs — the only sentences
+    KnowledgeBase accepts — and linear in the KB size, versus O(2^n) for
+    truth-table model checking. Membership in the least model decides
+    entailment.
+    """
+    unsatisfied = {}
+    heads = {}
+    where_antecedent = defaultdict(list)
+    for index, rule in enumerate(rules):
+        antecedents = set(rule.antecedent.args)
+        unsatisfied[index] = len(antecedents)
+        heads[index] = rule.consequent
+        for antecedent in antecedents:
+            where_antecedent[antecedent].append(index)
+
+    inferred = set()
+    agenda = list(facts)
+    while agenda:
+        symbol = agenda.pop()
+        if symbol == query:
+            return True
+        if symbol in inferred:
+            continue
+        inferred.add(symbol)
+        for index in where_antecedent[symbol]:
+            unsatisfied[index] -= 1
+            if unsatisfied[index] == 0:
+                agenda.append(heads[index])
+    return False
 
 
 class KnowledgeBase:
@@ -89,7 +128,10 @@ class KnowledgeBase:
         self.rules.append(Implication(antecedent, consequent))
 
     def query(self, query):
-        """Check if the knowledge base entails the query."""
-        knowledge = And(*self.facts, *self.rules)
-        query_symbol = Symbol(query)
-        return model_check(knowledge, query_symbol)
+        """Check if the knowledge base entails the query.
+
+        Uses forward chaining, which is sound and complete for the
+        definite clauses this KB accepts and scales linearly;
+        model_check remains available as the exponential reference oracle.
+        """
+        return forward_chain_entails(self.facts, self.rules, Symbol(query))

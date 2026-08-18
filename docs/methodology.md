@@ -48,7 +48,7 @@ P(B) = Prule * min(P(A1), P(A2), ..., P(An))
 
 ## **2. Symbolic Reasoning**
 
-Symbolic reasoning is used to infer logical conclusions based on a set of facts and rules expressed in propositional logic. The framework uses **model checking** to determine whether a query is entailed by the knowledge base.
+Symbolic reasoning is used to infer logical conclusions based on a set of facts and rules expressed in propositional logic. The framework decides entailment by **forward chaining** to the least model (sound and complete for its definite-clause language); truth-table **model checking** is retained as a reference oracle for tests.
 
 ### **2.1 Propositional Logic**
 Propositional logic is a formal system where statements (propositions) are either true or false. Logical operators (e.g., AND, OR, NOT, IMPLIES) are used to combine propositions.
