@@ -21,14 +21,63 @@ Reasoning under uncertainty is a critical challenge in artificial intelligence (
 
 ## 2. Related Work
 
-### 2.1 Symbolic Reasoning
-Symbolic reasoning systems, such as Prolog and SAT solvers, provide logical guarantees but are limited in handling uncertainty. Model checking techniques have been widely used for verifying logical entailments.
+Citation keys `[R1-n]` refer to `research/READING_LIST.md`, which carries the
+full bibliography; claims about ProbLog and pgmpy below are additionally
+machine-verified by `tests/test_related_work_claims.py` against the installed
+systems.
 
-### 2.2 Probabilistic Reasoning
-Probabilistic reasoning systems, such as Bayesian networks, model uncertainty but often lack modularity and explainability. Forward chaining is a common approach for propagating probabilities.
+### 2.1 Probabilistic logic programming
 
-### 2.3 Hybrid Reasoning
-Hybrid reasoning systems attempt to combine symbolic and probabilistic reasoning. However, existing systems often lack support for dynamic context-aware adjustments and parallel scenario modeling.
+ProbLog [R1-1] attaches probabilities to logic programs under the
+**distribution semantics**: programs denote measures over possible worlds,
+inference computes exact marginals via knowledge compilation [R1-2], and —
+unlike PLA — the system supports conditioning on evidence (verified against
+the installed `problog` package). aProbLog [R1-5] generalizes the semantics
+to arbitrary commutative semirings, which is the correct formal umbrella for
+non-probabilistic confidence calculi such as PLA's. DeepProbLog [R1-7]
+extends the family with neural predicates and gradient-based learning, and
+Scallop [R1-9] compiles differentiable reasoning over provenance semirings.
+All are available as Python packages; any claim that this space lacks Python
+tooling is false and PLA makes no such claim.
+
+### 2.2 Weighted logic and statistical relational learning
+
+Markov Logic Networks [R1-3] attach real-valued weights to first-order
+clauses defining a Markov random field; Probabilistic Soft Logic [R1-4]
+relaxes truth values to [0,1] with hinge-loss MRFs, making it the nearest
+formally-grounded cousin of PLA's soft confidences; Logical Neural Networks
+[R1-8] make weighted real-valued logic differentiable with truth-value
+bounds. In all three, rule weights are **static** at inference time:
+adapting rule reliability to a changing operational context is handled by
+retraining, not by the semantics. That gap — context-conditioned rule
+weights inside an interpretable calculus — is the opening PLA's RQ1 targets,
+connected to concept-drift adaptation [R1-28]. Bayesian networks (pgmpy
+[R1-6]) provide joint-distribution posteriors (machine-verified) but no
+rule-shaped, trace-first explanations.
+
+### 2.3 Uncertainty calculi: PLA's lineage
+
+PLA's operators are a modern descendant of MYCIN's certainty factors
+[R1-13]: rule-attached confidences, attenuation by the weakest antecedent
+(Zadeh's Gödel t-norm [R1-16]), and parallel combination of co-supporting
+rules — PLA's default noisy-OR **is** the CF parallel-combination formula
+(machine-verified equivalence in `docs/SEMANTICS.md`). Heckerman [R1-14]
+showed the CF calculus is probabilistically coherent only under restrictive
+independence and modularity assumptions, and the field's retrospective
+[R1-15] explains the subsequent move to belief networks. PLA's response
+(SEMANTICS.md §6) is to drop the probability claim, name the independence
+stance as a per-KB operator choice, and offer log-odds modes matching the
+coherent likelihood-ratio special case.
+
+### 2.4 Positioning
+
+PLA does not compete with these systems on semantic guarantees; it occupies
+the point they leave open: a fully readable engine (a few hundred lines,
+zero dependencies) whose primary output is the reasoning trace, whose rule
+weights are **context-conditioned and learnable** (Sections 3–4), and whose
+explanation fidelity is measured rather than asserted [R1-22, R1-23]
+(Section 5). The intended domains are education and audit-style settings
+[R1-25] where inherent interpretability is a requirement, not a preference.
 
 ---
 
@@ -147,6 +196,10 @@ The **Probabilistic Logic Agent Framework** is a novel system that integrates sy
 ---
 
 ## References
+
+Full bibliographic entries for all `[R1-n]` keys live in
+`research/READING_LIST.md` (28 annotated entries; link resolution via
+`scripts/check_links.py`). General background:
 
 1. Pearl, J. (1988). Probabilistic Reasoning in Intelligent Systems.
 2. Russell, S., & Norvig, P. (2020). Artificial Intelligence: A Modern Approach.
