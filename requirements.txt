@@ -1,3 +1,8 @@
-Flask==2.3.2
-pytest==7.4.0
-unittest2==1.1.0
+# PLA has no core runtime dependencies; pyproject.toml is the source of truth.
+#
+#   pip install -e .            # core engine + CLI (no dependencies)
+#   pip install -e ".[api]"     # + Flask REST API
+#   pip install -e ".[dev]"     # + pytest
+#
+# This file installs everything for development:
+-e .[api,dev]

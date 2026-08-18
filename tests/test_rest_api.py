@@ -9,6 +9,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCENARIOS = ROOT / "scenarios"
 
+pytest.importorskip("flask", reason="REST API tests need the [api] extra")
 
 import pla.rest_api as rest_api  # noqa: E402
 from pla.scenario_loader import load_scenario  # noqa: E402
