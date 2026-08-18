@@ -134,7 +134,10 @@ class ProbKB:
         fact_probs = dict(base_fact_probs)
         support_map = defaultdict(dict)
 
-        max_iterations = max(1, len(self.rules) * 10)
+        # The trajectory is pointwise monotone and bounded (see
+        # docs/SEMANTICS.md §4), so the epsilon-stop always triggers; the cap
+        # is a safety net sized so that even slow geometric rates converge.
+        max_iterations = max(1000, len(self.rules) * 10)
         for _ in range(max_iterations):
             next_fact_probs = dict(base_fact_probs)
 

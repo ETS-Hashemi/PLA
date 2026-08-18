@@ -105,8 +105,33 @@ assert math.isclose(aggregate_supports(e, n, "logit_pool"), sigmoid(logit(e) + l
 
 Forward chaining runs Jacobi-style: each round recomputes every derived
 confidence from the base facts and the previous round's values, and stops
-when no confidence changes by more than 1e-9 (convergence properties are
-tested in item S3 of `TODO.md`). End-to-end on the README scenario:
+when no confidence changes by more than 1e-9.
+
+### Convergence (proof sketch)
+
+Let `V` be the propositions and order confidence vectors `x ∈ [0,1]^V`
+pointwise. One round is `x ↦ G(x)`: start from the base-fact vector, fire
+every rule with candidates computed from `x` (F1–F4), and fold candidates
+into the head with the aggregator (F5). Every aggregator is monotone in
+both arguments and the candidate map is monotone in `x`, so `G` is a
+monotone map on the complete lattice `[0,1]^V`. The start vector satisfies
+`x₀ ≤ G(x₀)` (base facts are fixed points of every aggregator at 1; derived
+coordinates only gain support), so by induction the trajectory
+`x₀ ≤ G(x₀) ≤ G²(x₀) ≤ …` is pointwise non-decreasing and bounded by 1.
+Each coordinate therefore converges (monotone convergence), the round-max
+delta tends to 0, and the ε-stop always triggers; by Kleene's fixpoint
+theorem the limit is the least fixpoint of `G` above `x₀`, since all four
+aggregators are continuous. The engine caps the rounds at
+`max(1000, 10·|rules|)` purely as a safety net — high-probability cycles
+with weak seeds converge at a geometric rate close to 1, which the old
+`10·|rules|` cap could exhaust.
+
+These properties — monotone trajectory, boundedness, ε-fixpoint reached,
+and engine/reference agreement — are machine-checked on 1050 random rule
+systems (cycles included, all three bounded aggregators) in
+`tests/test_convergence_properties.py`.
+
+End-to-end on the README scenario:
 
 ```python
 import math
