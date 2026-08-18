@@ -141,8 +141,11 @@ Working checklist derived from the full project review in `PROJECT_FEEDBACK.md`.
   *Verify: passed — seeds 0/1/2, n=3000: θ̂ within 0.09 of truth (tolerance
   0.35), context weight within 0.29 (tolerance 0.45), optimizer converged to
   ~1e-15 deltas; 57/57 tests green.*
-- [ ] **L3. Calibration utilities.** Brier score / log-loss / reliability summaries.
-  *Verify: unit tests against hand-computable values.*
+- [x] **L3. Calibration utilities.** Brier score / log-loss / reliability summaries.
+  (`5bb1083`)
+  *Verify: passed — Brier 0.10, log-loss, ECE 0.175, and AUC 0.75 cases all match
+  hand computation; validation errors covered; ROC AUC (with ties) included for
+  E4; 63/63 tests green.*
 
 ## Phase 5 — Real-data evaluation
 
