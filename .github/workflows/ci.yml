@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package with extras
+        run: pip install -e ".[api,dev]"
+      - name: Run test suite
+        run: pytest tests/ -v
+      - name: Smoke-run CLI and examples
+        run: |
+          pla scenarios/scenario_context_aware_medical.json 1
+          python examples/run_readme_scenario.py
+          python examples/run_hybrid_demo.py
