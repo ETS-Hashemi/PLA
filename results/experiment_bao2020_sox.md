@@ -13,5 +13,14 @@ Dataset: `bao2020.csv`. temporal split: train fyear<=2005, test fyear>=2008 Seri
 | pla_static | 82630 | 32530 | 0.5381 | [0.4941, 0.5809] | 0.0085 | [0.0038, 0.0270] | 0.0041 | 0.0923 | 0.0010 | empirical precisions, noisy-OR, neutral context |
 | pla_learned | 82630 | 32530 | 0.4651 | [0.4207, 0.5097] | 0.0038 | [0.0031, 0.0049] | 0.0040 | 0.0266 | 0.0010 | logit path + bias, fitted rule + context weights |
 | pla_learned_noctx | 82630 | 32530 | 0.4640 | [0.4234, 0.5099] | 0.0037 | [0.0030, 0.0045] | 0.0040 | 0.0265 | 0.0010 | ablation: context weights disabled |
+| constant_prevalence | 82630 | 32530 | 0.5000 | [0.5000, 0.5000] | 0.0040 | [0.0034, 0.0047] | 0.0040 | 0.0262 | 0.0003 | predicts training prevalence 0.003715 everywhere |
 | problog_rules | 82630 | 150 | 0.8490 | [0.7935, 0.8920] | 0.0333 | [0.0263, 0.1210] | 0.0066 | 0.0359 | 0.0046 | subset n=150 |
 | pgmpy_naive_bayes | 82630 | 2000 | 0.5419 | [0.3601, 0.7131] | 0.0082 | [0.0020, 0.0307] | 0.0046 | 0.0306 | 0.0020 | subset n=2000 |
+
+Paired-bootstrap 95% CIs for model differences (same resamples,
+paired by example — the inference behind any no-difference claim):
+
+| Contrast | ΔAUC | ΔAUC 95% CI | ΔAP | ΔAP 95% CI |
+|---|---|---|---|---|
+| pla_learned_minus_noctx | 0.0011 | [-0.0071, 0.0140] | 0.0001 | [-0.0000, 0.0009] |
+| pla_learned_minus_static | -0.0730 | [-0.1565, 0.0141] | -0.0047 | [-0.0233, -0.0001] |
