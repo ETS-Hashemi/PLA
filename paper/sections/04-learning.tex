@@ -23,18 +23,30 @@ and folding candidates through \texttt{logit\_pool} telescopes:
 \end{equation}
 Equation~\eqref{eq:lr} is logistic regression whose features are rule
 firings and rule--context interactions, with parameters
-$\theta_r = \logit(p_r)$ and $w_r(v)$. The binary cross-entropy loss is
-therefore convex in the parameters. For descent guarantees the usual
-smoothness argument applies: with firing vectors $x_i$ the BCE
-smoothness constant satisfies $L \le \max_i \lVert x_i\rVert^2/4$, and
-$\lVert x_i\rVert^2$ is at most the number of rules plus context
-variables plus one (the intercept) --- at most $14$ in our designs ---
-so any step size $\eta \le 2/L$ ($\approx 0.57$ here) provably
-decreases the loss each epoch. Our runs use $\eta = 1.0$, above that
-conservative bound, so the test suite \emph{asserts} the per-epoch
-decrease over 200 epochs instead of leaning on the theorem; convexity
-still guarantees that whatever the descent path, there is a single
-global optimum to converge to. Zero-rule examples behave differently
+$\theta_r = \logit(p_r)$ and $w_r(v)$. Read as a statement about
+expressivity, this is deliberately deflationary: context conditioning
+adds nothing a fixed-weight system could not represent with
+context-conjoined rules --- the contribution is that the engine
+exposes the interaction in the rule's own vocabulary, exports the fit
+back exactly, and traces it. The binary cross-entropy loss is
+convex in the parameters, so every local minimum is global.
+Convexity alone guarantees neither a unique minimizer nor convergence
+at an arbitrary step size, and under complete separation the infimum
+need not be attained at any finite parameter --- so the implementation
+earns descent by construction instead of by assumption: each
+full-batch epoch is accepted only if the compiled loss does not
+increase, otherwise the step is rolled back and the rate halved (a
+backtracking guard, unit-tested against a deliberately oversized
+step). For reference, the usual smoothness argument gives
+$L \le \max_i \lVert x_i\rVert^2/4$ with
+$\lVert x_i\rVert^2 \le 2R + 1$ when all $R$ rules fire with one
+active context interaction each, plus the intercept --- $23$ in our
+designs --- hence a provably safe \emph{constant} step of
+$\eta \le 2/L \approx 0.35$. Our runs use $\eta = 1.0$: above that
+conservative bound, and covered by the guard, which never fired in any
+reported run --- every reported trajectory is monotone by construction
+and re-asserted per epoch by the test suite. Zero-rule examples behave
+differently
 with and without the intercept: interceptless, they receive a fixed
 small floor and contribute no gradient; with the intercept they score
 $\sigma(b)$ and train the intercept alone --- the base-rate anchoring

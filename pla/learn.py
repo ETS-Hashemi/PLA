@@ -96,9 +96,15 @@ class RuleWeightLearner:
             total += -(label * math.log(p) + (1 - label) * math.log(1.0 - p))
         return total / len(dataset)
 
-    def fit(self, dataset, epochs=300, learning_rate=0.5):
-        """Full-batch gradient descent. Returns the per-epoch loss history,
-        starting with the pre-training loss."""
+    def fit(self, dataset, epochs=300, learning_rate=0.5, max_halvings=20):
+        """Full-batch gradient descent with a backtracking guard: an
+        epoch's step is accepted only if the compiled loss does not
+        increase; otherwise the parameters are restored, the rate is
+        halved, and the epoch retries (up to ``max_halvings``, after
+        which training stops early). At the rates used in this
+        repository the guard never fires, so accepted trajectories are
+        monotone by construction rather than by assumption. Returns the
+        per-epoch loss history, starting with the pre-training loss."""
         n = len(dataset)
         # The dataset is fixed during fit: compile each example once into
         # (fired rule indices, active context vars per fired rule, label).
@@ -149,13 +155,34 @@ class RuleWeightLearner:
                     grad_theta[i] += err
                     for var in vars_:
                         grad_ctx[i][var] += err
-            if self.use_bias:
-                self.bias -= learning_rate * grad_bias
-            for index in range(len(self.rules)):
-                self.theta[index] -= learning_rate * grad_theta[index]
-                for var in self.context_weights[index]:
-                    self.context_weights[index][var] -= learning_rate * grad_ctx[index][var]
-            history.append(compiled_loss())
+
+            # Backtracking guard: accept the step only if the loss does
+            # not increase; otherwise restore the snapshot, halve the
+            # rate, and retry the same gradients.
+            snapshot = (self.bias, list(self.theta),
+                        [dict(w) for w in self.context_weights])
+            accepted = False
+            for _halving in range(max_halvings + 1):
+                if self.use_bias:
+                    self.bias -= learning_rate * grad_bias
+                for index in range(len(self.rules)):
+                    self.theta[index] -= learning_rate * grad_theta[index]
+                    for var in self.context_weights[index]:
+                        self.context_weights[index][var] -= (
+                            learning_rate * grad_ctx[index][var])
+                loss = compiled_loss()
+                # Tolerance covers float noise at convergence plateaus so
+                # the guard only rejects genuine increases.
+                if loss <= history[-1] + 1e-12:
+                    history.append(loss)
+                    accepted = True
+                    break
+                self.bias, theta, weights = snapshot
+                self.theta = list(theta)
+                self.context_weights = [dict(w) for w in weights]
+                learning_rate /= 2.0
+            if not accepted:
+                break  # no decrease found at any tried rate: stop early
         return history
 
     def to_prob_kb(self, target="Target"):

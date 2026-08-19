@@ -36,10 +36,17 @@ territory~\cite{marra2024,garcez2023}. In all of these, rule weights are
 \emph{static at inference time}: adapting a rule's reliability to a
 changing operational context is retraining's job, not the semantics'.
 That gap --- context-conditioned weights inside an interpretable
-calculus --- is the opening \pla{} targets (and, under the drift designs
-of Section~\ref{sec:evaluation}, ultimately reports a negative on), and
-it connects to the concept-drift literature~\cite{gama2014}, where
-adaptation is studied outside logical representations. Bayesian networks (e.g.\ the
+calculus --- is the opening \pla{} explores, with two honesty clauses
+attached. First, it is an \emph{interface} gap, not an expressivity
+gap: the reduction of Section~\ref{sec:learning} shows context
+conditioning is exactly rule--context interaction features, which any
+fixed-weight system can represent by context-conjoined rules; what
+differs is that \pla{} exposes the conditioning in the rule's own
+vocabulary and trace. Second, under the drift designs of
+Section~\ref{sec:evaluation} the mechanism earns a negative verdict on
+its pre-specified endpoint. The connection to the concept-drift
+literature~\cite{gama2014}, where adaptation is studied outside
+logical representations, survives both clauses. Bayesian networks (e.g.\ the
 educational-standard pgmpy package~\cite{ankan2015}) provide
 joint-distribution posteriors --- verified against the installed package
 --- but not rule-shaped, trace-first explanations.
@@ -85,7 +92,8 @@ surrounds the rules: an inference engine with named uncertainty
 semantics (aggregation operators, symbolic gating), context-conditioned
 weights, and traces as the primary output with fidelity measured against
 a control. We include a depth-limited decision tree and EBM as
-equal-interpretability baselines in Section~\ref{sec:evaluation}.
+interpretable baselines in Section~\ref{sec:evaluation}, with their
+model complexity stated there.
 
 \subsection{Uncertainty calculi: \pla{}'s lineage}
 

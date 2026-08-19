@@ -28,20 +28,24 @@ Headline findings (full framing and caveats in `paper/`):
   learned 0.9602 ± 0.0088), CIs overlapping; static AP retains most of
   the frontier's early ranking power (0.67 ± 0.04 vs. LR 0.76 ± 0.03).
 - **Learning is a measured trade.** MLE beats the constant-prevalence
-  log-loss floor (0.0113 vs. 0.0127; the floor row appears in every
+  null baseline on log-loss (0.0113 vs. 0.0127; the baseline row appears in every
   table, and it scores ECE 0.0000 — equal-width ECE is a blunt
   instrument at these prevalences) while average precision pays:
   paired-significant AP loss vs. static on nine of ten splits (mean
   ≈ −0.12).
 - **Context-conditioning verdict (pre-registered): negative, with the
-  correct inference.** SOX paired ablation difference: ΔAUC 0.0011
-  [−0.0071, 0.0140], ΔAP 0.0001 [−0.0000, 0.0009] — an equivalence
-  bound. Credit-card paired ΔAUC contains zero on 10/10 splits. The
+  correct inference.** No practically useful improvement on the
+  pre-specified AUC endpoint under any design. SOX paired ablation
+  difference: ΔAUC 0.0011 [−0.0071, 0.0140], ΔAP 0.0001 [−0.0000,
+  0.0009] — reported as a bound (no equivalence margin was
+  prespecified; the criterion at commit `8f2dd2e` was directional
+  only). Credit-card paired ΔAUC contains zero on 10/10 splits. The
   strict design's small paired-real ΔAUC (+0.0172 [0.0019, 0.0373])
   sits between two below-chance models — detectable, not useful.
   Post-hoc exception, recorded honestly: a credit-card-only AP edge,
   paired CI excluding zero on 10/10 splits (+0.038 to +0.096), absent
-  under both drift designs and not the pre-registered metric.
+  under both drift designs and not the pre-registered metric — a
+  hypothesis awaiting confirmation.
 - **Accounting drift:** all rule models near or below chance
   post-boundary while raw-ratio LR reaches 0.68–0.70 AUC (but only
   0.0080–0.0112 AP against 0.0040–0.0061 prevalence — thin absolute

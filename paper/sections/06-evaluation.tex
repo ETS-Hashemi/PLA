@@ -40,9 +40,12 @@ learning rate $1.0$). \texttt{learned no-context} is the pre-registered
 ablation: identical training with context variables removed, isolating
 the context mechanism.
 
-\paragraph{Baselines} Two equal-interpretability competitors --- a
-depth-4 class-balanced decision tree and an Explainable Boosting
-Machine at library defaults~\cite{lou2013,nori2019} --- plus logistic
+\paragraph{Baselines} Two interpretable competitors of comparable but
+not identical complexity --- a depth-4 class-balanced decision tree
+(at most 15 internal splits, against \pla{}'s 11 rules over the same
+propositions) and an Explainable Boosting Machine at library defaults
+(one shape function per continuous feature: a larger
+model)~\cite{lou2013,nori2019} --- plus logistic
 regression (raw features, \texttt{max\_iter}=2000), gradient boosting
 (scikit-learn histogram GBT) both untuned and class-weighted, ProbLog
 executing \pla{}'s own rules under distribution semantics (per-example
@@ -59,10 +62,11 @@ resamples), and the tables display both. Claims about
 intervals: every such claim cites a paired-bootstrap CI of the
 difference, computed on shared resamples of the shared test set and
 recorded in the generated \texttt{\_diffs} files. Calibration is
-measured by log-loss against an explicit skill baseline --- a constant
-predictor at the training prevalence, whose log-loss is the
-marginal-entropy floor and which appears as a row in every table ---
-together with expected calibration error over 10 equal-width bins, a
+measured by log-loss against an explicit \emph{null baseline} --- a
+constant predictor at the training prevalence, which appears as a row
+in every table; it is a reference point, not a floor, since better
+predictors score below it --- together with expected calibration
+error over 10 equal-width bins, a
 coarse instrument at these prevalences (nearly all mass falls in the
 first bin), so the log-binned reliability diagram
 (Figure~\ref{fig:reliability}) is the primary calibration evidence.
@@ -79,9 +83,12 @@ raw-feature models, as expected when the true signal is linear in the
 continuous features and discretization discards most of it --- a tax
 that average precision magnifies ($0.8470$ for logistic regression vs.\
 $0.3139$ learned). The ProbLog
-row executes the same rules under distribution semantics and its
-interval contains \pla{} static's point estimate, cross-validating the
-noisy-OR implementation.
+row executes the same rules under distribution semantics on the same
+examples, and the cross-check is direct numerical agreement, not an
+interval argument: the largest per-example gap between ProbLog's
+marginal and the engine's noisy-OR fold is $7.1\times10^{-7}$
+(recorded in the generated file; the algebraic identity is also
+unit-tested). The row's own AUC interval is descriptive only.
 
 \begin{table}[t]
 \centering
@@ -172,13 +179,13 @@ retain most of the frontier's early ranking power
 ($0.6709 \pm 0.0382$ vs.\ $0.7564 \pm 0.0291$ for logistic
 regression); the generated seed summary carries every per-split value.
 Third, learning is a measured trade, not a free upgrade, and its
-calibration gain must be stated against the right floor: the learned
-variant's log-loss of $0.0113$ stands against $0.0127$ for the
-constant-prevalence row of Table~\ref{tab:creditcard} --- an
-$11\%$ improvement over the marginal-entropy floor that dominates
-log-loss at this prevalence --- and its ECE of $0.0022$ is read
+calibration gain must be stated against the right reference: the
+learned variant's log-loss of $0.0113$ stands against $0.0127$ for the
+constant-prevalence null baseline of Table~\ref{tab:creditcard} --- an
+$11\%$ improvement over a no-skill predictor, while the raw-feature
+frontier lands far below both --- and its ECE of $0.0022$ is read
 knowing that equal-width bins are a blunt instrument here (the
-constant baseline scores ECE $0.0000$).
+null baseline scores ECE $0.0000$).
 Figure~\ref{fig:reliability} shows
 the learned model tracking the diagonal through the low-probability
 bins where nearly all mass lives while the static rules' empirical
@@ -276,42 +283,47 @@ constant-prevalence baseline & 0.5000 & [0.5000, 0.5000] & 0.0040 & [0.0034, 0.0
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig_sox_auc}
-\caption{SOX-boundary design: AUC with bootstrap 95\% CIs. The visual
-verdict on context conditioning is the complete overlap of the two
-\pla{} learned rows; every rule model sits near chance while raw-ratio
-models retain signal.}
+\caption{SOX-boundary design: AUC with individual bootstrap 95\% CIs
+per model --- descriptive only; the inference on context conditioning
+is the \emph{paired} difference interval in the text
+($\Delta\text{AUC} = 0.0011$ [$-0.0071$, $0.0140$]), not the visual
+overlap of the two \pla{} learned rows. Every rule model sits near
+chance while raw-ratio models retain signal.}
 \label{fig:sox}
 \end{figure}
 
-\paragraph{The pre-registered verdict on context conditioning} Even
-under the design built to make the context weight identifiable, the
-mechanism adds nothing, and the claim rests on the correct inference
---- a paired-bootstrap interval on the \emph{difference}, not on
-overlapping individual intervals: learned minus ablation is
+\paragraph{The pre-registered verdict on context conditioning} The
+claim rests on a paired-bootstrap interval on the \emph{difference},
+not on overlapping individual intervals: under the design built to
+make the context weight identifiable, learned minus ablation is
 $\Delta\text{AUC} = 0.0011$ [$-0.0071$, $0.0140$] and
-$\Delta\text{AP} = 0.0001$ [$-0.0000$, $0.0009$], bounding any context
-effect under the identifiability design to $|\Delta\text{AUC}| \le
-0.014$ --- an equivalence statement, not an absence of evidence. On
-credit card the paired ablation $\Delta$AUC contains zero on all ten
-splits. The strict design shows what the paired instrument can detect:
-a small real effect, $\Delta\text{AUC} = +0.0172$ [$0.0019$, $0.0373$]
---- between two models that both rank \emph{below chance} ($0.4905$
-vs.\ $0.4733$, against static $0.5285$ and logistic regression
-$0.6794$) --- sensitivity without practical relevance. The conclusion
-is that context-conditioned rule weights, \emph{with the coarse
-single-bit context variables tested here}, deliver no benefit where a
-benefit would matter --- reported plainly per the kill criterion
-recorded in the repository's gap statement before these experiments
-ran. One post-hoc observation cuts the other way and is reported as
-such: on credit card the context variant holds an average-precision
-edge over its ablation whose paired interval excludes zero on all ten
-splits ($\Delta$AP $+0.038$ to $+0.096$) while the AUC difference
-never does; the edge is absent under both drift designs.
-Average precision was not the pre-registered
-metric, so this generates a hypothesis for the next design rather than
-revising the verdict. The demonstrated value of learning lies in
-calibration, not in context adjustment; Section~\ref{sec:discussion}
-draws the drift lesson.
+$\Delta\text{AP} = 0.0001$ [$-0.0000$, $0.0009$], bounding the effect
+to $|\Delta\text{AUC}| \le 0.014$ at these sample sizes. We state this
+as a \emph{bound}, not a formal equivalence: the pre-registration
+(repository gap statement, commit \texttt{8f2dd2e}) specified only the
+directional criterion --- the context model must beat its own ablation
+--- and named no practical-equivalence margin, so no equivalence test
+is licensed; readers with a margin in mind can apply it to the
+interval. On credit card the paired ablation $\Delta$AUC contains zero
+on all ten splits. The strict design shows what the paired instrument
+can detect: a small real effect,
+$\Delta\text{AUC} = +0.0172$ [$0.0019$, $0.0373$] --- between two
+models that both rank \emph{below chance} ($0.4905$ vs.\ $0.4733$,
+against static $0.5285$ and logistic regression $0.6794$). The
+defensible conclusion, stated with its scope: \emph{context
+conditioning produced no practically useful improvement on the
+pre-specified AUC endpoint under any of the three designs; a
+consistent post-hoc average-precision improvement on the credit-card
+data --- paired interval excluding zero on all ten splits,
+$\Delta$AP $+0.038$ to $+0.096$, and absent under both drift designs
+--- requires confirmation on new data before it can count as a
+benefit.} We flag the tension openly: AP is the metric this paper
+elsewhere ties to audit queues, which is exactly why the credit-card
+AP result is a hypothesis worth confirming rather than a footnote ---
+and exactly why, being post hoc, it cannot revise a verdict defined on
+the pre-registered endpoint. The demonstrated value of learning lies
+in calibration, not in context adjustment;
+Section~\ref{sec:discussion} draws the drift lesson.
 
 \subsection{Trace fidelity}
 
@@ -341,8 +353,10 @@ fact-level scores; both levels are in the generated files.
 rule is removed from the noisy-OR fold, facts untouched.
 Comprehensiveness (higher is better) and sufficiency (closer to zero is
 better) for the trace ranking, with seeded paired-bootstrap 95\% CIs of
-the mean comprehensiveness margin over the reversed and random
-controls; generated by \texttt{scripts/run\_fidelity.py}.}
+the mean comprehensiveness margin over the reversed control and over a
+random control averaged across ten seeded permutations; $n$ counts
+test examples with at least one fired rule (no-fire examples have no
+trace to evaluate); generated by \texttt{scripts/run\_fidelity.py}.}
 \label{tab:fidelity}
 {\scriptsize
 \setlength{\tabcolsep}{3.5pt}

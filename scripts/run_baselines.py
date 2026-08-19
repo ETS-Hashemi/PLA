@@ -41,6 +41,7 @@ from pla.pipeline import (  # noqa: E402
     fit_discretizer,
     generate_rule_specs,
     load_rows,
+    noisy_or_probability,
 )
 
 SLOW_SUBSAMPLE = 150  # per-example ProbLog compilation is ~0.1s each
@@ -256,7 +257,15 @@ def problog_row(rule_specs, precisions, test_examples, limit=SLOW_SUBSAMPLE):
             problog_probability(rule_specs, precisions, facts)
             for facts, _, _ in subset
         ]
-        return evaluate("problog_rules", y_true, y_prob, note=f"subset n={len(subset)}")
+        # Direct same-example agreement with PLA's own noisy-OR fold —
+        # the semantics cross-check is this number, not any interval.
+        max_gap = max(
+            abs(prob - noisy_or_probability(rule_specs, precisions, facts))
+            for prob, (facts, _, _) in zip(y_prob, subset)
+        )
+        return evaluate("problog_rules", y_true, y_prob,
+                        note=f"subset n={len(subset)}; "
+                             f"max |PLA-ProbLog| = {max_gap:.1e}")
     except Exception as err:  # noqa: BLE001 — record, don't crash the run
         return skipped("problog_rules", err)
 

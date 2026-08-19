@@ -27,9 +27,9 @@ sets, and undeclared variables raise \texttt{ScenarioFormatError}.
 
 \section{Claim provenance}\label{app:provenance}
 
-\begin{table}[t]
+\begin{table}[p]
 \centering
-\footnotesize
+{\linespread{1}\selectfont\footnotesize
 \begin{tabular}{p{0.34\linewidth}p{0.58\linewidth}}
 \toprule
 Claim & Verifying artifact (repository)\\
@@ -43,7 +43,7 @@ Learner $\equiv$ engine on logit path & \texttt{tests/test\_learning.py}\\
 Ground-truth weight recovery & \texttt{tests/test\_weight\_recovery.py} (3 seeds)\\
 Symbolic entailment sound, complete, scalable & \texttt{tests/test\_symbolic\_entailment.py}\\
 Table~\ref{tab:headtohead} & \texttt{results/experiment\_synthetic\_n2000\_seed0.csv}, byte-reproduced by \texttt{scripts/run\_experiments.py}\\
-Table~\ref{tab:creditcard}, Fig.~\ref{fig:creditcard} & \texttt{results/experiment\_creditcard\_real.csv} (+\texttt{\_seed43}, \texttt{\_seed44} for the multi-seed ranges)\\
+Table~\ref{tab:creditcard}, Fig.~\ref{fig:creditcard} & \texttt{results/experiment\_creditcard\_real.csv}; seeds 43--51 in \texttt{\_seed\{43..51\}} files, aggregated by \texttt{results/seed\_summary\_creditcard.csv}; paired diffs in \texttt{\_diffs} files\\
 Table~\ref{tab:sox}, Fig.~\ref{fig:sox} & \texttt{results/experiment\_bao2020\_sox.csv}; strict design: \texttt{results/experiment\_bao2020\_real.csv}\\
 Table~\ref{tab:fidelity} & \texttt{results/fidelity\_*.csv} --- synthetic, credit card, and both accounting designs\\
 Fig.~\ref{fig:reliability} & \texttt{scripts/make\_figures.py} on the seeded seed-42 pipeline\\
@@ -53,5 +53,5 @@ Serial-fraud drop counts & split notes inside \texttt{results/experiment\_bao202
 ProbLog marginals + conditioning; pgmpy posteriors & \texttt{tests/test\_related\_work\_claims.py} against the installed packages\\
 Trace fidelity beats reversed control & \texttt{tests/test\_fidelity.py} + \texttt{results/fidelity\_*.csv}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}

@@ -31,24 +31,25 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
   in average precision the static rules keep most of the frontier's
   early ranking power (0.67 ± 0.04 vs. 0.76 ± 0.03 for LR).
 - **Learning is a measured trade, not a free upgrade.** Fitting the
-  weights beats the constant-prevalence log-loss floor (0.0113 vs.
+  weights beats the constant-prevalence null baseline on log-loss (0.0113 vs.
   0.0127) — but average precision exposes a real early-ranking cost
   that AUC hides: static 0.67 vs. learned 0.55 on average,
   paired-significant on nine of ten splits. Calibrated scores for
   thresholds and expected-cost decisions; static scores for
   fixed-budget queues.
-- **Context-conditioned weights: a pre-registered negative.** Under the
-  SOX-boundary design built specifically to make the context weight
-  identifiable, the paired ablation difference is ΔAUC 0.0011
-  [−0.0071, 0.0140] and ΔAP 0.0001 [−0.0000, 0.0009] — an equivalence
-  bound, not just overlap — and the credit-card paired ΔAUC contains
-  zero on all ten splits. Reported plainly per the kill criterion
-  recorded in
-  [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md) before the
-  experiments ran. One post-hoc, hypothesis-generating exception is
-  recorded honestly: an AP edge for the context variant on credit card
-  whose paired CI excludes zero on all ten splits (+0.038 to +0.096) —
-  absent under both drift designs, and not the pre-registered metric.
+- **Context-conditioned weights: a pre-registered negative.** Context
+  conditioning produced no practically useful improvement on the
+  pre-specified AUC endpoint under any of three designs: the SOX paired
+  ablation difference is ΔAUC 0.0011 [−0.0071, 0.0140] and ΔAP 0.0001
+  [−0.0000, 0.0009] (a bound — no equivalence margin was prespecified,
+  so none is claimed), and the credit-card paired ΔAUC contains zero on
+  all ten splits. Reported per the kill criterion in
+  [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md) (commit
+  `8f2dd2e`, before the experiments ran). One post-hoc exception is
+  recorded honestly: a consistent AP edge for the context variant on
+  credit card (paired CI excludes zero on all ten splits, +0.038 to
+  +0.096, absent under both drift designs) — a hypothesis requiring
+  confirmation, not a revision of the verdict.
 - **Drift breaks rule *vocabulary*, not rule *reliability*.** On the Bao
   et al. accounting-fraud data, rules mined before the 2003 regime change
   rank later frauds near chance while raw-ratio logistic regression

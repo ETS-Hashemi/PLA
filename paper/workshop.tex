@@ -163,7 +163,8 @@ raw empirical precisions are badly overconfident when several rules fire
 together, and maximum likelihood repairs exactly that. Both PLA
 variants trail the raw-feature baselines, as expected when the true model
 is logistic in the raw features. The ProbLog row executes the same rules
-under distribution semantics and cross-validates PLA's noisy-OR.
+under distribution semantics on the same examples and agrees with
+PLA's noisy-OR fold to $7.1\times 10^{-7}$ at worst.
 
 \begin{table}[t]
 \centering
@@ -209,9 +210,11 @@ tail rules mined before the temporal boundary barely beat chance after it
 (AUC $\approx 0.53$; raw-ratio logistic regression $0.68$--$0.70$), and
 pre-registered context ablations --- including a design trained across
 the 2003 SOX regime change so the context weight is identifiable ---
-find no benefit from context conditioning where a benefit would matter
-(paired $\Delta$AUC $0.0011$ [$-0.0071$, $0.0140$] under the SOX
-design): an honest negative, reported per its kill criterion.
+find no practically useful improvement from context conditioning on
+the pre-specified AUC endpoint (paired $\Delta$AUC $0.0011$
+[$-0.0071$, $0.0140$] under the SOX design; a post-hoc
+average-precision gain on credit card awaits confirmation): an honest
+negative, reported per its kill criterion.
 
 \section{Limitations and roadmap}
 PLA has no joint measure and no conditioning; its language is

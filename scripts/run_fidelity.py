@@ -69,6 +69,29 @@ def _paired_diff_ci(trace_values, control_values, n_bootstrap=500, seed=7):
     return f"{lo:.4f}", f"{hi:.4f}"
 
 
+RANDOM_PERMUTATIONS = 10
+
+
+def _averaged_random(evaluate_once):
+    """The random control averaged over RANDOM_PERMUTATIONS seeded
+    permutations (one deterministic ordering would be a single draw):
+    per-example vectors are averaged elementwise, so downstream paired
+    CIs compare the trace against the permutation-averaged control."""
+    runs = [evaluate_once(seed) for seed in range(RANDOM_PERMUTATIONS)]
+    n = runs[0]["n_explained"]
+    comp = [sum(r["comprehensiveness_values"][i] for r in runs) / len(runs)
+            for i in range(n)]
+    suff = [sum(r["sufficiency_values"][i] for r in runs) / len(runs)
+            for i in range(n)]
+    return {
+        "n_explained": n,
+        "comprehensiveness": sum(comp) / n,
+        "sufficiency": sum(suff) / n,
+        "comprehensiveness_values": comp,
+        "sufficiency_values": suff,
+    }
+
+
 def run(data_path, tag, schema=CREDITCARD, temporal=None):
     rows = rb.parseable_rows(load_rows(data_path), schema)
     if temporal:
@@ -140,8 +163,10 @@ def run(data_path, tag, schema=CREDITCARD, temporal=None):
             ("trace", evaluate_fidelity(predict, attributions, test_examples)),
             ("reversed_control", evaluate_fidelity(
                 predict, reversed_attributions(attributions), test_examples)),
-            ("random_control", evaluate_fidelity(
-                predict, random_attributions(attributions), test_examples)),
+            ("random_control", _averaged_random(
+                lambda s: evaluate_fidelity(
+                    predict, random_attributions(attributions, seed=s),
+                    test_examples))),
         ])]
         for level, logit in (("rules", False), ("rules_logit", True)):
             evaluations.append((level, [
@@ -150,9 +175,10 @@ def run(data_path, tag, schema=CREDITCARD, temporal=None):
                 ("reversed_control", evaluate_rule_fidelity(
                     without, only, reversed_ranking(rank), test_examples,
                     logit_scale=logit)),
-                ("random_control", evaluate_rule_fidelity(
-                    without, only, random_ranking(rank), test_examples,
-                    logit_scale=logit)),
+                ("random_control", _averaged_random(
+                    lambda s, _logit=logit: evaluate_rule_fidelity(
+                        without, only, random_ranking(rank, seed=s),
+                        test_examples, logit_scale=_logit))),
             ]))
         for level, rows in evaluations:
             trace_metrics = rows[0][1]
@@ -198,7 +224,8 @@ def run(data_path, tag, schema=CREDITCARD, temporal=None):
         "learned model's per-rule contribution is exact (= z_r).",
         "Comprehensiveness: higher = the trace's top rule is load-bearing.",
         "Sufficiency: closer to 0 = the top rule alone reproduces the score.",
-        "Control rows carry the paired-bootstrap 95% CI of (trace − control).",
+        "Control rows carry the paired-bootstrap 95% CI of (trace − control);",
+        f"`random_control` averages {RANDOM_PERMUTATIONS} seeded permutations.",
         "",
         "| Model | Level | Attribution | n | Compr. | Suff. | trace − this | 95% CI |",
         "|---|---|---|---|---|---|---|---|",

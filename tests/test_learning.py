@@ -1,6 +1,6 @@
 import math
 
-from pla.learn import RuleWeightLearner
+from pla.learn import RuleSpec, RuleWeightLearner
 from synthetic import RULES, make_dataset
 
 
@@ -51,3 +51,16 @@ def test_no_external_ml_dependencies():
     for name in forbidden:
         assert f"import {name}" not in source
     assert loaded_by_learn is not None  # informational; source check is the gate
+
+
+def test_backtracking_guard_recovers_from_oversized_step():
+    """At lr=64 the raw full-batch step overshoots; the guard halves the
+    rate until the loss decreases, so the accepted history is monotone
+    and training still ends below its starting loss."""
+    rules = [RuleSpec(("A",)), RuleSpec(("B",))]
+    data = ([({"A"}, (), 1)] * 30 + [({"B"}, (), 0)] * 30
+            + [({"A", "B"}, (), 1)] * 15 + [(set(), (), 0)] * 15)
+    learner = RuleWeightLearner(rules, use_bias=True)
+    history = learner.fit(data, epochs=60, learning_rate=64.0)
+    assert all(b <= a + 1e-12 for a, b in zip(history, history[1:]))
+    assert history[-1] < history[0]

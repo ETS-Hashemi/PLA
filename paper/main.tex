@@ -63,11 +63,13 @@ intervals. On the real ULB
 credit-card data an 11-rule model averages AUC $0.966$ across ten
 random splits --- $0.002$--$0.034$ per split below the interpretable
 accuracy frontier led by EBM --- and beats the constant-prevalence
-floor on log-loss. On accounting-fraud data under two temporal designs,
-including one built around the 2003 SOX regime change, pre-registered
-ablations backed by paired-bootstrap difference intervals find no
-benefit from context conditioning where a benefit would matter; we
-report that negative as such. The demonstrated value of learning is
+null baseline on log-loss. On accounting-fraud data under two temporal
+designs, including one built around the 2003 SOX regime change,
+pre-registered ablations backed by paired-bootstrap difference
+intervals find no practically useful improvement from context
+conditioning on the pre-specified AUC endpoint; a consistent post-hoc
+average-precision gain on the credit-card data awaits confirmation,
+and we report the negative as such. The demonstrated value of learning is
 calibration --- bought, the average-precision analysis shows, at a
 paired-significant early-ranking cost --- and the deliverable is the
 measured, counterfactual-bearing trace.

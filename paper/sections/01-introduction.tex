@@ -40,12 +40,13 @@ demands.
   log-odds evidence, avoiding the saturation that afflicts
   multiply-and-cap certainty-factor updates; on flat rule sets over
   binary facts the model class collapses to logistic regression over
-  rule firings, so maximum-likelihood fitting is convex (with an
-  explicit step-size bound for guaranteed descent) and recovers planted
-  ground truth.
-  Across three real-data designs, pre-registered ablations show no
-  reliable ranking benefit from the context mechanism --- a negative we
-  report per its kill criterion (Section~\ref{sec:evaluation}).
+  rule firings, so maximum-likelihood fitting is convex, trained under
+  a backtracking descent guard, and recovers planted ground truth. The
+  same reduction shows the mechanism adds interface, not expressivity
+  --- fixed-weight systems can encode it as context-conjoined rules ---
+  and across three real-data designs, pre-registered ablations show no
+  practically useful gain on the pre-specified endpoint --- a negative
+  we report per its kill criterion (Section~\ref{sec:evaluation}).
 \item \textbf{Measured explanation fidelity}
   (Section~\ref{sec:evaluation}). Rule traces are the engine's primary
   output, and their internal fidelity is quantified rather than

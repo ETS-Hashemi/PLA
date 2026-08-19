@@ -84,7 +84,23 @@ round.
 
 Net effect on the results narrative: the ten-split, paired-difference
 analysis *strengthened* the paper's claims rather than weakening them —
-the pre-registered null is now an equivalence bound, the AP trade is
+the pre-registered null is now an interval bound, the AP trade is
 paired-significant, and the one place the mechanism does something
 (strict design) is shown to be real but useless. 93 tests pass; all
 regeneration is committed.
+
+## Round 4 — external review (second pass), and its disposition
+
+The same external reviewer re-reviewed the round-3 build and found
+seven remaining defect groups. All accepted; none required walking back
+a result.
+
+| # | Reviewer point | Disposition |
+|---|---|---|
+| 4-1 | Optimization guarantee still wrong: convexity does not give uniqueness or arbitrary-step convergence (nor a finite optimum under separation), and the norm bound omitted rule–context interactions — ‖x‖² ≤ 2R+1 = 23, so the safe constant step is ≈0.348, not covering η=1.0. | §4 rewritten: convexity stated as "local = global" only, with non-uniqueness, step-size, and separation caveats explicit; the bound corrected to 2R+1=23 (η_safe ≈ 0.35); and the reviewer's third option implemented in code — `fit()` now carries a **backtracking guard** (accept an epoch only if the loss does not increase, else roll back and halve the rate; unit-tested against a deliberately oversized step). The guard is inert at the reported rates: regenerating the seeded synthetic experiment after the change reproduces the committed file byte-for-byte except the new ProbLog note field. |
+| 4-2 | "Equivalence" requires a prespecified margin and test. | Correct — the preregistration (gap statement, commit `8f2dd2e`) was directional only and named no margin. The manuscript now reports the paired interval as a **bound**, states explicitly that no equivalence test is licensed, and cites the commit; README/results wording matched. |
+| 4-3 | Context conclusion too broad given the 10/10 AP edge and AP's audit-queue billing. | The reviewer's sentence adopted nearly verbatim as the verdict: *no practically useful improvement on the pre-specified AUC endpoint; the consistent post-hoc AP improvement on credit card requires confirmation.* The verdict paragraph now names the tension openly instead of hiding it in a footnote clause. Propagated to abstract, conclusion, workshop, READMEs, and the gap statement. |
+| 4-4 | Stale statements: three seeds (p16), three-seed AP range (p29), "machine-checked convergence" (p33 + highlights + cover letter), Appendix B seed list, "marginal-entropy floor", "skill baseline" typo, Figure-4 caption still arguing from overlap. | All fixed: ten splits in §5; ten-split AP sentence in the discussion; the last "machine-checked" instances replaced in conclusion, highlights, and cover letter; Appendix B row now lists seeds 43–51, the seed summary, and the `_diffs` files; "floor"→"null baseline" everywhere with the explicit note that better predictors score below it; "skill baseline"→"null baseline"; Figure 4's caption now labels its per-model intervals descriptive and points to the paired interval for inference. |
+| 4-5 | Novelty framing: context conditioning is interaction features other systems can encode; the contribution is the engine/export/discipline/trace interface. | Stated in the paper's own voice at both sites: §2's gap paragraph now calls it an *interface* gap, not an expressivity gap, and §4 opens the reduction with the deflationary reading (context-conjoined rules suffice in fixed-weight systems; the contribution is exposure, exact export, and tracing). Intro contribution 2 says the same. |
+| 4-6 | Presentation: Appendix-B/page-number collision; "equal-interpretability" unquantified; Table-4 inclusion criterion undefined; single deterministic random permutation; ProbLog "cross-validation" via subset CIs. | Appendix table moved to a float page and set single-spaced; baselines renamed "interpretable competitors of comparable but not identical complexity" with the tree's ≤15 splits and EBM's per-feature shape functions quantified against 11 rules; Table-4 caption defines n (examples with ≥1 fired rule); the random control is now the **average over ten seeded permutations** (per-example averaging, so paired CIs compare against the averaged control); the ProbLog cross-check is **direct same-example agreement** — max per-example gap vs the engine's fold recorded in every generated file (7.1×10⁻⁷ on the synthetic subset) — with the subset row's interval labeled descriptive. |
+| 4-7 | (Implicit) regeneration burden of the above. | Credit-card seeds 42–44, both Bao designs, and all four fidelity files regenerated under the new note and control; fast seeds 45–51 are untouched by construction (they skip the ProbLog row and are not fidelity inputs). |

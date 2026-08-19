@@ -8,18 +8,26 @@ citation; every hypothesis names the evidence that would kill it.**
 ## 0. Status update (August 2026): RQ1 executed — kill criterion fired
 
 RQ1 below was run to completion on both planned datasets. **The kill
-criterion fired**: on the credit-card data the context ablation is a
-null (learned 0.9625 vs. no-context 0.9630); on the accounting data the
-strict temporal design shows a within-CI sliver (0.4905 vs. 0.4733) and
-the SOX-boundary design — built specifically so the context weight is
-identifiable — shows nothing (0.4651 vs. 0.4640). Per the criterion,
-the negative is reported as such in the journal manuscript (`paper/`),
-which recenters on what *was* demonstrated: near-frontier ranking from
-11 auditable rules, calibration as the value of learning, measured
-trace fidelity, and the intercept lesson. The negative sharpens the
-follow-ups: richer context features than single-bit indicators, rule
-re-mining under vocabulary drift, and the full serial-fraud protocol of
-[R1-24]. RQ2 and RQ3 remain open candidates, unchanged.
+criterion fired** — the pre-specified, directional AUC criterion (this
+document, as committed at `8f2dd2e`, named no equivalence margin, so
+the manuscript reports interval bounds rather than a formal
+equivalence claim): on the credit-card data the paired ablation ΔAUC
+contains zero on all ten splits; on the accounting data the strict
+design shows a small paired-real effect between two below-chance
+models (+0.0172 [0.0019, 0.0373]) and the SOX-boundary design — built
+specifically so the context weight is identifiable — bounds the effect
+to ΔAUC 0.0011 [−0.0071, 0.0140]. One post-hoc observation is held
+apart as a new hypothesis, not a verdict revision: a credit-card-only
+average-precision edge for the context variant, paired CI excluding
+zero on all ten splits, absent under both drift designs. Per the
+criterion, the negative is reported as such in the journal manuscript
+(`paper/`), which recenters on what *was* demonstrated: near-frontier
+ranking from 11 auditable rules, calibration as the value of learning,
+measured trace fidelity, and the intercept lesson. The follow-ups:
+confirming or refuting the post-hoc AP edge on new data, richer
+context features than single-bit indicators, rule re-mining under
+vocabulary drift, and the full serial-fraud protocol of [R1-24]. RQ2
+and RQ3 remain open candidates, unchanged.
 
 ## 1. Starting point (honest one-paragraph summary)
 
