@@ -142,6 +142,13 @@ independence stance rather than deriving one. The repository carries an
 executable counterexample: two rules with confidence $0.5$ driven by the
 same antecedent combine by noisy-OR to $0.75$, as if their supports were
 independent, whereas a possible-world semantics would let the rules'
-dependence determine the answer. Users who need that guarantee should
-use ProbLog~\cite{deraedt2007}; \pla{} trades it for hand-traceable
-inference.
+dependence determine the answer. The same coin has a second face:
+under distribution semantics an additive per-rule decomposition of a
+marginal does not exist in general --- overlapping proofs are
+reconciled by inclusion--exclusion, which does not split into per-rule
+shares without attribution machinery (and assumptions) of its own.
+\pla{}'s per-decision itemization exists \emph{because} its calculus
+agrees to itemize, and that agreement is legitimate exactly when
+supports are treated as independent. Users who need the
+possible-world guarantee should use ProbLog~\cite{deraedt2007};
+\pla{} trades it for hand-traceable, itemizable inference.

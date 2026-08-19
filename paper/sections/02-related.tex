@@ -114,14 +114,47 @@ stance as a per-knowledge-base operator choice, and provides log-odds
 modes that match the likelihood-ratio special case Heckerman identified
 as coherent.
 
-\subsection{Positioning}
+\subsection{Positioning: what \pla{} offers, and at what price}
 
-\pla{} does not compete with the systems above on semantic guarantees;
-it occupies the point they leave open: a fully readable engine whose
-primary output is the reasoning trace, whose rule weights are
-context-conditioned and learnable, and whose explanation fidelity is
-measured rather than asserted~\cite{rudin2019,jacovi2020}. The intended
-domains are education and audit-style settings~\cite{appelbaum2017},
-where inherent interpretability is a requirement, not a preference, and
-where fraud-detection practice~\cite{west2016,dalpozzolo2015,bao2020}
-supplies public data for evaluation.
+\pla{} does not compete with the systems above on semantic guarantees.
+Its offer is four properties --- each measured in this paper rather
+than promised --- that matter precisely when a score must be defended
+to a person:
+
+\begin{enumerate}
+\item \textbf{Per-decision itemization.} Every score arrives with the
+  fired rules, each rule's measured confidence, the explicit
+  aggregation arithmetic, and a deletion counterfactual --- the
+  artifact walked through in Section~\ref{sec:casestudy}, with its
+  internal fidelity measured against reversed and random controls in
+  Section~\ref{sec:evaluation}. Under distribution semantics this
+  artifact is not merely absent but in general undefinable
+  (Section~\ref{sec:notprob}).
+\item \textbf{Two-level auditability.} The decision is checkable by
+  hand, and so is the system: a few hundred dependency-free lines,
+  formal definitions that execute as tests, proved and corroborated
+  convergence (Section~\ref{sec:calculus}), and results that
+  regenerate from committed scripts (Section~\ref{sec:implementation}).
+\item \textbf{Learning that stays in the rule vocabulary.} Rule
+  confidences are fitted by a convex reduction to logistic regression
+  and export back into the same engine exactly
+  (Section~\ref{sec:learning}), so the learned model itemizes exactly
+  like the hand-written one; its calibration is measured against a
+  null baseline in Section~\ref{sec:evaluation}.
+\item \textbf{Deployment weight.} Zero dependencies and
+  sub-millisecond scenario queries (Section~\ref{sec:implementation}),
+  against per-example program compilation for the nearest
+  semantically grounded alternative (Section~\ref{sec:setup}).
+\end{enumerate}
+
+The price is stated with the same precision: no distribution
+semantics (Section~\ref{sec:notprob}) --- where rules overlap, share
+causes, or evidence must be conditioned on, ProbLog is right and
+\pla{} is not --- and a measured accuracy gap of $0.002$--$0.034$ AUC
+per split to the interpretable frontier on the credit-card study
+(Section~\ref{sec:evaluation}). The intended domains are education and
+audit-style settings~\cite{appelbaum2017}, where inherent
+interpretability is a requirement, not a
+preference~\cite{rudin2019,jacovi2020}, and where fraud-detection
+practice~\cite{west2016,dalpozzolo2015,bao2020} supplies public data
+for evaluation.
