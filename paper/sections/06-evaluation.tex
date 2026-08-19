@@ -203,7 +203,20 @@ $\le$2005, gap 2006--07, test $\ge$2008; 1{,}172 serial-fraud firm-years
 dropped from training; fraud rate in test 0.40\%). Full-test models
 only.}
 \label{tab:sox}
-%%FILL-SOX-TABLE
+\begin{tabular}{lrlrr}
+\toprule
+Model & AUC & AUC 95\% CI & AP & log-loss\\
+\midrule
+logistic regression (raw features) & 0.7003 & [0.6550, 0.7411] & 0.0080 & 0.0253\\
+EBM (raw features) & 0.6441 & [0.6038, 0.6880] & 0.0067 & 0.0273\\
+gradient boosting (class-weighted) & 0.6432 & [0.5969, 0.6849] & 0.0076 & 0.3448\\
+gradient boosting (untuned) & 0.6283 & [0.5860, 0.6695] & 0.0062 & 0.0276\\
+decision tree (depth 4, balanced) & 0.6266 & [0.5798, 0.6653] & 0.0061 & 0.5154\\
+\pla{} static (empirical precisions) & 0.5381 & [0.4941, 0.5809] & 0.0085 & 0.0923\\
+\pla{} learned (rules + context + bias) & 0.4651 & [0.4207, 0.5097] & 0.0038 & 0.0266\\
+\pla{} learned, no context (ablation) & 0.4640 & [0.4234, 0.5099] & 0.0037 & 0.0265\\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[t]
@@ -218,16 +231,23 @@ models retain signal.}
 
 \paragraph{The pre-registered verdict on context conditioning.} Even
 under the design built to make the context weight identifiable, the
-mechanism adds nothing: learned $0.4651$ vs.\ ablation $0.4640$, with
-essentially identical intervals and calibration
-(Figure~\ref{fig:sox}). Combined with the null on credit card ($0.9625$
-vs.\ $0.9630$) and the within-CI sliver on the strict design, the
-conclusion is that context-conditioned rule weights, \emph{with the
-coarse single-bit context variables tested here}, show no reliable
-benefit --- reported plainly per the kill criterion recorded in the
-repository's gap statement before these experiments ran. The
-demonstrated value of learning lies in calibration, not in context
-adjustment; Section~\ref{sec:discussion} draws the drift lesson.
+mechanism adds nothing: learned $0.4651$ vs.\ ablation $0.4640$ AUC and
+$0.0038$ vs.\ $0.0037$ AP, with essentially identical intervals and
+calibration (Figure~\ref{fig:sox}). Combined with the AUC null on
+credit card ($0.9625$ vs.\ $0.9630$) and the within-CI sliver on the
+strict design, the conclusion is that context-conditioned rule weights,
+\emph{with the coarse single-bit context variables tested here}, show
+no reliable benefit --- reported plainly per the kill criterion
+recorded in the repository's gap statement before these experiments
+ran. One post-hoc observation cuts the other way and is reported as
+such: on credit card the context variant holds a small, seed-stable
+average-precision edge over its ablation ($0.5307$--$0.5522$ vs.\
+$0.4930$--$0.4995$ across the three seeds) that does not recur under
+either drift design. Average precision was not the pre-registered
+metric, so this generates a hypothesis for the next design rather than
+revising the verdict. The demonstrated value of learning lies in
+calibration, not in context adjustment; Section~\ref{sec:discussion}
+draws the drift lesson.
 
 \subsection{Trace fidelity}
 

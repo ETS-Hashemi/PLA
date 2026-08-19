@@ -192,7 +192,10 @@ measured property, not an asserted one.
 \paragraph{Real data.} The same scripts run on two real datasets. On the
 ULB credit-card data (284{,}807 transactions, 492 frauds) an 11-rule PLA
 model reaches AUC $0.9687$ (static) and $0.9625$ (learned, ECE $0.0022$)
-against $0.9796$ for raw-feature logistic regression --- and the
+against $0.9796$ for raw-feature logistic regression; average precision
+exposes the trade behind that near-tie --- static $0.7258$ vs.\ learned
+$0.5361$ --- so learning buys calibration at a measured early-ranking
+cost. And the
 interceptless learner's \emph{inverted} AUC of $0.076$, repaired to
 $0.9625$ by the standard intercept, is a model-class lesson the logistic
 reduction made obvious. On the Bao et al.\ accounting data~\cite{bao2020},

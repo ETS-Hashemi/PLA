@@ -25,19 +25,27 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
 - **Near-frontier ranking from 11 auditable rules.** On the ULB
   credit-card data (284,807 transactions, 0.17% fraud) the accuracy
   frontier is itself interpretable — EBM 0.9815 AUC, logistic regression
-  0.9796 — and an 11-rule PLA model sits 0.013–0.019 below it (static
-  0.9687, learned 0.9625), stable across three split seeds, confidence
-  intervals overlapping.
-- **Learning buys calibration, not ranking.** Fitting the weights leaves
-  the ordering essentially unchanged but cuts log-loss by roughly a third
-  and calibration error by a factor of six (ECE 0.0022).
+  0.9796 on seed 42 — and an 11-rule PLA model tracks it at 0.013–0.026
+  across three split seeds (static 0.9525–0.9687, learned
+  0.9485–0.9628), confidence intervals overlapping; in average
+  precision the static rules keep most of the frontier's early ranking
+  power (0.66–0.73 vs. 0.75–0.78 for LR).
+- **Learning is a measured trade, not a free upgrade.** Fitting the
+  weights cuts log-loss by roughly a third and calibration error by a
+  factor of six (ECE 0.0022) — but average precision exposes a real
+  early-ranking cost that AUC hides (learned 0.53–0.55 vs. static
+  0.66–0.73 across seeds). Calibrated scores for thresholds and
+  expected-cost decisions; static scores for fixed-budget queues.
 - **Context-conditioned weights: a pre-registered negative.** Under the
   SOX-boundary design built specifically to make the context weight
-  identifiable, learned vs. no-context ablation is 0.4651 vs. 0.464 —
-  nothing — matching the null on credit card (0.9625 vs. 0.963). Reported
-  plainly per the kill criterion recorded in
+  identifiable, learned vs. no-context ablation is 0.4651 vs. 0.4640
+  AUC (AP 0.0038 vs. 0.0037) — nothing — matching the AUC null on
+  credit card (0.9625 vs. 0.9630). Reported plainly per the kill
+  criterion recorded in
   [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md) before the
-  experiments ran.
+  experiments ran. One post-hoc, hypothesis-generating exception is
+  recorded honestly: a small seed-stable AP edge for the context
+  variant on credit card only.
 - **Drift breaks rule *vocabulary*, not rule *reliability*.** On the Bao
   et al. accounting-fraud data, rules mined before the 2003 regime change
   rank later frauds near chance while raw-ratio logistic regression
