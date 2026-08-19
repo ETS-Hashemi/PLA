@@ -34,8 +34,8 @@ RESULTS = ROOT / "results"
 FIDELITY_DATASETS = [
     ("synthetic", "fidelity_synthetic_n2000_seed0.csv", ("pla_static", "pla_learned")),
     ("credit card", "fidelity_creditcard_real.csv", ("pla_static",)),
-    ("accounting (strict)", "fidelity_bao2020_real.csv", ("pla_static",)),
-    ("accounting (SOX)", "fidelity_bao2020_sox.csv", ("pla_static",)),
+    ("accounting, strict", "fidelity_bao2020_real.csv", ("pla_static",)),
+    ("accounting, SOX", "fidelity_bao2020_sox.csv", ("pla_static",)),
 ]
 
 
@@ -86,11 +86,11 @@ def _experiment_table(csv_name, with_ece=True, subset_block=True):
 
 def _fidelity_table():
     lines = [
-        "\\begin{tabular}{llrrrlrr}",
+        "\\begin{tabular}{lrrrlrr}",
         "\\toprule",
-        "Dataset & Model & $n$ & \\multicolumn{2}{c}{Comprehensiveness} & "
+        "Dataset (variant) & $n$ & \\multicolumn{2}{c}{Comprehensiveness} & "
         "$\\Delta$ [95\\% CI] & \\multicolumn{2}{c}{Sufficiency}\\\\",
-        " & & & trace & control & & trace & control\\\\",
+        " & & trace & control & & trace & control\\\\",
         "\\midrule",
     ]
     for label, csv_name, models in FIDELITY_DATASETS:
@@ -100,14 +100,14 @@ def _fidelity_table():
         for model in models:
             trace = rows[(model, "trace")]
             control = rows[(model, "reversed_control")]
-            model_name = DISPLAY_NAMES[model].replace("PLA ", "\\pla{} ")  # short form fits
+            variant = model.replace("pla_", "")
             delta = (f"{trace['comp_minus_control']} "
                      f"[{trace['comp_diff_lo']}, {trace['comp_diff_hi']}]")
+            n_tex = f"{int(trace['n_explained']):,}".replace(",", "{,}")
             lines.append(
-                f"{label} & {model_name} & {int(trace['n_explained']):,} & "
+                f"{label} ({variant}) & {n_tex} & "
                 f"{trace['comprehensiveness']} & {control['comprehensiveness']} & "
-                f"{delta} & {trace['sufficiency']} & {control['sufficiency']}\\\\"
-                .replace(",", "{,}"))
+                f"{delta} & {trace['sufficiency']} & {control['sufficiency']}\\\\")
     lines.extend(["\\bottomrule", "\\end{tabular}"])
     return "\n".join(lines)
 

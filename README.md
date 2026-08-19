@@ -52,11 +52,13 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
   reaches 0.68–0.70 — reweighting (context-conditioned or otherwise)
   cannot rescue antecedents that stopped being informative.
 - **Traces are measurably faithful, and they are the deliverable.**
-  Static-model traces beat a reversed-attribution control on all four
-  datasets, and the generated case study walks one real fraud through the
-  engine: 11 rules fire, noisy-OR folds to 0.4929 against a 0.0017 base
-  rate, and deleting the top rule's facts drops the score to 0.2552 — a
-  rule-level counterfactual none of the baselines produce.
+  Static-model traces beat a reversed-attribution control on both
+  deletion metrics on all four datasets — paired-bootstrap CIs on the
+  difference exclude zero everywhere — and the generated case study
+  walks one real fraud through the engine: 11 rules fire, noisy-OR folds
+  to 0.4929 against a 0.0017 base rate, and deleting the top rule's
+  facts drops the score to 0.2552 — a rule-level counterfactual none of
+  the baselines produce.
 
 One engineering lesson worth advertising: **keep the intercept.** Without
 the standard logistic bias term, additive log-odds pooling of

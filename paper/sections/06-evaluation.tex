@@ -78,6 +78,8 @@ noisy-OR implementation.
 \texttt{scripts/run\_experiments.py}. Subset rows (below the rule) are
 cross-checks, not ranking comparisons.}
 \label{tab:headtohead}
+{\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrlrrr}
 \toprule
 Model & AUC & AUC 95\% CI & AP & log-loss & ECE\\
@@ -94,7 +96,7 @@ decision tree (depth 4, balanced) & 0.7208 & [0.6668, 0.7710] & 0.2278 & 0.5492 
 \midrule
 ProbLog on \pla{} rules ($n{=}150$) & 0.7416 & [0.6351, 0.8413] & 0.4072 & 1.4447 & 0.0704\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Real data I: credit-card fraud}
@@ -109,6 +111,8 @@ ULB dataset (70/30 split, seed 42, thresholds fitted on train only).
 rule) are semantics cross-checks on deterministic subsamples and are not
 comparable to full-test rows.}
 \label{tab:creditcard}
+{\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrlrrr}
 \toprule
 Model & AUC & AUC 95\% CI & AP & log-loss & ECE\\
@@ -125,7 +129,7 @@ gradient boosting (untuned) & 0.7159 & [0.6377, 0.7902] & 0.5316 & 0.0262 & 0.00
 ProbLog on \pla{} rules ($n{=}150$) & 0.9610 & [0.8887, 0.9994] & 0.8960 & 0.1502 & 0.0553\\
 pgmpy naive Bayes ($n{=}2000$) & 0.9322 & [0.7928, 1.0000] & 0.6190 & 0.0195 & 0.0016\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[t]
@@ -152,10 +156,11 @@ the static rules retain most of the frontier's early ranking power
 ($0.6606$--$0.7258$ vs.\ $0.7535$--$0.7849$ for logistic regression).
 Third, learning is a measured trade, not a free upgrade. Its gain is
 calibration --- ECE $0.0022$, and Figure~\ref{fig:reliability} shows
-the learned model hugging the diagonal at the low probabilities where
-nearly all mass lives while the static rules' empirical precisions
-overshoot there --- but average precision reveals a real early-ranking
-cost that AUC conceals: learned AP is $0.5307$--$0.5522$ across seeds
+the learned model tracking the diagonal through the low-probability
+bins where nearly all mass lives while the static rules' empirical
+precisions overshoot --- but average precision reveals a real
+early-ranking cost that AUC conceals, visible in the same figure as
+score compression in the learned model's top bins: learned AP is $0.5307$--$0.5522$ across seeds
 against the static rules' $0.6606$--$0.7258$, a loss concentrated
 exactly where an audit queue operates. Section~\ref{sec:discussion}
 weighs this trade. Fourth, this study surfaced a model-class
@@ -172,10 +177,12 @@ nor a single tuning choice silently carries the comparison.
 \includegraphics[width=0.62\linewidth]{figures/fig_reliability_creditcard}
 \caption{Reliability diagram on the credit-card test split (seed 42),
 fixed log-spaced bins on log-log axes; points below $5\times10^{-5}$
-are drawn at the display floor. The learned model hugs the diagonal at
-the low probabilities where nearly all mass lives; the static rules'
-empirical precisions overshoot there --- ranking survives, calibration
-does not.}
+are drawn at the display floor. The learned model tracks the diagonal
+through the low-probability bins where nearly all mass (and hence ECE)
+lives, and compresses at the top --- its highest bin sits above the
+diagonal, the calibration-side view of the average-precision cost in
+Table~\ref{tab:creditcard} --- while the static rules' empirical
+precisions overshoot observed rates across the range.}
 \label{fig:reliability}
 \end{figure}
 
@@ -203,6 +210,8 @@ $\le$2005, gap 2006--07, test $\ge$2008; 1{,}172 serial-fraud firm-years
 dropped from training; fraud rate in test 0.40\%). Full-test models
 only.}
 \label{tab:sox}
+{\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrlrr}
 \toprule
 Model & AUC & AUC 95\% CI & AP & log-loss\\
@@ -216,7 +225,7 @@ decision tree (depth 4, balanced) & 0.6266 & [0.5798, 0.6653] & 0.0061 & 0.5154\
 \pla{} learned (rules + context + bias) & 0.4651 & [0.4207, 0.5097] & 0.0038 & 0.0266\\
 \pla{} learned, no context (ablation) & 0.4640 & [0.4234, 0.5099] & 0.0037 & 0.0265\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[t]
@@ -259,7 +268,20 @@ of the mean comprehensiveness difference (trace $-$ control); generated
 by \texttt{scripts/run\_fidelity.py}. Comprehensiveness: higher is
 better. Sufficiency: closer to zero is better.}
 \label{tab:fidelity}
-%%FILL-FIDELITY-TABLE
+{\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrlrr}
+\toprule
+Dataset (variant) & $n$ & \multicolumn{2}{c}{Comprehensiveness} & $\Delta$ [95\% CI] & \multicolumn{2}{c}{Sufficiency}\\
+ & & trace & control & & trace & control\\
+\midrule
+synthetic (static) & 350 & 0.2222 & 0.1864 & 0.0358 [0.0252, 0.0469] & 0.0527 & 0.1016\\
+synthetic (learned) & 350 & 0.0939 & 0.0807 & 0.0132 [0.0090, 0.0182] & 0.0583 & 0.0576\\
+credit card (static) & 48{,}630 & 0.0202 & 0.0166 & 0.0036 [0.0034, 0.0038] & 0.0058 & 0.0121\\
+accounting, strict (static) & 21{,}744 & 0.0116 & 0.0082 & 0.0035 [0.0033, 0.0036] & 0.0054 & 0.0093\\
+accounting, SOX (static) & 11{,}642 & 0.0094 & 0.0068 & 0.0026 [0.0025, 0.0027] & 0.0049 & 0.0073\\
+\bottomrule
+\end{tabular}}
 \end{table}
 
 Deletion metrics in the faithfulness framing of~\cite{jacovi2020}:
@@ -268,12 +290,15 @@ removed) and sufficiency (prediction change when only those facts are
 kept), against a control that ranks the same fired rules worst first.
 The static model's traces beat the control on both metrics on all four
 datasets, and the paired-bootstrap intervals on the comprehensiveness
-difference exclude zero in every case
-(Table~\ref{tab:fidelity}). %%FILL-FIDELITY-SENTENCE
-For the calibrated learned model on rare-event data the
-absolute-probability deltas compress to noise level --- correctly
-ordered but uninformative at this scale; log-odds-unit variants are the
-needed refinement (Section~\ref{sec:limitations}).
+difference exclude zero in every case (Table~\ref{tab:fidelity}). On
+the synthetic sample the learned model's traces also win
+comprehensiveness ($0.0132$ [0.0090, 0.0182]) while sufficiency is a
+wash ($0.0583$ vs.\ $0.0576$). For the calibrated learned model on
+rare-event data the absolute-probability deltas compress to the display
+floor --- on credit card, $0.0002$ vs.\ $0.0001$, a paired difference
+of just $0.0001$ --- correctly ordered but uninformative at this scale;
+log-odds-unit variants are the needed refinement
+(Section~\ref{sec:limitations}).
 
 \subsection{Case study: one real fraud, traced}\label{sec:casestudy}
 

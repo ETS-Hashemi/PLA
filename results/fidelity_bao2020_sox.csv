@@ -1,5 +1,5 @@
-model,attribution,n_explained,comprehensiveness,sufficiency
-pla_static,trace,11642,0.0094,0.0049
-pla_static,reversed_control,11642,0.0068,0.0073
-pla_learned,trace,11642,-0.001,-0.0007
-pla_learned,reversed_control,11642,-0.0014,-0.0003
+model,attribution,n_explained,comprehensiveness,sufficiency,comp_minus_control,comp_diff_lo,comp_diff_hi
+pla_static,trace,11642,0.0094,0.0049,0.0026,0.0025,0.0027
+pla_static,reversed_control,11642,0.0068,0.0073,,,
+pla_learned,trace,11642,-0.0010,-0.0007,0.0004,0.0004,0.0004
+pla_learned,reversed_control,11642,-0.0014,-0.0003,,,

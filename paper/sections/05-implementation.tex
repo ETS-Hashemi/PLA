@@ -2,13 +2,15 @@
 
 \subsection{The tool}
 
-\pla{} ships as a pip-installable package
-(\texttt{probabilistic-logic-agent}) with no core dependencies. It
+\pla{} ships as a pip-installable package --- distribution name
+\texttt{probabilistic-}\allowbreak\texttt{logic-}\allowbreak\texttt{agent}
+--- with no core dependencies. It
 provides a command-line interface
-(\texttt{pla scenario.json [context-set]}), a Flask REST API behind an
+(\texttt{pla} \texttt{scenario.json} \texttt{[context-set]}), a Flask
+REST API behind an
 optional extra, and a JSON scenario format carrying facts, rules with
 per-rule context weights, queries, and named context sets
-(Appendix~\ref{app:scenario}). Context handling is \emph{fail-loud}:
+(\ref{app:scenario}). Context handling is \emph{fail-loud}:
 malformed context shapes, unknown context sets, undeclared context
 variables, and unknown context modes raise structured errors instead of
 silently applying no adjustment --- a design decision motivated by a
@@ -42,7 +44,7 @@ claim:
   conditioning~\cite{deraedt2007}, pgmpy's Bayes
   posteriors~\cite{ankan2015}, and the identity between \pla{}'s
   noisy-OR and MYCIN's combination rule~\cite{shortliffe1975}.
-\item \textbf{Claim provenance.} Appendix~\ref{app:provenance} maps each
+\item \textbf{Claim provenance.} \ref{app:provenance} maps each
   substantive claim of this paper to the artifact --- test, script, or
   generated file --- that verifies it.
 \end{itemize}
@@ -53,5 +55,10 @@ integration on Python 3.9--3.12, together with smoke runs of the CLI and
 examples and a job that compiles this paper and assembles the
 submission packages. Reported AUCs and average precisions carry seeded
 percentile-bootstrap 95\% confidence intervals ($B{=}500$), and the
-credit-card study is repeated over three split seeds.
-%%FILL-COST-SENTENCE
+credit-card study is repeated over three split seeds. For scale:
+regenerating one full credit-card design --- 11-rule mining, three
+pure-Python learner fits over 199{,}364 training examples, every
+baseline, and the shared bootstrap intervals over the 85{,}443-case
+test split --- takes roughly a quarter-hour on a single commodity
+core, the accounting designs a third of that, and an end-to-end query
+of a shipped scenario well under a millisecond.

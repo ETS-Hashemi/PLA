@@ -2,7 +2,11 @@
 
 Files here are **generated** by `scripts/run_experiments.py`,
 `scripts/run_fidelity.py`, and `scripts/make_case_study.py` — regenerate,
-never hand-edit. Every AUC carries a seeded percentile-bootstrap 95% CI.
+never hand-edit. Every AUC and average precision (AP) carries a seeded
+percentile-bootstrap 95% CI; fidelity files carry the paired-bootstrap
+CI of the trace-minus-control difference. The paper's tables print from
+these files via `scripts/make_paper_tables.py`, and its data figures via
+`scripts/make_figures.py`.
 
 | Files | Dataset / design | Nature |
 |---|---|---|
@@ -14,23 +18,38 @@ never hand-edit. Every AUC carries a seeded percentile-bootstrap 95% CI.
 
 Headline findings (full framing and caveats in `paper/`):
 
-- **Credit card:** the interpretable frontier leads (EBM 0.9815, LR
-  0.9796); 11-rule PLA sits within 0.013–0.019 of it (static 0.9687,
-  learned 0.9625 with ECE 0.0022), stable across three seeds, CIs
-  overlapping.
-- **Context-conditioning verdict (pre-registered): negative.** Ablations
-  (`pla_learned` vs `pla_learned_noctx`) show no reliable ranking
-  benefit in any real design — null on credit card (0.9625 vs 0.963),
-  within-CI sliver on strict Bao (0.4905 vs 0.4733), and nothing under
-  the SOX design built to make the context weight identifiable (0.4651
-  vs 0.464). The demonstrated value of learning is calibration.
+- **Credit card:** the interpretable frontier leads on both metrics
+  (seed 42: EBM 0.9815 AUC / 0.8642 AP, LR 0.9796 / 0.7849); the
+  11-rule PLA model tracks it at 0.013–0.026 AUC across three seeds
+  (static 0.9525–0.9687, learned 0.9485–0.9628), CIs overlapping, with
+  static AP retaining most of the frontier's early ranking power
+  (0.66–0.73 vs. LR's 0.75–0.78).
+- **Learning is a measured trade.** MLE weights cut log-loss by ~a third
+  and ECE by ~6× (0.0022) — and give up 0.13–0.19 AP vs. the static
+  rules across seeds, a top-of-ranking cost AUC conceals. Calibrated
+  scores for thresholds/expected-cost decisions; static scores for
+  fixed-budget queues.
+- **Context-conditioning verdict (pre-registered): negative.** Under the
+  SOX design built to make the context weight identifiable: 0.4651 vs
+  0.4640 AUC, 0.0038 vs 0.0037 AP; AUC null on credit card (0.9625 vs
+  0.9630); within-CI sliver on strict Bao. One post-hoc,
+  hypothesis-generating exception recorded honestly: a small seed-stable
+  AP edge for the context variant on credit card only (0.53–0.55 vs
+  0.49–0.50), absent under both drift designs — and AP was not the
+  pre-registered metric.
 - **Accounting drift:** all rule models near chance post-boundary while
-  raw-ratio LR reaches 0.68–0.70 — vocabulary drift that reweighting
-  cannot rescue; scopes the next iteration (rule re-mining, richer
-  context features, full Bao protocol).
-- **Fidelity:** static traces beat the reversed control on all four
-  datasets; calibrated rare-event deltas compress toward zero (move to
-  log-odds units next).
+  raw-ratio LR reaches 0.68–0.70 AUC (but only 0.0112 AP against a
+  0.0061 prevalence — thin absolute signal for everyone) — vocabulary
+  drift that reweighting cannot rescue; scopes the next iteration (rule
+  re-mining, richer context features, full Bao protocol).
+- **Fidelity:** static traces beat the reversed control on
+  comprehensiveness *and* sufficiency on all four datasets, and the
+  paired-bootstrap Δ CIs exclude zero everywhere (Δ 0.0026–0.0358);
+  calibrated rare-event deltas compress toward the display floor (move
+  to log-odds units next).
+- **Baseline honesty:** untuned gradient boosting collapses at 0.17%
+  prevalence (0.7159); simple class weighting repairs it (0.9598 AUC /
+  0.7899 AP); both rows are reported.
 - **Intercept lesson:** without the standard logistic intercept the
   learned model inverted on real data (AUC 0.076 → 0.9625 with it);
   regression test in `tests/test_bias_learning.py`, pre-fix table in git

@@ -44,6 +44,9 @@ jobs:
           PAGES=$(pdfinfo paper/workshop.pdf | awk '/^Pages:/ {print $2}')
           echo "workshop pages: $PAGES"
           test "$PAGES" -ge 4 && test "$PAGES" -le 6
+      - name: Check for unfilled placeholders
+        run: |
+          ! grep -rn "%%FILL" paper/ --include="*.tex"
       - name: Upload PDFs
         uses: actions/upload-artifact@v4
         with:
