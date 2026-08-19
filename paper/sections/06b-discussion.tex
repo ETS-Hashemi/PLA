@@ -4,8 +4,8 @@
 credit-card fraud.} The ULB features are PCA components; the fraud
 signal concentrates in the tails of a handful of them, and quantile
 propositions capture exactly those tails. Where the signal is
-tail-shaped, a small rule set loses little discrimination and buys full
-traceability. The synthetic study shows the opposite regime: when the
+tail-shaped, a small rule set loses little AUC (and a measured, bounded
+slice of early precision) while buying full traceability. The synthetic study shows the opposite regime: when the
 generating process is linear in the raw continuous features,
 discretization pays a visible tax. The practical guidance for
 audit-style deployments is therefore diagnostic, not dogmatic: measure
@@ -13,15 +13,24 @@ whether the domain's signal survives propositionalization (the static
 rules' AUC against a raw-feature reference makes that a one-table
 check) before committing to a rule-shaped model.
 
-\paragraph{What maximum likelihood buys, and what it does not.} Across
-every study, learning the weights improves calibration --- on the real
-credit-card data the learned variant's log-loss is roughly a third below
-the static rules' and its expected calibration error is smaller by a
-factor of six. Ranking, by contrast, is already fixed by \emph{which
-rules fire}: static noisy-OR and fitted weights order test cases almost
-identically. In deployments where scores feed thresholds, queues, or
-cost-sensitive decisions, calibration is the property that matters, and
-it is the one learning delivers.
+\paragraph{What maximum likelihood buys, what it costs, and when each
+matters.} Across every study, learning the weights improves calibration
+--- on the real credit-card data the learned variant's log-loss is
+roughly a third below the static rules' and its expected calibration
+error is smaller by a factor of six. AUC barely moves, which tempts the
+conclusion that ranking is free; average precision corrects it: the
+learned model gives up $0.13$--$0.19$ of AP against the static rules
+across the three seeds. The pattern is consistent with maximum
+likelihood sharing credit among correlated, co-firing rules ---
+shrinking redundant weights compresses the score separation among the
+multi-rule examples at the very top of the ranking, exactly the region
+AP weighs most, and where empirical-precision noisy-OR, monotone in the
+fired set, keeps its lead. The deployment guidance follows the
+decision, not a single metric: where scores feed thresholds,
+expected-cost decisions, or probability-bearing reports, take the
+calibrated model; where a fixed-budget queue consumes the top of a
+ranking, the static rules' overconfident scores rank better even
+though they mean less.
 
 \paragraph{The intercept lesson generalizes.} The rank inversion of
 Section~\ref{sec:learning} is not a quirk of one dataset: any additive

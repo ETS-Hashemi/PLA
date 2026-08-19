@@ -109,7 +109,23 @@ ULB dataset (70/30 split, seed 42, thresholds fitted on train only).
 rule) are semantics cross-checks on deterministic subsamples and are not
 comparable to full-test rows.}
 \label{tab:creditcard}
-%%FILL-CREDITCARD-TABLE
+\begin{tabular}{lrlrrr}
+\toprule
+Model & AUC & AUC 95\% CI & AP & log-loss & ECE\\
+\midrule
+EBM (raw features) & 0.9815 & [0.9680, 0.9930] & 0.8642 & 0.0024 & 0.0002\\
+logistic regression (raw features) & 0.9796 & [0.9647, 0.9915] & 0.7849 & 0.0036 & 0.0003\\
+\pla{} static (empirical precisions) & 0.9687 & [0.9500, 0.9840] & 0.7258 & 0.0172 & 0.0138\\
+\pla{} learned, no context (ablation) & 0.9630 & [0.9396, 0.9812] & 0.4951 & 0.0113 & 0.0022\\
+\pla{} learned (rules + context + bias) & 0.9625 & [0.9381, 0.9817] & 0.5361 & 0.0113 & 0.0022\\
+gradient boosting (class-weighted) & 0.9598 & [0.9323, 0.9857] & 0.7899 & 0.0179 & 0.0148\\
+decision tree (depth 4, balanced) & 0.9074 & [0.8577, 0.9443] & 0.4947 & 0.1026 & 0.0696\\
+gradient boosting (untuned) & 0.7159 & [0.6377, 0.7902] & 0.5316 & 0.0262 & 0.0009\\
+\midrule
+ProbLog on \pla{} rules ($n{=}150$) & 0.9610 & [0.8887, 0.9994] & 0.8960 & 0.1502 & 0.0553\\
+pgmpy naive Bayes ($n{=}2000$) & 0.9322 & [0.7928, 1.0000] & 0.6190 & 0.0195 & 0.0016\\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[t]
@@ -123,25 +139,33 @@ depth-4 tree.}
 \label{fig:creditcard}
 \end{figure}
 
-Three findings. First, the accuracy frontier on this dataset is itself
-interpretable: EBM tops the seed-42 table at $0.9815$, just above
-logistic regression, and one of the two leads on every seed. Second, an
-11-rule, fully hand-traceable \pla{} model tracks that frontier at a
-measured distance: across the three seeds \pla{} static spans
-$0.9525$--$0.9687$ and learned $0.9485$--$0.9628$, against
-$0.9700$--$0.9796$ for logistic regression and $0.9747$--$0.9815$ for
-EBM --- gaps of $0.013$--$0.026$, with overlapping confidence intervals
-on every seed. %%FILL-CREDITCARD-AP-SENTENCE
-The learned variant's ECE of $0.0022$ is the calibration headline;
-Figure~\ref{fig:reliability} shows it hugging the diagonal at the low
-probabilities where nearly all mass lives, while the static rules'
-empirical precisions overshoot there (Section~\ref{sec:discussion}
-quantifies the gap).
-Third, this study surfaced a model-class pathology, preserved pre-fix in
-the repository's history: without the intercept the learned variant's
-AUC was $0.076$ --- inverted --- for the reason given in
-Section~\ref{sec:learning}; the intercept restores it.
-%%FILL-GBT-SENTENCE
+Four findings. First, the accuracy frontier on this dataset is itself
+interpretable: EBM tops the seed-42 table on both metrics (AUC
+$0.9815$, AP $0.8642$), just above logistic regression, and one of the
+two leads on every seed. Second, an 11-rule, fully hand-traceable
+\pla{} model tracks that frontier at a measured distance: across the
+three seeds \pla{} static spans AUC $0.9525$--$0.9687$ and learned
+$0.9485$--$0.9628$, against $0.9700$--$0.9796$ for logistic regression
+and $0.9747$--$0.9815$ for EBM --- gaps of $0.013$--$0.026$, with
+overlapping confidence intervals on every seed; in average precision
+the static rules retain most of the frontier's early ranking power
+($0.6606$--$0.7258$ vs.\ $0.7535$--$0.7849$ for logistic regression).
+Third, learning is a measured trade, not a free upgrade. Its gain is
+calibration --- ECE $0.0022$, and Figure~\ref{fig:reliability} shows
+the learned model hugging the diagonal at the low probabilities where
+nearly all mass lives while the static rules' empirical precisions
+overshoot there --- but average precision reveals a real early-ranking
+cost that AUC conceals: learned AP is $0.5307$--$0.5522$ across seeds
+against the static rules' $0.6606$--$0.7258$, a loss concentrated
+exactly where an audit queue operates. Section~\ref{sec:discussion}
+weighs this trade. Fourth, this study surfaced a model-class
+pathology, preserved pre-fix in the repository's history: without the
+intercept the learned variant's AUC was $0.076$ --- inverted --- for
+the reason given in Section~\ref{sec:learning}; the intercept restores
+it. A baseline note: untuned gradient boosting collapses at this class
+imbalance (AUC $0.7159$), and simple class weighting repairs it (AUC
+$0.9598$, AP $0.7899$) --- both rows are reported so neither defaults
+nor a single tuning choice silently carries the comparison.
 
 \begin{figure}[t]
 \centering

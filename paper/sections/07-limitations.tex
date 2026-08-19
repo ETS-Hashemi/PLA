@@ -22,8 +22,10 @@
   handling (post-first-fraud firm-years dropped from training only), and
   a much coarser rule vocabulary than their 28-feature ensembles. Its
   negative results bind these protocols, not the hypothesis space.
-  Baselines run untuned defaults by design, which flatters no one but
-  understates gradient boosting in particular.
+  Baselines run library defaults by design, with one class-weighted
+  variant added for gradient boosting after its default collapse
+  (Section~\ref{sec:evaluation}); nothing else is tuned, which may
+  understate every baseline.
 \item \textbf{Scale-dependent fidelity metrics.} Deletion metrics in
   absolute probability units compress toward zero for calibrated
   rare-event models (Section~\ref{sec:evaluation}); log-odds-scale
