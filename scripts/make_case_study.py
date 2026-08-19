@@ -76,6 +76,35 @@ def main():
     static_after = noisy_or_probability(specs, precisions, reduced)
     learned_after = learner.predict_proba(reduced, context)
 
+    # Leave-one-rule-out: each fired rule removed from the fold alone,
+    # facts untouched — the per-rule contribution without the
+    # overlapping-antecedent confound of fact deletion. For the learned
+    # model the log-odds drop equals z_r exactly (additive path).
+    import math
+
+    def logit(p, eps=1e-9):
+        p = min(max(p, eps), 1 - eps)
+        return math.log(p / (1 - p))
+
+    fired_indices = [i for i, spec in enumerate(specs)
+                     if all(a in facts for a in spec.antecedents)]
+    loro_lines = []
+    for i in sorted(fired_indices,
+                    key=lambda j: -precisions[j]):
+        static_wo = 0.0
+        for j in fired_indices:
+            if j != i:
+                static_wo = 1 - (1 - static_wo) * (1 - precisions[j])
+        z_wo = sum(learner._z(j, context) for j in fired_indices if j != i)
+        learned_wo = 1 / (1 + math.exp(-(learner.bias + z_wo)))
+        loro_lines.append(
+            f"| {' ∧ '.join(specs[i].antecedents)} "
+            f"| {static_score - static_wo:.4f} "
+            f"| {learned_score - learned_wo:.4f} "
+            f"| {logit(learned_score) - logit(learned_wo):.4f} "
+            f"| {learner._z(i, context):.4f} |"
+        )
+
     # The engine's own trace for the same example.
     kb = ProbKB()  # default noisy_or, legacy context (neutral weights)
     head = ProbSymbol("Fraud")
@@ -122,6 +151,16 @@ def main():
         f"static {static_score:.4f} → {static_after:.4f}; "
         f"learned {learned_score:.4f} → {learned_after:.4f}.",
         "The trace's top factor is load-bearing, not decorative.",
+        "",
+        "## Leave-one-rule-out contributions",
+        "",
+        "Each fired rule removed from the fold alone (facts untouched).",
+        "For the learned model, Δlog-odds equals the rule's z_r exactly —",
+        "the trace ranking is the exact attribution on that scale.",
+        "",
+        "| Rule | Δ static | Δ learned | Δ learned log-odds | z_r |",
+        "|---|---|---|---|---|",
+        *loro_lines,
         "",
         "## The engine's own trace (verbatim)",
         "",

@@ -1,7 +1,7 @@
 \section{Discussion}\label{sec:discussion}
 
 \paragraph{Why eleven rules nearly match logistic regression on
-credit-card fraud.} The ULB features are PCA components; the fraud
+credit-card fraud} The ULB features are PCA components; the fraud
 signal concentrates in the tails of a handful of them, and quantile
 propositions capture exactly those tails. Where the signal is
 tail-shaped, a small rule set loses little AUC (and a measured, bounded
@@ -14,7 +14,7 @@ rules' AUC against a raw-feature reference makes that a one-table
 check) before committing to a rule-shaped model.
 
 \paragraph{What maximum likelihood buys, what it costs, and when each
-matters.} Across every study, learning the weights improves calibration
+matters} Across every study, learning the weights improves calibration
 --- on the real credit-card data the learned variant's log-loss is
 roughly a third below the static rules' and its expected calibration
 error is smaller by a factor of six. AUC barely moves, which tempts the
@@ -32,7 +32,7 @@ calibrated model; where a fixed-budget queue consumes the top of a
 ranking, the static rules' overconfident scores rank better even
 though they mean less.
 
-\paragraph{The intercept lesson generalizes.} The rank inversion of
+\paragraph{The intercept lesson generalizes} The rank inversion of
 Section~\ref{sec:learning} is not a quirk of one dataset: any additive
 log-odds pooling of rules that are strong lifts but weak absolute
 probabilities will invert on rare-event data unless a global intercept
@@ -44,7 +44,7 @@ calculi should carry an explicit prior term. The engine's export of the
 intercept as a base-rate prior rule makes the repaired model exactly
 representable in the same trace vocabulary.
 
-\paragraph{What the drift studies say about context conditioning.} The
+\paragraph{What the drift studies say about context conditioning} The
 accounting experiments are the honest frontier of this paper, and their
 verdict is negative. Under the strict pre/post-2003 split, rules mined
 before the regime change barely rank later frauds; under the
@@ -60,7 +60,7 @@ Whether richer context features (beyond the single-bit indicators
 tested) change this verdict is the sharpest open question the negative
 result leaves behind.
 
-\paragraph{Traces as the deliverable.} The case study in
+\paragraph{Traces as the deliverable} The case study in
 Section~\ref{sec:evaluation} shows what the auditor actually receives:
 the fired rules with their empirical precisions, the aggregation
 arithmetic line by line, and a deletion counterfactual quantifying the
@@ -68,6 +68,10 @@ top factor's contribution. None of the baselines --- including the
 interpretable ones --- produce this artifact: a decision tree yields a
 path, EBM yields shape functions, but neither names weighted domain
 rules whose provenance is an auditable training-set measurement. The
-fidelity results license trusting these traces for the static model;
-for calibrated rare-event models the absolute-probability deletion
-metrics compress, and log-odds-scale variants are the right refinement.
+fidelity results license trusting these traces in the internal sense
+measured in Section~\ref{sec:evaluation}: the exported ranking is the
+computation's own, exactly so for the learned model on the log-odds
+scale, and better than reversed and random re-rankings for the static
+heuristic; whether such traces improve human audit decisions is the
+separate, unanswered question Section~\ref{sec:limitations} defers to
+a human-subject study.

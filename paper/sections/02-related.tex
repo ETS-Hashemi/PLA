@@ -10,8 +10,14 @@ system supports conditioning on evidence --- an operation \pla{}
 deliberately lacks. (Both capabilities are verified against the
 installed \texttt{problog} package by our test suite.) aProbLog
 generalizes the semantics to arbitrary commutative
-semirings~\cite{kimmig2011}, which is the correct formal umbrella for
-non-probabilistic confidence calculi such as \pla{}'s. DeepProbLog adds
+semirings~\cite{kimmig2011} --- the natural formal \emph{reference
+point} for non-probabilistic confidence calculi, but not an umbrella
+that contains \pla{}: G\"odel conjunction does not distribute over
+noisy-OR ($\min(0.5,\, 0.4 \oplus 0.4) = 0.5$ while
+$(0.5 \wedge 0.4) \oplus (0.5 \wedge 0.4) = 0.64$), so \pla{}'s default
+operator pair is not a semiring instance --- an executable
+counterexample in the repository's semantics document, and one more
+sense in which \pla{} trades algebraic structure for hand-traceability. DeepProbLog adds
 neural predicates with end-to-end gradient training~\cite{manhaeve2018},
 and Scallop compiles differentiable reasoning over provenance
 semirings~\cite{li2023}. All of these systems ship as Python packages;
@@ -45,6 +51,25 @@ in~\cite{kambhampati2024}. A verifier that propagates \emph{uncertain}
 rule confidences rather than crisp truth is an open slot in that
 architecture which \pla{}-style calculi could fill; we leave this as
 future work.
+
+\subsection{Adaptive fuzzy rule systems}
+
+Learnable rule weights have a long history in fuzzy modeling: ANFIS
+tunes Takagi--Sugeno rule parameters by gradient descent inside a fixed
+network structure~\cite{jang1993}, and the evolving-fuzzy-systems line
+adapts rule bases online under drift~\cite{skrjanc2019}. These systems
+share \pla{}'s premise that rule strength should be fitted rather than
+asserted, and their membership functions face the same
+discretization-versus-fidelity tension as our quantile propositions.
+They differ in what the rules \emph{say} and how they are audited:
+TSK consequents are local functional models rather than
+confidence-bearing propositions, aggregation runs through
+t-norm/defuzzification pipelines without a named independence stance,
+and explanation fidelity is typically not measured. \pla{}'s claim
+relative to this line is accordingly not learnability itself but the
+trace-first packaging: named aggregation semantics, fitted weights
+exported back into the same trace vocabulary, and fidelity measured
+against controls.
 
 \subsection{Interpretable rule learning}
 

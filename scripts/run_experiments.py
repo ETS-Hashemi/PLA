@@ -110,7 +110,9 @@ def pla_rows(rule_specs, precisions, train_examples, test_examples):
     ]
     ablation_row = rb.evaluate("pla_learned_noctx", y_true, ablation_probs,
                                note="ablation: context weights disabled")
-    return [static_row, learned_row, ablation_row]
+    probs = {"pla_static": static_probs, "pla_learned": learned_probs,
+             "pla_learned_noctx": ablation_probs}
+    return [static_row, learned_row, ablation_row], probs
 
 
 def run(data_path, tag, fast=False, schema=CREDITCARD, temporal=None, split_seed=42):
@@ -134,11 +136,28 @@ def run(data_path, tag, fast=False, schema=CREDITCARD, temporal=None, split_seed
     rule_specs, precisions = generate_rule_specs(train_examples, context_vars=context_vars)
 
     results = rb.sklearn_rows(train_rows, test_rows, schema)
-    results.extend(pla_rows(rule_specs, precisions, train_examples, test_examples))
+    pla_result_rows, pla_probs = pla_rows(rule_specs, precisions,
+                                          train_examples, test_examples)
+    results.extend(pla_result_rows)
+    y_test = [label for _, _, label in test_examples]
+    results.append(rb.constant_prevalence_row(
+        [label for _, _, label in train_examples], y_test))
     if not fast:
         results.append(rb.problog_row(rule_specs, precisions, test_examples))
         propositions = sorted({a for spec in rule_specs for a in spec.antecedents})
         results.append(rb.pgmpy_row(train_examples, test_examples, propositions))
+
+    # Paired-bootstrap CIs for the differences the paper's conclusions
+    # rest on — the correct inference for "no reliable difference".
+    contrasts = [
+        ("pla_learned_minus_noctx", "pla_learned", "pla_learned_noctx"),
+        ("pla_learned_minus_static", "pla_learned", "pla_static"),
+    ]
+    diff_rows = []
+    for label, model_a, model_b in contrasts:
+        diff = rb.paired_metric_diffs(y_test, pla_probs[model_a], pla_probs[model_b])
+        if diff:
+            diff_rows.append({"contrast": label, **diff})
 
     for row in results:
         row["n_train"] = len(train_rows)
@@ -151,6 +170,15 @@ def run(data_path, tag, fast=False, schema=CREDITCARD, temporal=None, split_seed
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         writer.writerows(results)
+
+    if diff_rows:
+        diff_fields = ["contrast", "auc_diff", "auc_diff_lo", "auc_diff_hi",
+                       "ap_diff", "ap_diff_lo", "ap_diff_hi"]
+        with open(RESULTS_DIR / f"experiment_{tag}_diffs.csv", "w",
+                  newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=diff_fields)
+            writer.writeheader()
+            writer.writerows(diff_rows)
 
     md_path = RESULTS_DIR / f"experiment_{tag}.md"
     lines = [
@@ -170,6 +198,21 @@ def run(data_path, tag, fast=False, schema=CREDITCARD, temporal=None, split_seed
             f"| {auc_ci} | {row['ap']} | {ap_ci} | {row['brier']} | {row['log_loss']} "
             f"| {row['ece']} | {row['note']} |"
         )
+    if diff_rows:
+        lines += [
+            "",
+            "Paired-bootstrap 95% CIs for model differences (same resamples,",
+            "paired by example — the inference behind any no-difference claim):",
+            "",
+            "| Contrast | ΔAUC | ΔAUC 95% CI | ΔAP | ΔAP 95% CI |",
+            "|---|---|---|---|---|",
+        ]
+        for row in diff_rows:
+            lines.append(
+                f"| {row['contrast']} | {row['auc_diff']} "
+                f"| [{row['auc_diff_lo']}, {row['auc_diff_hi']}] "
+                f"| {row['ap_diff']} | [{row['ap_diff_lo']}, {row['ap_diff_hi']}] |"
+            )
     md_path.write_text("\n".join(lines) + "\n")
     return results, csv_path, md_path
 

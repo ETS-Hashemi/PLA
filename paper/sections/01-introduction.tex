@@ -26,29 +26,34 @@ mechanism in the exposition precisely because the negative result is
 informative about \emph{what kind} of adaptation drift actually
 demands.
 
-\paragraph{Contributions.}
+\paragraph{Contributions}
 \begin{enumerate}
 \item \textbf{An explicit confidence calculus with verified properties}
   (Section~\ref{sec:calculus}). All operators are named and formally
   defined; the definitions are executable --- the test suite extracts and
   runs every formula in the semantics document --- and fixpoint
-  convergence is machine-checked on 1{,}050 random cyclic rule systems in
-  addition to a proof sketch.
+  convergence for the monotone aggregators is proved
+  (Proposition~\ref{prop:convergence}) and corroborated by
+  property-based tests on 1{,}050 random cyclic rule systems.
 \item \textbf{Context-conditioned, learnable rule weights}
   (Section~\ref{sec:learning}). Context variables contribute additive
   log-odds evidence, avoiding the saturation that afflicts
-  multiply-and-cap certainty-factor updates; on binary facts the model
-  class collapses to logistic regression over rule firings, so
-  maximum-likelihood fitting is convex, provably monotone under
-  full-batch gradient descent, and recovers planted ground truth.
+  multiply-and-cap certainty-factor updates; on flat rule sets over
+  binary facts the model class collapses to logistic regression over
+  rule firings, so maximum-likelihood fitting is convex (with an
+  explicit step-size bound for guaranteed descent) and recovers planted
+  ground truth.
   Across three real-data designs, pre-registered ablations show no
   reliable ranking benefit from the context mechanism --- a negative we
   report per its kill criterion (Section~\ref{sec:evaluation}).
 \item \textbf{Measured explanation fidelity}
   (Section~\ref{sec:evaluation}). Rule traces are the engine's primary
-  output, and their fidelity is quantified with deletion-based
-  comprehensiveness and sufficiency against a reversed-attribution
-  control, rather than asserted.
+  output, and their internal fidelity is quantified rather than
+  asserted: rule-level deletion metrics (facts untouched, avoiding the
+  overlapping-antecedent confound) against reversed and random
+  re-ranking controls, on probability and log-odds scales --- with the
+  learned model's rule ranking shown to be the \emph{exact} attribution
+  on the log-odds scale by construction.
 \item \textbf{A reproducibility discipline}
   (Section~\ref{sec:implementation}). Every number reported in this
   paper regenerates byte-for-byte from committed scripts; claims about

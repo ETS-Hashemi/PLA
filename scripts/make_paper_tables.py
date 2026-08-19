@@ -59,17 +59,21 @@ def _experiment_table(csv_name, with_ece=True, subset_block=True):
     subset = sorted([r for r in rows if int(r["n_test"]) != full_n],
                     key=lambda r: -float(r["auc"]))
 
-    columns = "lrlrr" + ("r" if with_ece else "")
-    header = ("Model & AUC & AUC 95\\% CI & AP & log-loss"
+    columns = "lrlrlr" + ("r" if with_ece else "")
+    header = ("Model & AUC & AUC 95\\% CI & AP & AP 95\\% CI & log-loss"
               + (" & ECE" if with_ece else "") + "\\\\")
     lines = [f"\\begin{{tabular}}{{{columns}}}", "\\toprule", header, "\\midrule"]
+
+    def _interval(low, high):
+        return f"[{low}, {high}]" if low != "" else "---"
 
     def cells(row, name_suffix=""):
         parts = [
             _tex_name(row) + name_suffix,
             row["auc"],
-            f"[{row['auc_lo']}, {row['auc_hi']}]",
+            _interval(row["auc_lo"], row["auc_hi"]),
             row["ap"],
+            _interval(row["ap_lo"], row["ap_hi"]),
             row["log_loss"],
         ]
         if with_ece:
@@ -84,30 +88,36 @@ def _experiment_table(csv_name, with_ece=True, subset_block=True):
     return "\n".join(lines)
 
 
-def _fidelity_table():
+def _fidelity_table(level="rules", model="pla_static"):
+    """Rule-level deletion for the static model (the genuinely tested
+    heuristic ranking): trace comprehensiveness/sufficiency plus the
+    paired-bootstrap Delta against BOTH controls. The learned model's
+    rule ranking is exact by construction on the log-odds scale, so its
+    headline lives in the text; all rows are in the generated CSVs."""
     lines = [
-        "\\begin{tabular}{lrrrlrr}",
+        "\\begin{tabular}{lrrllr}",
         "\\toprule",
-        "Dataset (variant) & $n$ & \\multicolumn{2}{c}{Comprehensiveness} & "
-        "$\\Delta$ [95\\% CI] & \\multicolumn{2}{c}{Sufficiency}\\\\",
-        " & & trace & control & & trace & control\\\\",
+        "Dataset & $n$ & Compr. & $\\Delta$ vs reversed [95\\% CI] & "
+        "$\\Delta$ vs random [95\\% CI] & Suff.\\\\",
         "\\midrule",
     ]
-    for label, csv_name, models in FIDELITY_DATASETS:
+    for label, csv_name, _models in FIDELITY_DATASETS:
         with open(RESULTS / csv_name, newline="") as handle:
-            rows = {(r["model"], r["attribution"]): r
+            rows = {(r["model"], r["level"], r["attribution"]): r
                     for r in csv.DictReader(handle)}
-        for model in models:
-            trace = rows[(model, "trace")]
-            control = rows[(model, "reversed_control")]
-            variant = model.replace("pla_", "")
-            delta = (f"{trace['comp_minus_control']} "
-                     f"[{trace['comp_diff_lo']}, {trace['comp_diff_hi']}]")
-            n_tex = f"{int(trace['n_explained']):,}".replace(",", "{,}")
-            lines.append(
-                f"{label} ({variant}) & {n_tex} & "
-                f"{trace['comprehensiveness']} & {control['comprehensiveness']} & "
-                f"{delta} & {trace['sufficiency']} & {control['sufficiency']}\\\\")
+        trace = rows[(model, level, "trace")]
+        reversed_row = rows[(model, level, "reversed_control")]
+        random_row = rows[(model, level, "random_control")]
+        n_tex = f"{int(trace['n_explained']):,}".replace(",", "{,}")
+
+        def delta(row):
+            return (f"{row['trace_minus_this']} "
+                    f"[{row['diff_lo']}, {row['diff_hi']}]")
+
+        lines.append(
+            f"{label} & {n_tex} & {trace['comprehensiveness']} & "
+            f"{delta(reversed_row)} & {delta(random_row)} & "
+            f"{trace['sufficiency']}\\\\")
     lines.extend(["\\bottomrule", "\\end{tabular}"])
     return "\n".join(lines)
 

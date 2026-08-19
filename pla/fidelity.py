@@ -15,7 +15,26 @@ important first, fired rules only. A deliberately wrong ranking (e.g.
 reversed) must score worse on comprehensiveness than the faithful one —
 that contrast is what makes the metric informative, and is what the tests
 check.
+
+Fact deletion can deactivate several overlapping rules at once, so this
+module also provides **rule-level** deletion (``evaluate_rule_fidelity``):
+the top-ranked *rule* is removed from the computation while the facts stay
+untouched, on the probability scale or on clipped log-odds — the natural
+unit for the learned model, whose per-rule log-odds contribution is exactly
+``z_r`` by construction. Two controls are provided: the reversed ranking
+and a deterministic random ranking.
 """
+
+import math
+import random
+import zlib
+
+_EPSILON = 1e-9
+
+
+def _clipped_logit(p, epsilon=_EPSILON):
+    p = min(max(p, epsilon), 1.0 - epsilon)
+    return math.log(p / (1.0 - p))
 
 
 def evaluate_fidelity(predict, attributions, examples):
@@ -80,3 +99,79 @@ def reversed_attributions(attributions):
         return list(reversed(attributions(facts, context)))
 
     return reversed_fn
+
+
+def random_attributions(attributions, seed=13):
+    """Control: the same fired rules in a deterministic pseudo-random
+    order, keyed by the example's facts via crc32 (stable across runs
+    and processes, unlike Python's salted hash())."""
+
+    def random_fn(facts, context):
+        ranked = list(attributions(facts, context))
+        key = zlib.crc32(("|".join(sorted(facts)) + f"#{seed}").encode())
+        random.Random(key).shuffle(ranked)
+        return ranked
+
+    return random_fn
+
+
+def reversed_ranking(rank_rules):
+    """Rule-index control: worst-first."""
+
+    def ranked(facts, context):
+        return list(reversed(rank_rules(facts, context)))
+
+    return ranked
+
+
+def random_ranking(rank_rules, seed=13):
+    """Rule-index control: deterministic random order (crc32-keyed)."""
+
+    def ranked(facts, context):
+        order = list(rank_rules(facts, context))
+        key = zlib.crc32(("|".join(sorted(facts)) + f"#{seed}").encode())
+        random.Random(key).shuffle(order)
+        return order
+
+    return ranked
+
+
+def evaluate_rule_fidelity(predict_without, predict_only, rank_rules,
+                           examples, logit_scale=False):
+    """Rule-level deletion metrics, free of the fact-overlap confound:
+    the top-ranked RULE is removed from the computation while the facts
+    stay untouched.
+
+    - ``predict_without(facts, context, excluded_index_or_None) -> prob``
+    - ``predict_only(facts, context, index) -> prob`` (top rule alone,
+      plus whatever prior term the model carries)
+    - ``rank_rules(facts, context) -> [rule_index, ...]`` best first
+
+    comprehensiveness = s(full) - s(without top rule); higher is better.
+    sufficiency = s(full) - s(top rule alone); closer to zero is better.
+    Scores are probabilities, or clipped log-odds when ``logit_scale`` —
+    the scale on which the learned model's per-rule contribution is
+    exact (its comprehensiveness equals z_top identically).
+    """
+    transform = _clipped_logit if logit_scale else (lambda p: p)
+    comprehensiveness = []
+    sufficiency = []
+    for facts, context, _ in examples:
+        order = rank_rules(facts, context)
+        if not order:
+            continue
+        top = order[0]
+        s_full = transform(predict_without(facts, context, None))
+        s_without = transform(predict_without(facts, context, top))
+        s_only = transform(predict_only(facts, context, top))
+        comprehensiveness.append(s_full - s_without)
+        sufficiency.append(s_full - s_only)
+
+    n = len(comprehensiveness)
+    return {
+        "n_explained": n,
+        "comprehensiveness": sum(comprehensiveness) / n if n else None,
+        "sufficiency": sum(sufficiency) / n if n else None,
+        "comprehensiveness_values": comprehensiveness,
+        "sufficiency_values": sufficiency,
+    }

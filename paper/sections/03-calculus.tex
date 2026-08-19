@@ -81,14 +81,19 @@ $10^{-9}$.
 \begin{proposition}[Convergence]\label{prop:convergence}
 Order confidence vectors $x\in[0,1]^V$ pointwise, and let the
 aggregation operator be one of \texttt{max}, \texttt{noisy\_or},
-\texttt{sum\_cap}. Each of these is monotone in both arguments and the
-candidate map \eqref{eq:candidate} is monotone in $x$, so $G$ is a
-monotone map on the complete lattice $[0,1]^V$. The start vector $x_0$
-(base facts) satisfies $x_0 \le G(x_0)$, hence the trajectory
+\texttt{sum\_cap}. Each of these is monotone in both arguments and
+continuous on $[0,1]^2$, and the candidate map \eqref{eq:candidate} is
+monotone and continuous in $x$, so the round operator $G$ --- a finite
+composition of these maps --- is monotone and continuous on the complete
+lattice $[0,1]^V$. The start vector $x_0$ (base facts) satisfies
+$x_0 \le G(x_0)$, hence the trajectory
 $x_0 \le G(x_0) \le G^2(x_0) \le \dots$ is pointwise non-decreasing and
-bounded by $1$; each coordinate converges, the round-max delta tends to
-zero, and by Kleene's fixpoint theorem the limit is the least fixpoint
-of $G$ above $x_0$.
+bounded by $1$, so it converges to some $x^*$; continuity turns the
+limit into a fixpoint, $G(x^*) = \lim G^{k+1}(x_0) = x^*$. Continuity
+plus monotonicity make $G$ $\omega$-continuous on the chain from $x_0$,
+so by Kleene's fixpoint theorem $x^*$ is the least fixpoint of $G$
+above $x_0$. (Monotonicity alone would not suffice for the Kleene
+argument; continuity is what licenses exchanging $G$ with the limit.)
 \end{proposition}
 
 \texttt{logit\_pool} is deliberately excluded from
@@ -104,11 +109,14 @@ scoring is a single fold rather than a fixpoint iteration.
 Section~\ref{sec:discussion} returns to monotonicity in evidence as a
 rank-robustness property in its own right.
 
-Beyond the sketch, the properties --- monotone trajectory, boundedness,
-$\varepsilon$-fixpoint reached, and exact agreement between the engine
-and a reference implementation of $G$ --- are machine-checked on
-1{,}050 random rule systems including seeded cycles, across the three
-monotone aggregators. Property testing also exposed a real defect: a
+Property-based tests corroborate the proposition --- monotone
+trajectory, boundedness, $\varepsilon$-fixpoint reached, and exact
+agreement between the engine and a reference implementation of $G$ ---
+on 1{,}050 random rule systems including seeded cycles, across the
+three monotone aggregators. Randomized tests are evidence about the
+implementation, not part of the proof; the proof is
+Proposition~\ref{prop:convergence}, and the tests check that the code
+matches it. Property testing also exposed a real defect: a
 $0.95/0.95$ cycle with a $0.05$ seed converges at a geometric rate close
 to $1$ and exhausted the engine's previous iteration cap; the cap is now
 sized for such cases and the example is pinned to its closed-form

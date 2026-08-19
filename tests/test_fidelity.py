@@ -75,3 +75,72 @@ def test_faithful_ranking_beats_reversed_control(tmp_path):
 
     assert faithful["n_explained"] == control["n_explained"] > 100
     assert faithful["comprehensiveness"] > control["comprehensiveness"]
+
+
+def test_rule_level_fidelity_hand_computed():
+    """Rule deletion (facts untouched): full noisy-OR 0.86; drop A-rule
+    (0.8) -> 0.3; drop B-rule (0.3) -> 0.8. Top-ranked is the A-rule."""
+    from pla.fidelity import evaluate_rule_fidelity
+
+    examples = [(frozenset({"A", "B"}), frozenset(), 1)]
+
+    def fired(facts):
+        return [i for i, s in enumerate(SPECS)
+                if all(a in facts for a in s.antecedents)]
+
+    def rank(facts, _context):
+        return sorted(fired(facts), key=lambda i: -PRECISIONS[i])
+
+    def without(facts, _context, excluded):
+        p = 0.0
+        for i in fired(facts):
+            if i != excluded:
+                p = 1 - (1 - p) * (1 - PRECISIONS[i])
+        return p
+
+    def only(_facts, _context, index):
+        return PRECISIONS[index]
+
+    metrics = evaluate_rule_fidelity(without, only, rank, examples)
+    assert math.isclose(metrics["comprehensiveness"], 0.86 - 0.3, abs_tol=1e-12)
+    assert math.isclose(metrics["sufficiency"], 0.86 - 0.8, abs_tol=1e-12)
+
+
+def test_learned_rule_logit_comprehensiveness_equals_z_exactly():
+    """On log-odds scale, the learned model's rule-level comprehensiveness
+    is z_top identically — the trace is the exact attribution there."""
+    from pla.fidelity import evaluate_rule_fidelity
+    from pla.learn import RuleWeightLearner
+
+    learner = RuleWeightLearner(SPECS, use_bias=True)
+    learner.theta = [1.3, -0.4]
+    learner.bias = -2.0
+
+    examples = [(frozenset({"A", "B"}), frozenset(), 1)]
+
+    def rank(facts, context):
+        return sorted(learner._fired(facts),
+                      key=lambda i: -learner._z(i, context))
+
+    def without(facts, context, excluded):
+        z = sum(learner._z(i, context)
+                for i in learner._fired(facts) if i != excluded)
+        return 1 / (1 + math.exp(-(learner.bias + z)))
+
+    def only(_facts, context, index):
+        return 1 / (1 + math.exp(-(learner.bias + learner._z(index, context))))
+
+    metrics = evaluate_rule_fidelity(without, only, rank, examples,
+                                     logit_scale=True)
+    assert math.isclose(metrics["comprehensiveness"], 1.3, abs_tol=1e-9)
+
+
+def test_random_control_is_deterministic_across_runs():
+    from pla.fidelity import random_attributions
+
+    attributions = static_attributions(SPECS, PRECISIONS)
+    control = random_attributions(attributions, seed=13)
+    facts = frozenset({"A", "B"})
+    first = control(facts, frozenset())
+    for _ in range(3):
+        assert random_attributions(attributions, seed=13)(facts, frozenset()) == first

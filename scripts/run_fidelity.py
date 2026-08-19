@@ -27,10 +27,15 @@ import run_experiments as rx  # noqa: E402
 
 from pla.fidelity import (  # noqa: E402
     evaluate_fidelity,
+    evaluate_rule_fidelity,
     learned_attributions,
+    random_attributions,
+    random_ranking,
     reversed_attributions,
+    reversed_ranking,
     static_attributions,
 )
+from pla.prob import _sigmoid  # noqa: E402
 from pla.learn import RuleWeightLearner  # noqa: E402
 from pla.pipeline import (  # noqa: E402
     CREDITCARD,
@@ -91,36 +96,90 @@ def run(data_path, tag, schema=CREDITCARD, temporal=None):
     def learned_predict(facts, context):
         return learner.predict_proba(facts, context)
 
+    # Rule-level closures: the top-ranked RULE is removed from the fold
+    # while the facts stay untouched — no overlapping-antecedent confound.
+    def static_fired(facts):
+        return [i for i, spec in enumerate(rule_specs)
+                if all(a in facts for a in spec.antecedents)]
+
+    def static_rank(facts, _context):
+        return sorted(static_fired(facts), key=lambda i: -precisions[i])
+
+    def static_without(facts, _context, excluded):
+        p = 0.0
+        for i in static_fired(facts):
+            if i != excluded:
+                p = 1.0 - (1.0 - p) * (1.0 - precisions[i])
+        return p
+
+    def static_only(facts, _context, index):
+        return precisions[index]
+
+    def learned_rank(facts, context):
+        return sorted(learner._fired(facts),
+                      key=lambda i: -learner._z(i, context))
+
+    def learned_without(facts, context, excluded):
+        z = sum(learner._z(i, context)
+                for i in learner._fired(facts) if i != excluded)
+        return _sigmoid(learner.bias + z)
+
+    def learned_only(facts, context, index):
+        return _sigmoid(learner.bias + learner._z(index, context))
+
     models = [
-        ("pla_static", static_predict, static_attributions(rule_specs, precisions)),
-        ("pla_learned", learned_predict, learned_attributions(learner)),
+        ("pla_static", static_predict, static_attributions(rule_specs, precisions),
+         static_without, static_only, static_rank),
+        ("pla_learned", learned_predict, learned_attributions(learner),
+         learned_without, learned_only, learned_rank),
     ]
 
     results = []
-    for name, predict, attributions in models:
-        trace_metrics = evaluate_fidelity(predict, attributions, test_examples)
-        control_metrics = evaluate_fidelity(
-            predict, reversed_attributions(attributions), test_examples)
-        diff = trace_metrics["comprehensiveness"] - control_metrics["comprehensiveness"]
-        diff_lo, diff_hi = _paired_diff_ci(
-            trace_metrics["comprehensiveness_values"],
-            control_metrics["comprehensiveness_values"])
-        for label, metrics in [("trace", trace_metrics),
-                               ("reversed_control", control_metrics)]:
-            results.append({
-                "model": name,
-                "attribution": label,
-                "n_explained": metrics["n_explained"],
-                "comprehensiveness": f"{metrics['comprehensiveness']:.4f}",
-                "sufficiency": f"{metrics['sufficiency']:.4f}",
-                "comp_minus_control": f"{diff:.4f}" if label == "trace" else "",
-                "comp_diff_lo": diff_lo if label == "trace" else "",
-                "comp_diff_hi": diff_hi if label == "trace" else "",
-            })
+    for name, predict, attributions, without, only, rank in models:
+        evaluations = [("facts", [
+            ("trace", evaluate_fidelity(predict, attributions, test_examples)),
+            ("reversed_control", evaluate_fidelity(
+                predict, reversed_attributions(attributions), test_examples)),
+            ("random_control", evaluate_fidelity(
+                predict, random_attributions(attributions), test_examples)),
+        ])]
+        for level, logit in (("rules", False), ("rules_logit", True)):
+            evaluations.append((level, [
+                ("trace", evaluate_rule_fidelity(
+                    without, only, rank, test_examples, logit_scale=logit)),
+                ("reversed_control", evaluate_rule_fidelity(
+                    without, only, reversed_ranking(rank), test_examples,
+                    logit_scale=logit)),
+                ("random_control", evaluate_rule_fidelity(
+                    without, only, random_ranking(rank), test_examples,
+                    logit_scale=logit)),
+            ]))
+        for level, rows in evaluations:
+            trace_metrics = rows[0][1]
+            for label, metrics in rows:
+                entry = {
+                    "model": name,
+                    "level": level,
+                    "attribution": label,
+                    "n_explained": metrics["n_explained"],
+                    "comprehensiveness": f"{metrics['comprehensiveness']:.4f}",
+                    "sufficiency": f"{metrics['sufficiency']:.4f}",
+                    "trace_minus_this": "", "diff_lo": "", "diff_hi": "",
+                }
+                if label != "trace":
+                    diff = (trace_metrics["comprehensiveness"]
+                            - metrics["comprehensiveness"])
+                    lo, hi = _paired_diff_ci(
+                        trace_metrics["comprehensiveness_values"],
+                        metrics["comprehensiveness_values"])
+                    entry["trace_minus_this"] = f"{diff:.4f}"
+                    entry["diff_lo"], entry["diff_hi"] = lo, hi
+                results.append(entry)
 
     RESULTS_DIR.mkdir(exist_ok=True)
-    fields = ["model", "attribution", "n_explained", "comprehensiveness",
-              "sufficiency", "comp_minus_control", "comp_diff_lo", "comp_diff_hi"]
+    fields = ["model", "level", "attribution", "n_explained",
+              "comprehensiveness", "sufficiency",
+              "trace_minus_this", "diff_lo", "diff_hi"]
     csv_path = RESULTS_DIR / f"fidelity_{tag}.csv"
     with open(csv_path, "w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
@@ -133,21 +192,24 @@ def run(data_path, tag, schema=CREDITCARD, temporal=None):
         "",
         "Generated by `python scripts/run_fidelity.py` — do not edit by hand.",
         f"Dataset: `{pathlib.Path(data_path).name}`. {split_note}",
+        "Levels: `facts` = ERASER-style fact deletion; `rules` = the top RULE",
+        "is removed from the fold with facts untouched (no overlap confound);",
+        "`rules_logit` = the same on clipped log-odds — the scale on which the",
+        "learned model's per-rule contribution is exact (= z_r).",
         "Comprehensiveness: higher = the trace's top rule is load-bearing.",
-        "Sufficiency: closer to 0 = the top rule alone reproduces the prediction.",
-        "The reversed control must score worse on comprehensiveness than the trace;",
-        "trace rows carry the paired-bootstrap 95% CI of the mean difference.",
+        "Sufficiency: closer to 0 = the top rule alone reproduces the score.",
+        "Control rows carry the paired-bootstrap 95% CI of (trace − control).",
         "",
-        "| Model | Attribution | n | Comprehensiveness | Sufficiency | Δ comp. vs control | Δ 95% CI |",
-        "|---|---|---|---|---|---|---|",
+        "| Model | Level | Attribution | n | Compr. | Suff. | trace − this | 95% CI |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for row in results:
-        delta_ci = (f"[{row['comp_diff_lo']}, {row['comp_diff_hi']}]"
-                    if row["comp_diff_lo"] != "" else "")
+        delta_ci = (f"[{row['diff_lo']}, {row['diff_hi']}]"
+                    if row["diff_lo"] != "" else "")
         lines.append(
-            f"| {row['model']} | {row['attribution']} | {row['n_explained']} "
-            f"| {row['comprehensiveness']} | {row['sufficiency']} "
-            f"| {row['comp_minus_control']} | {delta_ci} |"
+            f"| {row['model']} | {row['level']} | {row['attribution']} "
+            f"| {row['n_explained']} | {row['comprehensiveness']} "
+            f"| {row['sufficiency']} | {row['trace_minus_this']} | {delta_ci} |"
         )
     md_path.write_text("\n".join(lines) + "\n")
     return results, csv_path, md_path

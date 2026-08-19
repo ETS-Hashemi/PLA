@@ -50,15 +50,16 @@ Three properties distinguish it from its lineage and from modern
 statistical-relational systems: (i)~rule confidences are
 \emph{context-conditioned}, with a log-odds mode in which context
 variables contribute additive evidence weights that never saturate;
-(ii)~both rule and context weights are \emph{learnable} --- on binary
-facts the engine's log-odds path reduces exactly to logistic regression
-over rule firings, making the loss convex with monotone full-batch
-descent; and (iii)~explanations are \emph{traces whose fidelity is
-measured}, via deletion-based comprehensiveness and sufficiency against
-a reversed-attribution control. The calculus has machine-checked
-convergence guarantees, the entire engine is a few hundred lines of
-dependency-free Python, and every experimental number regenerates from
-committed scripts with bootstrap confidence intervals. On the real ULB
+(ii)~both rule and context weights are \emph{learnable} --- on flat
+rule sets over binary facts the engine's log-odds path reduces exactly
+to logistic regression over rule firings, making maximum-likelihood
+fitting convex; and (iii)~explanations are \emph{traces whose fidelity
+is measured}, with rule-level deletion metrics against reversed- and
+random-ranking controls. Convergence of the monotone aggregators is
+proved and corroborated by property-based tests, the entire engine is
+a few hundred lines of dependency-free Python, and every experimental
+number regenerates from committed scripts with bootstrap confidence
+intervals. On the real ULB
 credit-card data an 11-rule model reaches AUC $0.95$--$0.97$ across
 three split seeds --- $0.01$--$0.03$ below the interpretable accuracy
 frontier set by EBM and logistic regression ($0.97$--$0.98$) --- with

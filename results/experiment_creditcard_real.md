@@ -13,5 +13,14 @@ Dataset: `creditcard.csv`. Split seed 42, 30% test.
 | pla_static | 199364 | 85443 | 0.9687 | [0.9500, 0.9840] | 0.7258 | [0.6516, 0.8014] | 0.0018 | 0.0172 | 0.0138 | empirical precisions, noisy-OR, neutral context |
 | pla_learned | 199364 | 85443 | 0.9625 | [0.9381, 0.9817] | 0.5361 | [0.4542, 0.6217] | 0.0017 | 0.0113 | 0.0022 | logit path + bias, fitted rule + context weights |
 | pla_learned_noctx | 199364 | 85443 | 0.9630 | [0.9396, 0.9812] | 0.4951 | [0.4209, 0.5790] | 0.0017 | 0.0113 | 0.0022 | ablation: context weights disabled |
+| constant_prevalence | 199364 | 85443 | 0.5000 | [0.5000, 0.5000] | 0.0017 | [0.0015, 0.0020] | 0.0017 | 0.0127 | 0.0000 | predicts training prevalence 0.001725 everywhere |
 | problog_rules | 199364 | 150 | 0.9610 | [0.8887, 0.9994] | 0.8960 | [0.7446, 0.9936] | 0.0439 | 0.1502 | 0.0553 | subset n=150 |
 | pgmpy_naive_bayes | 199364 | 2000 | 0.9322 | [0.7928, 1.0000] | 0.6190 | [0.2695, 1.0000] | 0.0016 | 0.0195 | 0.0016 | subset n=2000 |
+
+Paired-bootstrap 95% CIs for model differences (same resamples,
+paired by example — the inference behind any no-difference claim):
+
+| Contrast | ΔAUC | ΔAUC 95% CI | ΔAP | ΔAP 95% CI |
+|---|---|---|---|---|
+| pla_learned_minus_noctx | -0.0006 | [-0.0021, 0.0010] | 0.0409 | [0.0159, 0.0700] |
+| pla_learned_minus_static | -0.0062 | [-0.0180, 0.0024] | -0.1897 | [-0.2371, -0.1346] |

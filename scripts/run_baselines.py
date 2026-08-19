@@ -101,6 +101,54 @@ def _bootstrap_cis(y_true, y_prob, n_bootstrap=500, seed=7):
     return (f"{auc_lo:.4f}", f"{auc_hi:.4f}", f"{ap_lo:.4f}", f"{ap_hi:.4f}")
 
 
+def paired_metric_diffs(y_true, probs_a, probs_b, n_bootstrap=500, seed=7):
+    """Paired-bootstrap 95% CIs for metric DIFFERENCES between two models
+    scored on the same test set (resample example indices once; evaluate
+    both models on each resample; difference the metrics). This is the
+    inference that supports "no reliable difference" claims — overlapping
+    individual CIs are not. Returns {} without numpy/sklearn."""
+    try:
+        import numpy as np
+        from sklearn.metrics import average_precision_score, roc_auc_score
+    except ImportError:
+        return {}
+    y = np.asarray(y_true)
+    a = np.asarray(probs_a)
+    b = np.asarray(probs_b)
+    auc_diff = roc_auc(y_true, probs_a) - roc_auc(y_true, probs_b)
+    ap_diff = average_precision(y_true, probs_a) - average_precision(y_true, probs_b)
+    rng = np.random.Generator(np.random.PCG64(seed))
+    auc_diffs, ap_diffs = [], []
+    for _ in range(n_bootstrap):
+        index = rng.integers(0, len(y), len(y))
+        if y[index].min() == y[index].max():
+            continue
+        auc_diffs.append(roc_auc_score(y[index], a[index])
+                         - roc_auc_score(y[index], b[index]))
+        ap_diffs.append(average_precision_score(y[index], a[index])
+                        - average_precision_score(y[index], b[index]))
+    if not auc_diffs:
+        return {}
+    auc_lo, auc_hi = np.percentile(auc_diffs, [2.5, 97.5])
+    ap_lo, ap_hi = np.percentile(ap_diffs, [2.5, 97.5])
+    return {
+        "auc_diff": f"{auc_diff:.4f}", "auc_diff_lo": f"{auc_lo:.4f}",
+        "auc_diff_hi": f"{auc_hi:.4f}",
+        "ap_diff": f"{ap_diff:.4f}", "ap_diff_lo": f"{ap_lo:.4f}",
+        "ap_diff_hi": f"{ap_hi:.4f}",
+    }
+
+
+def constant_prevalence_row(train_labels, test_labels):
+    """Skill baseline: predict the training prevalence for every example.
+    Its log-loss is the marginal-entropy floor any calibration claim must
+    beat; its AP is the prevalence; its AUC is 0.5 by the tie rule."""
+    prevalence = sum(train_labels) / len(train_labels)
+    probs = [prevalence] * len(test_labels)
+    return evaluate("constant_prevalence", test_labels, probs,
+                    note=f"predicts training prevalence {prevalence:.6f} everywhere")
+
+
 def evaluate(name, y_true, y_prob, note=""):
     auc_lo, auc_hi, ap_lo, ap_hi = _bootstrap_cis(y_true, y_prob)
     return {

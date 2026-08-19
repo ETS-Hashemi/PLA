@@ -173,6 +173,25 @@ assert math.isclose(kb.query(b)[0], 0.75, abs_tol=1e-9)  # 1-(1-.5)(1-.5)
 rules' dependence determine the answer. If you need that guarantee, use
 ProbLog; PLA trades it for hand-traceable inference.
 
+Nor is PLA's default operator pair a **semiring**: with Gödel conjunction
+(min) as "multiplication" and noisy-OR as "addition", distributivity
+fails, so semiring-parameterized frameworks (aProbLog) are a reference
+point for PLA, not an umbrella that contains it —
+
+```python
+import math
+from pla.prob import aggregate_supports
+
+def noisy_or(e, n):
+    return aggregate_supports(e, n, "noisy_or")
+
+lhs = min(0.5, noisy_or(0.4, 0.4))                    # 0.5
+rhs = noisy_or(min(0.5, 0.4), min(0.5, 0.4))          # 0.64
+assert math.isclose(lhs, 0.5, abs_tol=1e-12)
+assert math.isclose(rhs, 0.64, abs_tol=1e-12)
+assert lhs != rhs  # min does not distribute over noisy-OR
+```
+
 ## 6. Lineage and the Heckerman critique
 
 The calculus descends from **MYCIN certainty factors** (Shortliffe &
