@@ -24,41 +24,46 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
 
 - **Near-frontier ranking from 11 auditable rules.** On the ULB
   credit-card data (284,807 transactions, 0.17% fraud) the accuracy
-  frontier is itself interpretable — EBM 0.9815 AUC, logistic regression
-  0.9796 on seed 42 — and an 11-rule PLA model tracks it at 0.013–0.026
-  across three split seeds (static 0.9525–0.9687, learned
-  0.9485–0.9628), confidence intervals overlapping; in average
-  precision the static rules keep most of the frontier's early ranking
-  power (0.66–0.73 vs. 0.75–0.78 for LR).
+  frontier is itself interpretable — EBM leads eight of ten random
+  splits (mean AUC 0.9795 ± 0.0056) — and an 11-rule PLA model tracks
+  it at 0.002–0.034 per split (static 0.9660 ± 0.0076, learned
+  0.9602 ± 0.0088 over ten splits), confidence intervals overlapping;
+  in average precision the static rules keep most of the frontier's
+  early ranking power (0.67 ± 0.04 vs. 0.76 ± 0.03 for LR).
 - **Learning is a measured trade, not a free upgrade.** Fitting the
-  weights cuts log-loss by roughly a third and calibration error by a
-  factor of six (ECE 0.0022) — but average precision exposes a real
-  early-ranking cost that AUC hides (learned 0.53–0.55 vs. static
-  0.66–0.73 across seeds). Calibrated scores for thresholds and
-  expected-cost decisions; static scores for fixed-budget queues.
+  weights beats the constant-prevalence log-loss floor (0.0113 vs.
+  0.0127) — but average precision exposes a real early-ranking cost
+  that AUC hides: static 0.67 vs. learned 0.55 on average,
+  paired-significant on nine of ten splits. Calibrated scores for
+  thresholds and expected-cost decisions; static scores for
+  fixed-budget queues.
 - **Context-conditioned weights: a pre-registered negative.** Under the
   SOX-boundary design built specifically to make the context weight
-  identifiable, learned vs. no-context ablation is 0.4651 vs. 0.4640
-  AUC (AP 0.0038 vs. 0.0037) — nothing — matching the AUC null on
-  credit card (0.9625 vs. 0.9630). Reported plainly per the kill
-  criterion recorded in
+  identifiable, the paired ablation difference is ΔAUC 0.0011
+  [−0.0071, 0.0140] and ΔAP 0.0001 [−0.0000, 0.0009] — an equivalence
+  bound, not just overlap — and the credit-card paired ΔAUC contains
+  zero on all ten splits. Reported plainly per the kill criterion
+  recorded in
   [`research/GAP_STATEMENT.md`](research/GAP_STATEMENT.md) before the
   experiments ran. One post-hoc, hypothesis-generating exception is
-  recorded honestly: a small seed-stable AP edge for the context
-  variant on credit card only.
+  recorded honestly: an AP edge for the context variant on credit card
+  whose paired CI excludes zero on all ten splits (+0.038 to +0.096) —
+  absent under both drift designs, and not the pre-registered metric.
 - **Drift breaks rule *vocabulary*, not rule *reliability*.** On the Bao
   et al. accounting-fraud data, rules mined before the 2003 regime change
   rank later frauds near chance while raw-ratio logistic regression
   reaches 0.68–0.70 — reweighting (context-conditioned or otherwise)
   cannot rescue antecedents that stopped being informative.
-- **Traces are measurably faithful, and they are the deliverable.**
-  Static-model traces beat a reversed-attribution control on both
-  deletion metrics on all four datasets — paired-bootstrap CIs on the
-  difference exclude zero everywhere — and the generated case study
-  walks one real fraud through the engine: 11 rules fire, noisy-OR folds
-  to 0.4929 against a 0.0017 base rate, and deleting the top rule's
-  facts drops the score to 0.2552 — a rule-level counterfactual none of
-  the baselines produce.
+- **Traces are measurably faithful — in the internal sense, measured
+  properly.** Rule-level deletion (facts untouched, no
+  overlapping-antecedent confound) beats reversed *and* random
+  re-ranking controls on all four datasets with paired CIs excluding
+  zero; the learned model's rule ranking is exact by construction on
+  the log-odds scale (its per-rule contribution *is* z_r —
+  unit-tested). The generated case study walks one real fraud through
+  the engine — 11 rules fire, noisy-OR folds to 0.4929 against a
+  0.0017 base rate — with a leave-one-rule-out table none of the
+  baselines produce.
 
 One engineering lesson worth advertising: **keep the intercept.** Without
 the standard logistic bias term, additive log-odds pooling of
@@ -118,7 +123,7 @@ curl -X POST -H "Content-Type: application/json" \
      -d '{"query": "LungCancerRisk"}' http://127.0.0.1:5000/query
 ```
 
-Run the tests (89 collected; CI runs them on Python 3.9–3.12, where one
+Run the tests (93 collected; CI runs them on Python 3.9–3.12, where one
 network-dependent download test skips itself):
 
 ```bash
@@ -262,7 +267,7 @@ section are machine-verified by `tests/test_related_work_claims.py`.
 | `pla/` | The engine: `prob.py`, `kb.py`, `engine.py`, `learn.py`, `pipeline.py`, `fidelity.py`, `metrics.py`, scenario loader, CLI, REST API |
 | `scenarios/` | 34 JSON scenarios across audit, medical, logistics, pharma domains |
 | `scripts/` | Data fetching, rule mining, experiments, baselines, fidelity, case study — everything that generates `results/` |
-| `tests/` | 89-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
+| `tests/` | 93-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
 | `examples/` | Runnable demos that generate every number quoted in this README |
 | `data/` | Dataset cache (gitignored) + provenance README |
 | `results/` | Generated experiment, fidelity, and case-study tables (byte-reproducible) |

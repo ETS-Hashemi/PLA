@@ -27,6 +27,7 @@ TABLE_NAMES = {
     "pla_learned": "PLA learned (rules + context + bias)",
     "pla_learned_noctx": "PLA learned, no context (ablation)",
     "pgmpy_naive_bayes": "pgmpy naive Bayes (propositions)",
+    "constant_prevalence": "constant-prevalence baseline",
 }
 
 RESULTS = ROOT / "results"

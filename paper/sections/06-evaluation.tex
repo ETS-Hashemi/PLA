@@ -89,23 +89,24 @@ noisy-OR implementation.
 \texttt{scripts/run\_experiments.py}. Subset rows (below the rule) are
 cross-checks, not ranking comparisons.}
 \label{tab:headtohead}
-{\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrlrrr}
+{\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrlrlrr}
 \toprule
-Model & AUC & AUC 95\% CI & AP & log-loss & ECE\\
+Model & AUC & AUC 95\% CI & AP & AP 95\% CI & log-loss & ECE\\
 \midrule
-logistic regression (raw features) & 0.9746 & [0.9602, 0.9857] & 0.8470 & 0.1390 & 0.0298\\
-EBM (raw features) & 0.9572 & [0.9376, 0.9729] & 0.7640 & 0.1917 & 0.0449\\
-gradient boosting (class-weighted) & 0.9197 & [0.8935, 0.9437] & 0.6302 & 0.2900 & 0.0712\\
-gradient boosting (untuned) & 0.9171 & [0.8880, 0.9430] & 0.6352 & 0.3750 & 0.0808\\
-pgmpy naive Bayes (propositions) & 0.7228 & [0.6594, 0.7791] & 0.3288 & 0.3405 & 0.0288\\
-\pla{} learned (rules + context + bias) & 0.7227 & [0.6568, 0.7834] & 0.3139 & 0.3420 & 0.0290\\
-\pla{} static (empirical precisions) & 0.7217 & [0.6579, 0.7785] & 0.2947 & 1.0908 & 0.0952\\
-decision tree (depth 4, balanced) & 0.7208 & [0.6668, 0.7710] & 0.2278 & 0.5492 & 0.1933\\
-\pla{} learned, no context (ablation) & 0.7187 & [0.6529, 0.7792] & 0.3212 & 0.3422 & 0.0307\\
+logistic regression (raw features) & 0.9746 & [0.9602, 0.9857] & 0.8470 & [0.7553, 0.9254] & 0.1390 & 0.0298\\
+EBM (raw features) & 0.9572 & [0.9376, 0.9729] & 0.7640 & [0.6567, 0.8553] & 0.1917 & 0.0449\\
+gradient boosting (class-weighted) & 0.9197 & [0.8935, 0.9437] & 0.6302 & [0.5219, 0.7413] & 0.2900 & 0.0712\\
+gradient boosting (untuned) & 0.9171 & [0.8880, 0.9430] & 0.6352 & [0.5309, 0.7347] & 0.3750 & 0.0808\\
+pgmpy naive Bayes (propositions) & 0.7228 & [0.6594, 0.7791] & 0.3288 & [0.2426, 0.4299] & 0.3405 & 0.0288\\
+\pla{} learned (rules + context + bias) & 0.7227 & [0.6568, 0.7834] & 0.3139 & [0.2257, 0.4226] & 0.3420 & 0.0290\\
+\pla{} static (empirical precisions) & 0.7217 & [0.6579, 0.7785] & 0.2947 & [0.2116, 0.4000] & 1.0908 & 0.0952\\
+decision tree (depth 4, balanced) & 0.7208 & [0.6668, 0.7710] & 0.2278 & [0.1756, 0.2981] & 0.5492 & 0.1933\\
+\pla{} learned, no context (ablation) & 0.7187 & [0.6529, 0.7792] & 0.3212 & [0.2388, 0.4239] & 0.3422 & 0.0307\\
+constant-prevalence baseline & 0.5000 & [0.5000, 0.5000] & 0.1250 & [0.1000, 0.1533] & 0.3802 & 0.0257\\
 \midrule
-ProbLog on \pla{} rules ($n{=}150$) & 0.7416 & [0.6351, 0.8413] & 0.4072 & 1.4447 & 0.0704\\
+ProbLog on \pla{} rules ($n{=}150$) & 0.7416 & [0.6351, 0.8413] & 0.4072 & [0.2585, 0.5729] & 1.4447 & 0.0704\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -122,23 +123,24 @@ ULB dataset (70/30 split, seed 42, thresholds fitted on train only).
 rule) are semantics cross-checks on deterministic subsamples and are not
 comparable to full-test rows.}
 \label{tab:creditcard}
-{\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrlrrr}
+{\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrlrlrr}
 \toprule
-Model & AUC & AUC 95\% CI & AP & log-loss & ECE\\
+Model & AUC & AUC 95\% CI & AP & AP 95\% CI & log-loss & ECE\\
 \midrule
-EBM (raw features) & 0.9815 & [0.9680, 0.9930] & 0.8642 & 0.0024 & 0.0002\\
-logistic regression (raw features) & 0.9796 & [0.9647, 0.9915] & 0.7849 & 0.0036 & 0.0003\\
-\pla{} static (empirical precisions) & 0.9687 & [0.9500, 0.9840] & 0.7258 & 0.0172 & 0.0138\\
-\pla{} learned, no context (ablation) & 0.9630 & [0.9396, 0.9812] & 0.4951 & 0.0113 & 0.0022\\
-\pla{} learned (rules + context + bias) & 0.9625 & [0.9381, 0.9817] & 0.5361 & 0.0113 & 0.0022\\
-gradient boosting (class-weighted) & 0.9598 & [0.9323, 0.9857] & 0.7899 & 0.0179 & 0.0148\\
-decision tree (depth 4, balanced) & 0.9074 & [0.8577, 0.9443] & 0.4947 & 0.1026 & 0.0696\\
-gradient boosting (untuned) & 0.7159 & [0.6377, 0.7902] & 0.5316 & 0.0262 & 0.0009\\
+EBM (raw features) & 0.9815 & [0.9680, 0.9930] & 0.8642 & [0.8038, 0.9102] & 0.0024 & 0.0002\\
+logistic regression (raw features) & 0.9796 & [0.9647, 0.9915] & 0.7849 & [0.7086, 0.8483] & 0.0036 & 0.0003\\
+\pla{} static (empirical precisions) & 0.9687 & [0.9500, 0.9840] & 0.7258 & [0.6516, 0.8014] & 0.0172 & 0.0138\\
+\pla{} learned, no context (ablation) & 0.9630 & [0.9396, 0.9812] & 0.4951 & [0.4209, 0.5790] & 0.0113 & 0.0022\\
+\pla{} learned (rules + context + bias) & 0.9625 & [0.9381, 0.9817] & 0.5361 & [0.4542, 0.6217] & 0.0113 & 0.0022\\
+gradient boosting (class-weighted) & 0.9598 & [0.9323, 0.9857] & 0.7899 & [0.7246, 0.8532] & 0.0179 & 0.0148\\
+decision tree (depth 4, balanced) & 0.9074 & [0.8577, 0.9443] & 0.4947 & [0.4216, 0.5765] & 0.1026 & 0.0696\\
+gradient boosting (untuned) & 0.7159 & [0.6377, 0.7902] & 0.5316 & [0.4387, 0.6114] & 0.0262 & 0.0009\\
+constant-prevalence baseline & 0.5000 & [0.5000, 0.5000] & 0.0017 & [0.0015, 0.0020] & 0.0127 & 0.0000\\
 \midrule
-ProbLog on \pla{} rules ($n{=}150$) & 0.9610 & [0.8887, 0.9994] & 0.8960 & 0.1502 & 0.0553\\
-pgmpy naive Bayes ($n{=}2000$) & 0.9322 & [0.7928, 1.0000] & 0.6190 & 0.0195 & 0.0016\\
+ProbLog on \pla{} rules ($n{=}150$) & 0.9610 & [0.8887, 0.9994] & 0.8960 & [0.7446, 0.9936] & 0.1502 & 0.0553\\
+pgmpy naive Bayes ($n{=}2000$) & 0.9322 & [0.7928, 1.0000] & 0.6190 & [0.2695, 1.0000] & 0.0195 & 0.0016\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -156,20 +158,36 @@ depth-4 tree.}
 
 Four findings. First, the accuracy frontier on this dataset is itself
 interpretable: EBM tops the seed-42 table on both metrics (AUC
-$0.9815$, AP $0.8642$), just above logistic regression, and one of the
-two leads on every seed. Second, an 11-rule, fully hand-traceable
-\pla{} model tracks that frontier at a measured distance:
-%%FILL-SEED-RANGES
+$0.9815$, AP $0.8642$), just above logistic regression, and leads
+eight of the ten splits (logistic regression and class-weighted
+gradient boosting take one each). Second, an 11-rule, fully hand-traceable
+\pla{} model tracks that frontier at a measured distance: across the
+ten splits \pla{} static averages AUC $0.9660 \pm 0.0076$ (range
+$0.9525$--$0.9812$) and learned $0.9602 \pm 0.0088$, against
+$0.9741 \pm 0.0072$ for logistic regression and $0.9795 \pm 0.0056$
+for EBM; the per-split gap to EBM spans $0.002$--$0.026$ for static
+and $0.007$--$0.034$ for learned, with overlapping individual
+intervals on every split. In average precision the static rules
+retain most of the frontier's early ranking power
+($0.6709 \pm 0.0382$ vs.\ $0.7564 \pm 0.0291$ for logistic
+regression); the generated seed summary carries every per-split value.
 Third, learning is a measured trade, not a free upgrade, and its
-calibration gain must be stated against the right floor:
-%%FILL-CONSTANT-BASELINE
+calibration gain must be stated against the right floor: the learned
+variant's log-loss of $0.0113$ stands against $0.0127$ for the
+constant-prevalence row of Table~\ref{tab:creditcard} --- an
+$11\%$ improvement over the marginal-entropy floor that dominates
+log-loss at this prevalence --- and its ECE of $0.0022$ is read
+knowing that equal-width bins are a blunt instrument here (the
+constant baseline scores ECE $0.0000$).
 Figure~\ref{fig:reliability} shows
 the learned model tracking the diagonal through the low-probability
 bins where nearly all mass lives while the static rules' empirical
 precisions overshoot --- but average precision reveals a real
 early-ranking cost that AUC conceals, visible in the same figure as
-score compression in the learned model's top bins:
-%%FILL-AP-TRADE-SEEDS
+score compression in the learned model's top bins: learned AP
+averages $0.5534 \pm 0.0307$ across the ten splits against the static
+rules' $0.6709 \pm 0.0382$, a paired-significant loss on nine of ten
+splits (per-split intervals in the generated \texttt{\_diffs} files),
 a loss concentrated exactly where an audit queue operates. Section~\ref{sec:discussion}
 weighs this trade. Fourth, this study surfaced a model-class
 pathology, preserved pre-fix in the repository's history: without the
@@ -222,7 +240,9 @@ regression and $0.6660$ for EBM. Average precision shows how thin the
 absolute signal is even for the winners: logistic regression reaches
 $0.0112$ against a test prevalence of $0.0061$ --- less than double the
 random-ranker baseline. The context ablation shows a small positive AUC
-gap ($+0.017$) whose intervals overlap. The SOX-boundary
+gap ($+0.0172$) that the paired interval confirms is real
+([$0.0019$, $0.0373$]) --- weighed with the verdict below, since both
+models rank below chance here. The SOX-boundary
 design (82{,}630 training firm-years after serial-fraud handling;
 32{,}530 test; Table~\ref{tab:sox}, Figure~\ref{fig:sox}) was built to
 give the context weight its best chance.
@@ -234,20 +254,21 @@ $\le$2005, gap 2006--07, test $\ge$2008; 1{,}172 serial-fraud firm-years
 dropped from training; fraud rate in test 0.40\%). Full-test models
 only.}
 \label{tab:sox}
-{\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrlrr}
+{\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrlrlr}
 \toprule
-Model & AUC & AUC 95\% CI & AP & log-loss\\
+Model & AUC & AUC 95\% CI & AP & AP 95\% CI & log-loss\\
 \midrule
-logistic regression (raw features) & 0.7003 & [0.6550, 0.7411] & 0.0080 & 0.0253\\
-EBM (raw features) & 0.6441 & [0.6038, 0.6880] & 0.0067 & 0.0273\\
-gradient boosting (class-weighted) & 0.6432 & [0.5969, 0.6849] & 0.0076 & 0.3448\\
-gradient boosting (untuned) & 0.6283 & [0.5860, 0.6695] & 0.0062 & 0.0276\\
-decision tree (depth 4, balanced) & 0.6266 & [0.5798, 0.6653] & 0.0061 & 0.5154\\
-\pla{} static (empirical precisions) & 0.5381 & [0.4941, 0.5809] & 0.0085 & 0.0923\\
-\pla{} learned (rules + context + bias) & 0.4651 & [0.4207, 0.5097] & 0.0038 & 0.0266\\
-\pla{} learned, no context (ablation) & 0.4640 & [0.4234, 0.5099] & 0.0037 & 0.0265\\
+logistic regression (raw features) & 0.7003 & [0.6550, 0.7411] & 0.0080 & [0.0061, 0.0109] & 0.0253\\
+EBM (raw features) & 0.6441 & [0.6038, 0.6880] & 0.0067 & [0.0050, 0.0097] & 0.0273\\
+gradient boosting (class-weighted) & 0.6432 & [0.5969, 0.6849] & 0.0076 & [0.0055, 0.0122] & 0.3448\\
+gradient boosting (untuned) & 0.6283 & [0.5860, 0.6695] & 0.0062 & [0.0049, 0.0084] & 0.0276\\
+decision tree (depth 4, balanced) & 0.6266 & [0.5798, 0.6653] & 0.0061 & [0.0048, 0.0079] & 0.5154\\
+\pla{} static (empirical precisions) & 0.5381 & [0.4941, 0.5809] & 0.0085 & [0.0038, 0.0270] & 0.0923\\
+constant-prevalence baseline & 0.5000 & [0.5000, 0.5000] & 0.0040 & [0.0034, 0.0047] & 0.0262\\
+\pla{} learned (rules + context + bias) & 0.4651 & [0.4207, 0.5097] & 0.0038 & [0.0031, 0.0049] & 0.0266\\
+\pla{} learned, no context (ablation) & 0.4640 & [0.4234, 0.5099] & 0.0037 & [0.0030, 0.0045] & 0.0265\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -264,21 +285,28 @@ models retain signal.}
 
 \paragraph{The pre-registered verdict on context conditioning} Even
 under the design built to make the context weight identifiable, the
-mechanism adds nothing, and the claim now rests on the correct
-inference --- a paired-bootstrap interval on the \emph{difference},
-not on overlapping individual intervals:
-%%FILL-VERDICT-DIFFS
-Combined with the paired null on
-credit card and the within-CI sliver on the strict design, the
-conclusion is that context-conditioned rule weights, \emph{with the
-coarse single-bit context variables tested here}, show no reliable
-benefit --- reported plainly per the kill criterion recorded in the
-repository's gap statement before these experiments ran, and readable
-as an equivalence statement: the paired intervals bound any context
-effect on SOX AUC to magnitudes indistinguishable from zero at these
-sample sizes. One post-hoc observation cuts the other way and is
-reported as such:
-%%FILL-VERDICT-APEDGE
+mechanism adds nothing, and the claim rests on the correct inference
+--- a paired-bootstrap interval on the \emph{difference}, not on
+overlapping individual intervals: learned minus ablation is
+$\Delta\text{AUC} = 0.0011$ [$-0.0071$, $0.0140$] and
+$\Delta\text{AP} = 0.0001$ [$-0.0000$, $0.0009$], bounding any context
+effect under the identifiability design to $|\Delta\text{AUC}| \le
+0.014$ --- an equivalence statement, not an absence of evidence. On
+credit card the paired ablation $\Delta$AUC contains zero on all ten
+splits. The strict design shows what the paired instrument can detect:
+a small real effect, $\Delta\text{AUC} = +0.0172$ [$0.0019$, $0.0373$]
+--- between two models that both rank \emph{below chance} ($0.4905$
+vs.\ $0.4733$, against static $0.5285$ and logistic regression
+$0.6794$) --- sensitivity without practical relevance. The conclusion
+is that context-conditioned rule weights, \emph{with the coarse
+single-bit context variables tested here}, deliver no benefit where a
+benefit would matter --- reported plainly per the kill criterion
+recorded in the repository's gap statement before these experiments
+ran. One post-hoc observation cuts the other way and is reported as
+such: on credit card the context variant holds an average-precision
+edge over its ablation whose paired interval excludes zero on all ten
+splits ($\Delta$AP $+0.038$ to $+0.096$) while the AUC difference
+never does; the edge is absent under both drift designs.
 Average precision was not the pre-registered
 metric, so this generates a hypothesis for the next design rather than
 revising the verdict. The demonstrated value of learning lies in
@@ -318,11 +346,33 @@ controls; generated by \texttt{scripts/run\_fidelity.py}.}
 \label{tab:fidelity}
 {\scriptsize
 \setlength{\tabcolsep}{3.5pt}
-%%FILL-FIDELITY-TABLE3
+\begin{tabular}{lrrllr}
+\toprule
+Dataset & $n$ & Compr. & $\Delta$ vs reversed [95\% CI] & $\Delta$ vs random [95\% CI] & Suff.\\
+\midrule
+synthetic & 350 & 0.2006 & 0.0320 [0.0236, 0.0407] & 0.0187 [0.0120, 0.0262] & 0.0596\\
+credit card & 48{,}630 & 0.0188 & 0.0050 [0.0048, 0.0052] & 0.0038 [0.0035, 0.0039] & 0.0066\\
+accounting, strict & 21{,}744 & 0.0092 & 0.0018 [0.0017, 0.0018] & 0.0010 [0.0009, 0.0010] & 0.0074\\
+accounting, SOX & 11{,}642 & 0.0079 & 0.0013 [0.0013, 0.0014] & 0.0007 [0.0007, 0.0007] & 0.0059\\
+\bottomrule
+\end{tabular}
 }
 \end{table}
 
-%%FILL-FIDELITY-TEXT3
+Table~\ref{tab:fidelity} reports the static model. Its precision
+ranking beats both controls on every dataset, with paired-bootstrap
+margins whose intervals exclude zero throughout. The rule-level
+numbers also quantify the confound the design removes: fact-level
+comprehensiveness on credit card is $0.0202$, inflated about seven
+percent above the rule-level $0.0188$ by deletions that silence
+overlapping rules (synthetic: $0.2222$ vs.\ $0.2006$). For the learned
+model, the rule-level log-odds trace equals $z_{\text{top}}$
+identically (the unit-tested exactness above), and its
+probability-scale deltas compress to the display floor on rare-event
+data ($0.0002$ at $n{=}48{,}630$) --- consistent with calibration,
+uninformative as a measurement, which is why the log-odds scale is the
+right instrument for it. Every level, scale, and control combination
+is in the generated files.
 
 \subsection{Case study: one real fraud, traced}\label{sec:casestudy}
 

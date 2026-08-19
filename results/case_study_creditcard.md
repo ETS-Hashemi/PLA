@@ -34,6 +34,26 @@ Removing the top rule's facts (V10_low ∧ V4_high):
 static 0.4929 → 0.2552; learned 0.0189 → 0.0069.
 The trace's top factor is load-bearing, not decorative.
 
+## Leave-one-rule-out contributions
+
+Each fired rule removed from the fold alone (facts untouched).
+For the learned model, Δlog-odds equals the rule's z_r exactly —
+the trace ranking is the exact attribution on that scale.
+
+| Rule | Δ static | Δ learned | Δ learned log-odds | z_r |
+|---|---|---|---|---|
+| V10_low ∧ V4_high | 0.1227 | 0.0072 | 0.4862 | 0.4862 |
+| V14_low ∧ V12_low | 0.1186 | 0.0077 | 0.5264 | 0.5264 |
+| V4_high ∧ V11_high | 0.0752 | 0.0069 | 0.4646 | 0.4646 |
+| V14_low | 0.0081 | 0.0014 | 0.0808 | 0.0808 |
+| V10_low | 0.0075 | 0.0008 | 0.0421 | 0.0421 |
+| V4_high | 0.0075 | 0.0006 | 0.0330 | 0.0330 |
+| V12_low | 0.0074 | 0.0005 | 0.0295 | 0.0295 |
+| V11_high | 0.0073 | 0.0003 | 0.0189 | 0.0189 |
+| V17_low | 0.0069 | -0.0005 | -0.0263 | -0.0263 |
+| V16_low | 0.0068 | -0.0004 | -0.0197 | -0.0197 |
+| V3_low | 0.0068 | -0.0003 | -0.0138 | -0.0138 |
+
 ## The engine's own trace (verbatim)
 
 ```

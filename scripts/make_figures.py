@@ -65,10 +65,13 @@ plt.rcParams.update({
 
 
 def _read_full_test_rows(csv_name):
-    """Rows for models evaluated on the full test split, skipped and
-    subset rows excluded, sorted by AUC descending."""
+    """Rows for models evaluated on the full test split; skipped rows,
+    subset rows, and the constant-prevalence baseline (AUC 0.5 by
+    construction — it would only stretch the axis) are excluded; sorted
+    by AUC descending."""
     with open(RESULTS_DIR / csv_name, newline="") as handle:
-        rows = [r for r in csv.DictReader(handle) if r["auc"] != ""]
+        rows = [r for r in csv.DictReader(handle)
+                if r["auc"] != "" and r["model"] != "constant_prevalence"]
     full_n = max(int(r["n_test"]) for r in rows)
     rows = [r for r in rows if int(r["n_test"]) == full_n]
     return sorted(rows, key=lambda r: -float(r["auc"]))

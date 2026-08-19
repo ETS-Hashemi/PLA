@@ -9,12 +9,13 @@ dependency-free package whose every reported number regenerates from
 committed scripts.
 
 The real-data studies are in (Section~\ref{sec:evaluation}): eleven
-readable rules $0.01$--$0.03$ below the interpretable accuracy frontier
-on credit-card fraud across three split seeds, with near-perfect
-calibration and traces whose fidelity beats a control on every dataset
---- and a pre-registered
-negative on the context-conditioning mechanism itself, whose ablations
-show no reliable ranking benefit under any of three designs. The
+readable rules $0.002$--$0.034$ per split below the interpretable
+accuracy frontier on credit-card fraud across ten splits, calibration
+that beats the constant-prevalence floor, rule-level traces that beat
+reversed and random controls on every dataset --- and a pre-registered
+negative on the context-conditioning mechanism itself, whose paired
+ablation intervals bound any effect to practical irrelevance under all
+three designs. The
 negative scopes the next iteration precisely: richer context features
 than single-bit indicators, rule re-mining under vocabulary drift, and
 the full serial-fraud protocol of~\cite{bao2020}. Beyond those, three

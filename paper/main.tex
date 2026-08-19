@@ -60,17 +60,17 @@ proved and corroborated by property-based tests, the entire engine is
 a few hundred lines of dependency-free Python, and every experimental
 number regenerates from committed scripts with bootstrap confidence
 intervals. On the real ULB
-credit-card data an 11-rule model reaches AUC $0.95$--$0.97$ across
-three split seeds --- $0.01$--$0.03$ below the interpretable accuracy
-frontier set by EBM and logistic regression ($0.97$--$0.98$) --- with
-near-perfect calibration. On
-accounting-fraud data under two temporal designs, including one built
-around the 2003 SOX regime change, pre-registered ablations find no
-reliable ranking benefit from context conditioning; we report that
-negative as such. The demonstrated value of learning is calibration ---
-bought, the average-precision analysis shows, at a measured
-early-ranking cost --- and the deliverable is the measured,
-counterfactual-bearing trace.
+credit-card data an 11-rule model averages AUC $0.966$ across ten
+random splits --- $0.002$--$0.034$ per split below the interpretable
+accuracy frontier led by EBM --- and beats the constant-prevalence
+floor on log-loss. On accounting-fraud data under two temporal designs,
+including one built around the 2003 SOX regime change, pre-registered
+ablations backed by paired-bootstrap difference intervals find no
+benefit from context conditioning where a benefit would matter; we
+report that negative as such. The demonstrated value of learning is
+calibration --- bought, the average-precision analysis shows, at a
+paired-significant early-ranking cost --- and the deliverable is the
+measured, counterfactual-bearing trace.
 \end{abstract}
 
 \begin{keyword}

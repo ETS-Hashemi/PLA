@@ -60,3 +60,31 @@ defects, all fixed the same day.
 Both rounds' fixes are in the git history; the CI `paper` job compiles
 the revised manuscript and assembles the Overleaf and submission
 archives on every push.
+
+## Round 3 — external review (major revision), and its disposition
+
+An external reviewer assessed the round-2 manuscript as needing major
+revision (reject-and-resubmit at a selective AI/ML venue; plausible at
+an applied XAI / research-software venue after revision), with eight
+numbered blockers. Two described an intermediate CI build rather than
+the round-2 PDF (Tables 3–4 bodies and the Figure-2 model set were
+present at `003dacf`); the remaining six were real and drove this
+round.
+
+| # | Reviewer point | Disposition |
+|---|---|---|
+| 3-1 | Missing table bodies (pp. 22–23). | Artifact of an intermediate build that carried the `%%FILL` placeholders mid-campaign; the round-2 PDF has both bodies. The placeholder CI gate now prevents any such build from ever reading as final. |
+| 3-2 | Statistical evidence insufficient: AP CIs not displayed; "no reliable benefit" from overlapping individual CIs; three seeds; "near-perfect calibration" vs the ~0.0125 constant-prevalence floor; equal-width ECE weak. | All five sub-points addressed with new computation. AP interval columns are displayed in every experiment table. Every difference claim now cites a **paired-bootstrap CI of the difference** (new `_diffs` files): SOX ablation ΔAUC 0.0011 [−0.0071, 0.0140] — an equivalence bound; credit-card ablation ΔAUC contains zero on 10/10 splits. The study runs **ten** random splits with a committed aggregator (mean ± sd, min–max, per-split paired diffs). A **constant-prevalence baseline row** appears in every table (credit-card log-loss 0.0127, exactly the reviewer's floor; its ECE of 0.0000 is quoted as the demonstration that equal-width ECE is blunt here); "near-perfect calibration" is deleted everywhere and replaced by floor-relative statements, with the log-binned reliability diagram as primary evidence. Bonus finding the paired instrument surfaced: the strict-design context effect is real (+0.0172 [0.0019, 0.0373]) — between two below-chance models; and the post-hoc credit-card AP edge is paired-significant on 10/10 splits, still reported as hypothesis-generating only. |
+| 3-3 | Fidelity near-tautological; fact deletion confounded by overlapping rules; wants leave-one-rule-out, random controls, log-odds metrics, exact attributions. | Fidelity v2: **rule-level deletion** (top rule removed from the fold, facts untouched) is now the primary instrument — it quantifies the confound (fact-level comprehensiveness runs ~7–10% higher than rule-level); a deterministic **random-ranking control** joins the reversed one, margins carry paired CIs; **log-odds-scale** variants are computed throughout; the case study gains a **leave-one-rule-out table**; and the learned model's rule ranking is proven **exact by construction** on log-odds (contribution ≡ z_r; unit-tested), which §6.5 states up front as the boundary of what deletion metrics can certify — internal consistency, not external explanation quality (also now a limitation item). |
+| 3-4 | PCA features are not domain rules. | Claim narrowed explicitly, in §6, the intro contribution, and a new limitation: credit card demonstrates computational traceability; the accounting ratios carry the domain vocabulary (top mined rules pair receivables changes with divergent cash sales / free cash flow — named in the text); neither dataset alone carries the full claim. |
+| 3-5 | Novelty modest; ANFIS / fuzzy rule-based systems missing from positioning. | New related-work subsection on adaptive fuzzy rule systems (ANFIS; evolving-fuzzy-systems survey) stating what is shared (fitted rule strength, discretization tension) and what differs (trace-first packaging, named aggregation semantics, measured fidelity). Novelty language across abstract/intro/conclusion already recentred in rounds 1–2 on the system + measurement + honest-negative contribution — the framing the reviewer deems publishable. |
+| 3-6 | Formal overclaims: Kleene needs continuity; randomized tests ≠ guarantees; 200-epoch monotonicity ≠ proof; reduction needs flat/crisp restriction; zero-rule text conflicts with intercept. | All repaired: Proposition 1 now states continuity of the three operators and why it licenses the Kleene step; "machine-checked guarantees" replaced by proof + property-based corroboration everywhere (abstract, intro, §3, §5, workshop, highlights); descent claims carry the explicit bound η ≤ 2/L with L ≤ max‖x‖²/4 ≤ 3.5 (η ≈ 0.57 guaranteed; our η = 1.0 asserted per-epoch by tests); the reduction is restricted to flat rule sets over crisp facts; the zero-rule paragraph now distinguishes the interceptless floor (no gradient) from the intercept path (σ(b), trains b). |
+| 3-7 | Semiring claim incorrect (min does not distribute over noisy-OR). | Correct, and adopted: §2 now states aProbLog is a reference point, **not** an umbrella containing PLA, with the reviewer's counterexample (0.5 vs 0.64) in the text and as an executable block in `docs/SEMANTICS.md` run by the test suite. |
+| 3-8 | Production errors: Figure 2 model set; "Appendix Appendix"; double periods; Appendix B collision. | Figure 2 and "Appendix Appendix" were already fixed in round 2 (the former only ever affected the intermediate build). The **double periods were real**: elsarticle appends its own period after `\paragraph` titles; all trailing periods stripped. Appendix B refloated off the page number. |
+
+Net effect on the results narrative: the ten-split, paired-difference
+analysis *strengthened* the paper's claims rather than weakening them —
+the pre-registered null is now an equivalence bound, the AP trade is
+paired-significant, and the one place the mechanism does something
+(strict design) is shown to be real but useless. 93 tests pass; all
+regeneration is committed.
