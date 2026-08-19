@@ -8,19 +8,20 @@ is removed from the fold with facts untouched (no overlap confound);
 learned model's per-rule contribution is exact (= z_r).
 Comprehensiveness: higher = the trace's top rule is load-bearing.
 Sufficiency: closer to 0 = the top rule alone reproduces the score.
-Control rows carry the paired-bootstrap 95% CI of (trace − control).
+Control rows carry the paired-bootstrap 95% CI of (trace − control);
+`random_control` averages 10 seeded permutations.
 
 | Model | Level | Attribution | n | Compr. | Suff. | trace − this | 95% CI |
 |---|---|---|---|---|---|---|---|
 | pla_static | facts | trace | 48630 | 0.0202 | 0.0058 |  |  |
 | pla_static | facts | reversed_control | 48630 | 0.0166 | 0.0121 | 0.0036 | [0.0034, 0.0038] |
-| pla_static | facts | random_control | 48630 | 0.0183 | 0.0105 | 0.0020 | [0.0018, 0.0021] |
+| pla_static | facts | random_control | 48630 | 0.0184 | 0.0103 | 0.0018 | [0.0017, 0.0019] |
 | pla_static | rules | trace | 48630 | 0.0188 | 0.0066 |  |  |
 | pla_static | rules | reversed_control | 48630 | 0.0138 | 0.0121 | 0.0050 | [0.0048, 0.0052] |
-| pla_static | rules | random_control | 48630 | 0.0150 | 0.0107 | 0.0038 | [0.0035, 0.0039] |
+| pla_static | rules | random_control | 48630 | 0.0152 | 0.0105 | 0.0035 | [0.0034, 0.0037] |
 | pla_static | rules_logit | trace | 48630 | 11.6126 | 0.2140 |  |  |
 | pla_static | rules_logit | reversed_control | 48630 | 11.5429 | 0.3243 | 0.0697 | [0.0672, 0.0720] |
-| pla_static | rules_logit | random_control | 48630 | 11.5644 | 0.2911 | 0.0482 | [0.0460, 0.0502] |
+| pla_static | rules_logit | random_control | 48630 | 11.5671 | 0.2872 | 0.0455 | [0.0437, 0.0472] |
 | pla_learned | facts | trace | 48630 | 0.0002 | 0.0001 |  |  |
 | pla_learned | facts | reversed_control | 48630 | 0.0001 | 0.0002 | 0.0001 | [0.0001, 0.0001] |
 | pla_learned | facts | random_control | 48630 | 0.0002 | 0.0002 | 0.0001 | [0.0001, 0.0001] |
@@ -29,4 +30,4 @@ Control rows carry the paired-bootstrap 95% CI of (trace − control).
 | pla_learned | rules | random_control | 48630 | 0.0001 | 0.0002 | 0.0001 | [0.0001, 0.0001] |
 | pla_learned | rules_logit | trace | 48630 | 0.0405 | 0.0088 |  |  |
 | pla_learned | rules_logit | reversed_control | 48630 | 0.0101 | 0.0391 | 0.0303 | [0.0295, 0.0311] |
-| pla_learned | rules_logit | random_control | 48630 | 0.0216 | 0.0277 | 0.0189 | [0.0181, 0.0194] |
+| pla_learned | rules_logit | random_control | 48630 | 0.0223 | 0.0270 | 0.0182 | [0.0176, 0.0187] |

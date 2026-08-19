@@ -124,7 +124,7 @@ curl -X POST -H "Content-Type: application/json" \
      -d '{"query": "LungCancerRisk"}' http://127.0.0.1:5000/query
 ```
 
-Run the tests (93 collected; CI runs them on Python 3.9–3.12, where one
+Run the tests (94 collected; CI runs them on Python 3.9–3.12, where one
 network-dependent download test skips itself):
 
 ```bash
@@ -268,7 +268,7 @@ section are machine-verified by `tests/test_related_work_claims.py`.
 | `pla/` | The engine: `prob.py`, `kb.py`, `engine.py`, `learn.py`, `pipeline.py`, `fidelity.py`, `metrics.py`, scenario loader, CLI, REST API |
 | `scenarios/` | 34 JSON scenarios across audit, medical, logistics, pharma domains |
 | `scripts/` | Data fetching, rule mining, experiments, baselines, fidelity, case study — everything that generates `results/` |
-| `tests/` | 93-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
+| `tests/` | 94-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
 | `examples/` | Runnable demos that generate every number quoted in this README |
 | `data/` | Dataset cache (gitignored) + provenance README |
 | `results/` | Generated experiment, fidelity, and case-study tables (byte-reproducible) |

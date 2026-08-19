@@ -14,7 +14,7 @@ Dataset: `bao2020.csv`. temporal split: train fyear<=2001, test fyear>=2003 Seri
 | pla_learned | 62087 | 58405 | 0.4905 | [0.4636, 0.5141] | 0.0062 | [0.0055, 0.0074] | 0.0061 | 0.0374 | 0.0007 | logit path + bias, fitted rule + context weights |
 | pla_learned_noctx | 62087 | 58405 | 0.4733 | [0.4458, 0.4969] | 0.0058 | [0.0051, 0.0064] | 0.0061 | 0.0375 | 0.0008 | ablation: context weights disabled |
 | constant_prevalence | 62087 | 58405 | 0.5000 | [0.5000, 0.5000] | 0.0061 | [0.0056, 0.0067] | 0.0061 | 0.0377 | 0.0021 | predicts training prevalence 0.004011 everywhere |
-| problog_rules | 62087 | 150 | 0.3960 | [0.3567, 0.4262] | 0.0067 | [0.0067, 0.0267] | 0.0067 | 0.2328 | 0.0041 | subset n=150 |
+| problog_rules | 62087 | 150 | 0.3960 | [0.3567, 0.4262] | 0.0067 | [0.0067, 0.0267] | 0.0067 | 0.2328 | 0.0041 | subset n=150; max |PLA-ProbLog| = 7.2e-07 |
 | pgmpy_naive_bayes | 62087 | 2000 | 0.4320 | [0.3736, 0.5060] | 0.0215 | [0.0081, 0.0886] | 0.0126 | 0.0834 | 0.0093 | subset n=2000 |
 
 Paired-bootstrap 95% CIs for model differences (same resamples,

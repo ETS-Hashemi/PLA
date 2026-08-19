@@ -14,7 +14,7 @@ Dataset: `creditcard.csv`. Split seed 43, 30% test.
 | pla_learned | 199364 | 85443 | 0.9628 | [0.9376, 0.9812] | 0.5307 | [0.4562, 0.6032] | 0.0017 | 0.0111 | 0.0022 | logit path + bias, fitted rule + context weights |
 | pla_learned_noctx | 199364 | 85443 | 0.9618 | [0.9371, 0.9807] | 0.4930 | [0.4195, 0.5644] | 0.0017 | 0.0112 | 0.0022 | ablation: context weights disabled |
 | constant_prevalence | 199364 | 85443 | 0.5000 | [0.5000, 0.5000] | 0.0017 | [0.0014, 0.0020] | 0.0017 | 0.0126 | 0.0000 | predicts training prevalence 0.001736 everywhere |
-| problog_rules | 199364 | 150 | 1.0000 | [1.0000, 1.0000] | 1.0000 | [1.0000, 1.0000] | 0.0025 | 0.0200 | 0.0183 | subset n=150 |
+| problog_rules | 199364 | 150 | 1.0000 | [1.0000, 1.0000] | 1.0000 | [1.0000, 1.0000] | 0.0025 | 0.0200 | 0.0183 | subset n=150; max |PLA-ProbLog| = 6.6e-07 |
 | pgmpy_naive_bayes | 199364 | 2000 | 0.9651 | [0.8806, 1.0000] | 0.8590 | [0.5040, 1.0000] | 0.0014 | 0.0108 | 0.0017 | subset n=2000 |
 
 Paired-bootstrap 95% CIs for model differences (same resamples,
