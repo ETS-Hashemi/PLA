@@ -187,8 +187,11 @@ bit). In the strict design (62{,}087 training firm-years after
 serial-fraud handling; 58{,}405 test), tail rules mined pre-2002 barely
 rank later frauds: \pla{} static $0.5285$ [0.5028, 0.5585], learned $0.4905$,
 no-context ablation $0.4733$, against $0.6794$ for raw-ratio logistic
-regression and $0.6660$ for EBM. The context ablation shows a small
-positive gap ($+0.017$) whose intervals overlap. The SOX-boundary
+regression and $0.6660$ for EBM. Average precision shows how thin the
+absolute signal is even for the winners: logistic regression reaches
+$0.0112$ against a test prevalence of $0.0061$ --- less than double the
+random-ranker baseline. The context ablation shows a small positive AUC
+gap ($+0.017$) whose intervals overlap. The SOX-boundary
 design (82{,}630 training firm-years after serial-fraud handling;
 32{,}530 test; Table~\ref{tab:sox}, Figure~\ref{fig:sox}) was built to
 give the context weight its best chance.
