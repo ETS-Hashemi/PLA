@@ -20,7 +20,8 @@ roughly a third below the static rules' and its expected calibration
 error is smaller by a factor of six. AUC barely moves, which tempts the
 conclusion that ranking is free; average precision corrects it: the
 learned model gives up about $0.12$ of AP on average against the
-static rules, paired-significant on nine of the ten splits. The pattern is consistent with maximum
+static rules, a difference whose paired-bootstrap confidence interval
+excluded zero on nine of the ten splits. The pattern is consistent with maximum
 likelihood sharing credit among correlated, co-firing rules ---
 shrinking redundant weights compresses the score separation among the
 multi-rule examples at the very top of the ranking, exactly the region
@@ -37,7 +38,7 @@ Section~\ref{sec:learning} is not a quirk of one dataset: any additive
 log-odds pooling of rules that are strong lifts but weak absolute
 probabilities will invert on rare-event data unless a global intercept
 absorbs the base rate. Static noisy-OR is immune because it is monotone
-in the fired set --- more support can only raise the score. This
+in the fired set: more support can only raise the score. This
 suggests a design rule for confidence calculi generally: monotonicity in
 evidence is a rank-robustness property worth preserving, and learnable
 calculi should carry an explicit prior term. The engine's export of the
@@ -48,13 +49,13 @@ representable in the same trace vocabulary.
 accounting experiments are the honest frontier of this paper, and their
 verdict is negative. Under the strict pre/post-2003 split, rules mined
 before the regime change barely rank later frauds; under the
-SOX-boundary design --- built so the context weight is identifiable ---
+SOX-boundary design (built so the context weight is identifiable),
 the ablation gap is $0.4651$ vs.\ $0.4640$: nothing. The mechanism
 operates on rule \emph{reliability}, but what the regime change broke
 was rule \emph{vocabulary}: antecedents that stopped being informative
 cannot be rescued by reweighting, context-conditioned or otherwise.
-When drift replaces the vocabulary, rule re-mining --- not reweighting
---- is the needed adaptation, connecting this line to concept-drift
+When drift replaces the vocabulary, rule re-mining, not reweighting,
+is the needed adaptation, connecting this line to concept-drift
 taxonomies~\cite{gama2014} that distinguish real from virtual drift.
 Whether richer context features (beyond the single-bit indicators
 tested) change this verdict is the sharpest open question the negative
@@ -64,8 +65,8 @@ result leaves behind.
 Section~\ref{sec:evaluation} shows what the auditor actually receives:
 the fired rules with their empirical precisions, the aggregation
 arithmetic line by line, and a deletion counterfactual quantifying the
-top factor's contribution. None of the baselines --- including the
-interpretable ones --- produce this artifact: a decision tree yields a
+top factor's contribution. None of the baselines, including the
+interpretable ones, produce this artifact: a decision tree yields a
 path, EBM yields shape functions, but neither names weighted domain
 rules whose provenance is an auditable training-set measurement. The
 fidelity results license trusting these traces in the internal sense

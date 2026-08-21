@@ -13,8 +13,8 @@ ProbLog/pgmpy cross-check rows). (iii)~The official replication data of
 Bao et al.~\cite{bao2020} (146{,}045 firm-years, 964 AAER frauds) under
 a \emph{strict} temporal design (train through fiscal 2001, gap 2002,
 test from 2003) and (iv)~a \emph{SOX-boundary} design (train through
-2005 --- spanning the 2003 regime change, so a PostSOX context weight is
-identifiable --- gap 2006--07, test from 2008). Bao training sets drop
+2005, spanning the 2003 regime change, so a PostSOX context weight is
+identifiable, gap 2006--07, test from 2008). Bao training sets drop
 post-first-fraud firm-years, approximating the original serial-fraud
 protocol (602 and 1{,}172 firm-years dropped respectively; counts
 recorded in the generated files); firm-years with unparseable ratios are
@@ -26,7 +26,7 @@ fitted on the training split only): \texttt{V14\_low},
 \texttt{Amount\_high}, and so on. Candidate rules are mined on the
 training split by empirical precision with support floors: the top 8
 single-proposition rules (support $\ge 20$) plus the top 3 pair rules
-(support $\ge 10$, pairs drawn from the top 5 singles) --- 11 rules per
+(support $\ge 10$, pairs drawn from the top 5 singles), 11 rules per
 design, each carrying its empirical precision as the static confidence.
 No per-dataset tuning of these mining constants was performed; they are
 the pipeline defaults.
@@ -41,15 +41,17 @@ ablation: identical training with context variables removed, isolating
 the context mechanism.
 
 \paragraph{Baselines} Two interpretable competitors of comparable but
-not identical complexity --- a depth-4 class-balanced decision tree
+not identical complexity, a depth-4 class-balanced decision tree
 (at most 15 internal splits, against \pla{}'s 11 rules over the same
 propositions) and an Explainable Boosting Machine at library defaults
 (one shape function per continuous feature: a larger
-model)~\cite{lou2013,nori2019} --- plus logistic
+model)~\cite{lou2013,nori2019}, plus logistic
 regression (raw features, \texttt{max\_iter}=2000), gradient boosting
 (scikit-learn histogram GBT) both untuned and class-weighted, ProbLog
 executing \pla{}'s own rules under distribution semantics (per-example
-programs; deterministic subset, $n{=}150$, for compilation cost), and a
+programs; deterministic subset, $n{=}150$, reflecting the compilation
+cost of our per-example evaluation harness rather than an inherent
+property of ProbLog deployments), and a
 pgmpy naive Bayes over the same propositions (deterministic subset,
 $n{=}2000$). Subset rows are reported for cross-validation of the
 semantics, not for ranking comparison.
@@ -62,10 +64,10 @@ resamples), and the tables display both. Claims about
 intervals: every such claim cites a paired-bootstrap CI of the
 difference, computed on shared resamples of the shared test set and
 recorded in the generated \texttt{\_diffs} files. Calibration is
-measured by log-loss against an explicit \emph{null baseline} --- a
+measured by log-loss against an explicit \emph{null baseline}, a
 constant predictor at the training prevalence, which appears as a row
 in every table; it is a reference point, not a floor, since better
-predictors score below it --- together with expected calibration
+predictors score below it, together with expected calibration
 error over 10 equal-width bins, a
 coarse instrument at these prevalences (nearly all mass falls in the
 first bin), so the log-binned reliability diagram
@@ -80,7 +82,7 @@ logistic ground truth. With the intercept included, learning matches the
 static rules' ranking (AUC $0.7227$ vs.\ $0.7217$) while winning
 calibration decisively (log-loss $0.3420$ vs.\ $1.0908$); both trail the
 raw-feature models, as expected when the true signal is linear in the
-continuous features and discretization discards most of it --- a tax
+continuous features and discretization discards most of it, a tax
 that average precision magnifies ($0.8470$ for logistic regression vs.\
 $0.3139$ learned). The ProbLog
 row executes the same rules under distribution semantics on the same
@@ -183,28 +185,29 @@ regression); the generated seed summary carries every per-split value.
 Third, learning is a measured trade, not a free upgrade, and its
 calibration gain must be stated against the right reference: the
 learned variant's log-loss of $0.0113$ stands against $0.0127$ for the
-constant-prevalence null baseline of Table~\ref{tab:creditcard} --- an
-$11\%$ improvement over a no-skill predictor, while the raw-feature
-frontier lands far below both --- and its ECE of $0.0022$ is read
-knowing that equal-width bins are a blunt instrument here (the
-null baseline scores ECE $0.0000$).
+constant-prevalence null baseline of Table~\ref{tab:creditcard}, an
+$11\%$ improvement over a no-skill predictor; the raw-feature
+frontier lands far below both. Its ECE of $0.0022$ is read knowing
+that equal-width bins are a blunt instrument at this prevalence: the
+null baseline scores ECE $0.0000$.
 Figure~\ref{fig:reliability} shows
 the learned model tracking the diagonal through the low-probability
 bins where nearly all mass lives while the static rules' empirical
-precisions overshoot --- but average precision reveals a real
+precisions overshoot, but average precision reveals a real
 early-ranking cost that AUC conceals, visible in the same figure as
 score compression in the learned model's top bins: learned AP
 averages $0.5534 \pm 0.0307$ across the ten splits against the static
-rules' $0.6709 \pm 0.0382$, a paired-significant loss on nine of ten
-splits (per-split intervals in the generated \texttt{\_diffs} files),
-a loss concentrated exactly where an audit queue operates. Section~\ref{sec:discussion}
+rules' $0.6709 \pm 0.0382$, a loss whose paired-bootstrap confidence
+interval excluded zero on nine of ten splits (per-split intervals in
+the generated \texttt{\_diffs} files) and one concentrated exactly
+where an audit queue operates. Section~\ref{sec:discussion}
 weighs this trade. Fourth, this study surfaced a model-class
 pathology, preserved pre-fix in the repository's history: without the
-intercept the learned variant's AUC was $0.076$ --- inverted --- for
+intercept the learned variant's AUC was $0.076$, inverted, for
 the reason given in Section~\ref{sec:learning}; the intercept restores
 it. A baseline note: untuned gradient boosting collapses at this class
 imbalance (AUC $0.7159$), and simple class weighting repairs it (AUC
-$0.9598$, AP $0.7899$) --- both rows are reported so neither defaults
+$0.9598$, AP $0.7899$), both rows are reported so neither defaults
 nor a single tuning choice silently carries the comparison.
 
 \paragraph{Scope of the interpretability claim} The ULB features are
@@ -212,13 +215,13 @@ anonymized principal components, so a proposition like
 \texttt{V10\_low} is auditable arithmetic, not audit vocabulary: what
 this dataset demonstrates is \emph{computational traceability} ---
 every score decomposes into named rules with measured training-set
-provenance --- not domain interpretability. The accounting study
+provenance, not domain interpretability. The accounting study
 carries the domain half: its propositions are financial-ratio
 statements an auditor recognizes, and the top mined rules pair a large
 receivables change with divergent cash sales or free cash flow
 (\texttt{dch\_rec\_high} $\wedge$ \texttt{ch\_cs\_high},
-\texttt{dch\_rec\_high} $\wedge$ \texttt{ch\_fcf\_low}) --- textbook
-accrual-manipulation red flags --- though there the discrimination
+\texttt{dch\_rec\_high} $\wedge$ \texttt{ch\_fcf\_low}), textbook
+accrual-manipulation red flags, though there the discrimination
 under drift is weak. Neither study alone covers the full
 interpretability claim; jointly they scope it, and
 Section~\ref{sec:limitations} records the boundary.
@@ -230,10 +233,10 @@ Section~\ref{sec:limitations} records the boundary.
 fixed log-spaced bins on log-log axes; points below $5\times10^{-5}$
 are drawn at the display floor. The learned model tracks the diagonal
 through the low-probability bins where nearly all mass (and hence ECE)
-lives, and compresses at the top --- its highest bin sits above the
+lives. At the top it compresses: its highest bin sits above the
 diagonal, the calibration-side view of the average-precision cost in
-Table~\ref{tab:creditcard} --- while the static rules' empirical
-precisions overshoot observed rates across the range.}
+Table~\ref{tab:creditcard}. The static rules' empirical precisions
+overshoot observed rates across the range.}
 \label{fig:reliability}
 \end{figure}
 
@@ -247,10 +250,10 @@ rank later frauds: \pla{} static $0.5285$ [0.5028, 0.5585], learned $0.4905$,
 no-context ablation $0.4733$, against $0.6794$ for raw-ratio logistic
 regression and $0.6660$ for EBM. Average precision shows how thin the
 absolute signal is even for the winners: logistic regression reaches
-$0.0112$ against a test prevalence of $0.0061$ --- less than double the
+$0.0112$ against a test prevalence of $0.0061$, less than double the
 random-ranker baseline. The context ablation shows a small positive AUC
 gap ($+0.0172$) that the paired interval confirms is real
-([$0.0019$, $0.0373$]) --- weighed with the verdict below, since both
+([$0.0019$, $0.0373$]), weighed with the verdict below, since both
 models rank below chance here. The SOX-boundary
 design (82{,}630 training firm-years after serial-fraud handling;
 32{,}530 test; Table~\ref{tab:sox}, Figure~\ref{fig:sox}) was built to
@@ -286,7 +289,7 @@ constant-prevalence baseline & 0.5000 & [0.5000, 0.5000] & 0.0040 & [0.0034, 0.0
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig_sox_auc}
 \caption{SOX-boundary design: AUC with individual bootstrap 95\% CIs
-per model --- descriptive only; the inference on context conditioning
+per model, descriptive only; the inference on context conditioning
 is the \emph{paired} difference interval in the text
 ($\Delta\text{AUC} = 0.0011$ [$-0.0071$, $0.0140$]), not the visual
 overlap of the two \pla{} learned rows. Every rule model sits near
@@ -302,21 +305,23 @@ $\Delta\text{AUC} = 0.0011$ [$-0.0071$, $0.0140$] and
 $\Delta\text{AP} = 0.0001$ [$-0.0000$, $0.0009$], bounding the effect
 to $|\Delta\text{AUC}| \le 0.014$ at these sample sizes. We state this
 as a \emph{bound}, not a formal equivalence: the pre-registration
-(repository gap statement, commit \texttt{8f2dd2e}) specified only the
-directional criterion --- the context model must beat its own ablation
+(repository gap statement, commit
+\texttt{8f2dd2e}\footnote{\url{https://github.com/ETS-Hashemi/PLA/commit/8f2dd2edd409ccec44a32e803d7d9ceb0f1581ab}})
+specified only the
+directional criterion, the context model must beat its own ablation
 --- and named no practical-equivalence margin, so no equivalence test
 is licensed; readers with a margin in mind can apply it to the
 interval. On credit card the paired ablation $\Delta$AUC contains zero
 on all ten splits. The strict design shows what the paired instrument
 can detect: a small real effect,
-$\Delta\text{AUC} = +0.0172$ [$0.0019$, $0.0373$] --- between two
+$\Delta\text{AUC} = +0.0172$ [$0.0019$, $0.0373$], between two
 models that both rank \emph{below chance} ($0.4905$ vs.\ $0.4733$,
 against static $0.5285$ and logistic regression $0.6794$). The
 defensible conclusion, stated with its scope: \emph{context
 conditioning produced no practically useful improvement on the
 pre-specified AUC endpoint under any of the three designs; a
 consistent post-hoc average-precision improvement on the credit-card
-data --- paired interval excluding zero on all ten splits,
+data, paired interval excluding zero on all ten splits,
 $\Delta$AP $+0.038$ to $+0.096$, and absent under both drift designs
 --- requires confirmation on new data before it can count as a
 benefit.} We flag the tension openly: AP is the metric this paper
@@ -332,7 +337,7 @@ Section~\ref{sec:discussion} draws the drift lesson.
 \paragraph{What is being tested, and what would be circular} The trace
 is generated from the model's own rule computation, so no deletion
 metric here can certify external explanation quality; what it can
-certify --- and what a bug would break --- is that the \emph{exported
+certify, and what a bug would break, is that the \emph{exported
 ranking} matches what actually moves the score. For the learned model
 that match is exact by construction on the log-odds scale: the
 telescoped path of Section~\ref{sec:learning} makes rule $r$'s
@@ -343,8 +348,8 @@ therefore (i) the static model's, whose precision ranking is a
 heuristic that could have failed, and (ii) the margins over two
 controls that re-rank the \emph{same fired rules}: reversed
 (worst-first) and a deterministic random ordering. We report
-\emph{rule-level} deletion --- the top-ranked rule is removed from the
-fold with the facts untouched --- because fact deletion can deactivate
+\emph{rule-level} deletion, the top-ranked rule is removed from the
+fold with the facts untouched, because fact deletion can deactivate
 several overlapping rules at once (deleting one antecedent of a pair
 rule also silences the matching single rules), which inflates
 fact-level scores; both levels are in the generated files.
@@ -385,7 +390,7 @@ overlapping rules (synthetic: $0.2222$ vs.\ $0.2006$). For the learned
 model, the rule-level log-odds trace equals $z_{\text{top}}$
 identically (the unit-tested exactness above), and its
 probability-scale deltas compress to the display floor on rare-event
-data ($0.0002$ at $n{=}48{,}630$) --- consistent with calibration,
+data ($0.0002$ at $n{=}48{,}630$), consistent with calibration,
 uninformative as a measurement, which is why the log-odds scale is the
 right instrument for it. Every level, scale, and control combination
 is in the generated files.
@@ -401,9 +406,9 @@ score of $0.4929$ against a base rate of $0.0017$. The deletion
 counterfactual quantifies the top factor: removing its two facts drops
 the static score from $0.4929$ to $0.2552$ (learned: $0.0189$ to
 $0.0069$), and a leave-one-rule-out table gives every fired rule's
-marginal contribution with the facts untouched --- for the learned
+marginal contribution with the facts untouched, for the learned
 model its log-odds column equals $z_r$ identically, the exact
-attribution. This artifact --- weighted rules whose provenance is
+attribution. This artifact, weighted rules whose provenance is
 an auditable training-set measurement, folded by explicit arithmetic,
-with a counterfactual attached --- is what none of the baselines
+with a counterfactual attached, is what none of the baselines
 produce, and is the deliverable the audit setting requires.

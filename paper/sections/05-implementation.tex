@@ -2,7 +2,7 @@
 
 \subsection{The tool}
 
-\pla{} ships as a pip-installable package --- distribution name
+\pla{} ships as a pip-installable package, distribution name
 \texttt{probabilistic-}\allowbreak\texttt{logic-}\allowbreak\texttt{agent}
 --- with no core dependencies. It
 provides a command-line interface
@@ -13,7 +13,7 @@ per-rule context weights, queries, and named context sets
 (\ref{app:scenario}). Context handling is \emph{fail-loud}:
 malformed context shapes, unknown context sets, undeclared context
 variables, and unknown context modes raise structured errors instead of
-silently applying no adjustment --- a design decision motivated by a
+silently applying no adjustment, a design decision motivated by a
 real defect in the project's own history, in which context weights were
 silently ignored on the primary code path. Per-rule explanation traces
 (rule, candidate contribution, antecedents, active context) are the
@@ -30,7 +30,7 @@ claim:
   executes all of them, so documentation and engine cannot diverge.
 \item \textbf{Property-based corroboration.} Convergence
   (Proposition~\ref{prop:convergence}) is corroborated on 1{,}050 random
-  cyclic systems --- evidence that the implementation matches the
+  cyclic systems, evidence that the implementation matches the
   proposition, not a substitute for its proof; symbolic entailment is
   differential-tested against a truth-table oracle.
 \item \textbf{Byte-for-byte results.} Every experiment and fidelity
@@ -46,8 +46,8 @@ claim:
   posteriors~\cite{ankan2015}, and the identity between \pla{}'s
   noisy-OR and MYCIN's combination rule~\cite{shortliffe1975}.
 \item \textbf{Claim provenance.} \ref{app:provenance} maps each
-  substantive claim of this paper to the artifact --- test, script, or
-  generated file --- that verifies it.
+  substantive claim of this paper to the artifact, test, script, or
+  generated file, that verifies it.
 \end{itemize}
 
 The full suite (94 tests at the time of writing, one of which
@@ -57,9 +57,9 @@ examples and a job that compiles this paper and assembles the
 submission packages. Reported AUCs and average precisions carry seeded
 percentile-bootstrap 95\% confidence intervals ($B{=}500$), and the
 credit-card study is repeated over ten random splits. For scale:
-regenerating one full credit-card design --- 11-rule mining, three
+regenerating one full credit-card design, 11-rule mining, three
 pure-Python learner fits over 199{,}364 training examples, every
 baseline, and the shared bootstrap intervals over the 85{,}443-case
-test split --- takes roughly a quarter-hour on a single commodity
+test split, takes roughly a quarter-hour on a single commodity
 core, the accounting designs a third of that, and an end-to-end query
 of a shipped scenario well under a millisecond.

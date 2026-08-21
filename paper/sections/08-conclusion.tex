@@ -4,20 +4,20 @@
 research vehicle: explicit semantics whose formulas execute as tests,
 proved-and-corroborated convergence, saturation-free log-odds context
 conditioning, convex weight learning tied exactly to the engine, and
-explanation fidelity measured against a control --- all inside a
+explanation fidelity measured against a control, all inside a
 dependency-free package whose every reported number regenerates from
 committed scripts.
 
-The real-data studies are in (Section~\ref{sec:evaluation}): eleven
-readable rules $0.002$--$0.034$ per split below the interpretable
-accuracy frontier on credit-card fraud across ten splits, calibration
-that beats the constant-prevalence null baseline, rule-level traces
-that beat reversed and permutation-averaged random controls on every
-dataset --- and a pre-registered negative on the context-conditioning
-mechanism itself: no practically useful improvement on the
-pre-specified AUC endpoint under any of the three designs, with the
-post-hoc credit-card average-precision gain held apart as a hypothesis
-awaiting confirmation. The
+The real-data studies show that (Section~\ref{sec:evaluation}) eleven
+readable rules sit $0.002$--$0.034$ per split below the interpretable
+accuracy frontier on credit-card fraud across ten splits, that
+calibration beats the constant-prevalence null baseline, and that
+rule-level traces beat reversed and permutation-averaged random
+controls on every dataset --- alongside a pre-registered negative on
+the context-conditioning mechanism itself: no practically useful
+improvement on the pre-specified AUC endpoint under any of the three
+designs, with the post-hoc credit-card average-precision gain held
+apart as a hypothesis awaiting confirmation. The
 negative scopes the next iteration precisely: confirming or refuting
 that AP gain on new data, richer context features than single-bit
 indicators, rule re-mining under vocabulary drift, and the full

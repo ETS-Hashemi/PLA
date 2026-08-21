@@ -35,9 +35,12 @@
 \title{\pla: A Transparent, Learnable Rule-Confidence Engine
 with Measured Trace Fidelity}
 
-\author{Seyed Masoud Hashemi Ahmadi}
-\ead{contact@AiCentralLab.com}
-\address{\'Ecole de technologie sup\'erieure (\'ETS), Montr\'eal, Canada}
+\author[ets]{Seyed Masoud Hashemi Ahmadi\corref{cor1}}
+\ead{Seyed-Masoud.Hashemi-Ahmadi.1@ens.etsmtl.ca}
+\author[ets]{Julio Montecinos}
+
+\address[ets]{\'Ecole de technologie sup\'erieure (\'ETS), Montr\'eal, Canada}
+\cortext[cor1]{Corresponding author.}
 
 \begin{abstract}
 We present \pla{}, a rule-confidence model for domains where inherent
@@ -45,12 +48,12 @@ interpretability is a requirement rather than a preference. \pla{}
 descends openly from MYCIN-style certainty factors: rules carry
 confidences, conjunction is the G\"odel t-norm, and co-supporting rules
 combine through a named, per-knowledge-base aggregation operator
-(noisy-OR by default --- provably MYCIN's parallel-combination rule).
+(noisy-OR by default, provably MYCIN's parallel-combination rule).
 Three properties distinguish it from its lineage and from modern
 statistical-relational systems: (i)~rule confidences are
 \emph{context-conditioned}, with a log-odds mode in which context
 variables contribute additive evidence weights that never saturate;
-(ii)~both rule and context weights are \emph{learnable} --- on flat
+(ii)~both rule and context weights are \emph{learnable}, on flat
 rule sets over binary facts the engine's log-odds path reduces exactly
 to logistic regression over rule firings, making maximum-likelihood
 fitting convex; and (iii)~explanations are \emph{traces whose fidelity
@@ -61,8 +64,8 @@ a few hundred lines of dependency-free Python, and every experimental
 number regenerates from committed scripts with bootstrap confidence
 intervals. On the real ULB
 credit-card data an 11-rule model averages AUC $0.966$ across ten
-random splits --- $0.002$--$0.034$ per split below the interpretable
-accuracy frontier led by EBM --- and beats the constant-prevalence
+random splits, $0.002$--$0.034$ per split below the interpretable
+accuracy frontier led by EBM, and beats the constant-prevalence
 null baseline on log-loss. On accounting-fraud data under two temporal
 designs, including one built around the 2003 SOX regime change,
 pre-registered ablations backed by paired-bootstrap difference
@@ -70,9 +73,10 @@ intervals find no practically useful improvement from context
 conditioning on the pre-specified AUC endpoint; a consistent post-hoc
 average-precision gain on the credit-card data awaits confirmation,
 and we report the negative as such. The demonstrated value of learning is
-calibration --- bought, the average-precision analysis shows, at a
-paired-significant early-ranking cost --- and the deliverable is the
-measured, counterfactual-bearing trace.
+calibration, bought, the average-precision analysis shows, at an
+early-ranking cost whose paired-bootstrap confidence interval excluded
+zero, and the deliverable is the measured, counterfactual-bearing
+trace.
 \end{abstract}
 
 \begin{keyword}
@@ -95,11 +99,13 @@ detection
 
 \section*{CRediT authorship contribution statement}
 \textbf{Seyed Masoud Hashemi Ahmadi:} Conceptualization, Methodology,
-Software, Validation, Formal analysis, Investigation, Data curation,
-Writing -- original draft, Writing -- review \& editing, Visualization.
+Software, Formal analysis, Investigation, Data curation,
+Writing -- original draft, Visualization.
+
+\textbf{Julio Montecinos:} Validation, Writing -- review \& editing.
 
 \section*{Declaration of competing interest}
-The author declares no known competing financial interests or personal
+The authors declare no known competing financial interests or personal
 relationships that could have appeared to influence the work reported
 in this paper.
 
@@ -110,7 +116,11 @@ Both datasets are public: the ULB credit-card fraud data of
 applied before use are documented in the repository's data manifest.
 The complete engine, experiment scripts, generated results, and this
 manuscript's sources are available at
-\url{https://github.com/ETS-Hashemi/PLA}.
+\url{https://github.com/ETS-Hashemi/PLA}; the pre-registration commit
+is archived immutably at
+\url{https://github.com/ETS-Hashemi/PLA/commit/8f2dd2edd409ccec44a32e803d7d9ceb0f1581ab},
+and the submitted revision is tagged \texttt{v1.0-submission} in the
+repository.
 
 % Acknowledgements / funding: intentionally left for the author to
 % complete before submission (grant numbers, scholarships, computing

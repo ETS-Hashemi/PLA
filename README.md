@@ -33,8 +33,9 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
 - **Learning is a measured trade, not a free upgrade.** Fitting the
   weights beats the constant-prevalence null baseline on log-loss (0.0113 vs.
   0.0127) — but average precision exposes a real early-ranking cost
-  that AUC hides: static 0.67 vs. learned 0.55 on average,
-  paired-significant on nine of ten splits. Calibrated scores for
+  that AUC hides: static 0.67 vs. learned 0.55 on average, with the
+  paired-bootstrap confidence interval excluding zero on nine of ten
+  splits. Calibrated scores for
   thresholds and expected-cost decisions; static scores for
   fixed-budget queues.
 - **Context-conditioned weights: a pre-registered negative.** Context

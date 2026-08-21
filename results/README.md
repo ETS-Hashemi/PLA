@@ -30,9 +30,9 @@ Headline findings (full framing and caveats in `paper/`):
 - **Learning is a measured trade.** MLE beats the constant-prevalence
   null baseline on log-loss (0.0113 vs. 0.0127; the baseline row appears in every
   table, and it scores ECE 0.0000 — equal-width ECE is a blunt
-  instrument at these prevalences) while average precision pays:
-  paired-significant AP loss vs. static on nine of ten splits (mean
-  ≈ −0.12).
+  instrument at these prevalences) while average precision pays: an AP
+  loss vs. static whose paired-bootstrap CI excluded zero on nine of
+  ten splits (mean ≈ −0.12).
 - **Context-conditioning verdict (pre-registered): negative, with the
   correct inference.** No practically useful improvement on the
   pre-specified AUC endpoint under any design. SOX paired ablation

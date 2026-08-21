@@ -104,3 +104,26 @@ a result.
 | 4-5 | Novelty framing: context conditioning is interaction features other systems can encode; the contribution is the engine/export/discipline/trace interface. | Stated in the paper's own voice at both sites: §2's gap paragraph now calls it an *interface* gap, not an expressivity gap, and §4 opens the reduction with the deflationary reading (context-conjoined rules suffice in fixed-weight systems; the contribution is exposure, exact export, and tracing). Intro contribution 2 says the same. |
 | 4-6 | Presentation: Appendix-B/page-number collision; "equal-interpretability" unquantified; Table-4 inclusion criterion undefined; single deterministic random permutation; ProbLog "cross-validation" via subset CIs. | Appendix table moved to a float page and set single-spaced; baselines renamed "interpretable competitors of comparable but not identical complexity" with the tree's ≤15 splits and EBM's per-feature shape functions quantified against 11 rules; Table-4 caption defines n (examples with ≥1 fired rule); the random control is now the **average over ten seeded permutations** (per-example averaging, so paired CIs compare against the averaged control); the ProbLog cross-check is **direct same-example agreement** — max per-example gap vs the engine's fold recorded in every generated file (7.1×10⁻⁷ on the synthetic subset) — with the subset row's interval labeled descriptive. |
 | 4-7 | (Implicit) regeneration burden of the above. | Credit-card seeds 42–44, both Bao designs, and all four fidelity files regenerated under the new note and control; fast seeds 45–51 are untouched by construction (they skip the ProbLog row and are not fidelity inputs). |
+
+## Round 5 — author's final corrections on the submitted Overleaf version
+
+The corresponding author edited the Overleaf project directly (adding
+Julio Montecinos as second author) and returned eight final
+corrections. The edited sources were adopted as the new base and the
+corrections applied on top.
+
+| # | Correction | Disposition |
+|---|---|---|
+| 5-1 | "in general undefinable" (per-rule decomposition) overstates. | §2 and §3.5 now say an additive per-rule decomposition of a marginal is **not uniquely determined by the distribution semantics without an additional attribution rule**; §3.5 adds the inclusion–exclusion reading and notes Shapley-style attributions can be imposed but import assumptions. |
+| 5-2 | "ProbLog is right and PLA is not" too self-deprecating. | §2's price sentence now reads: *ProbLog is the appropriate choice when possible-world semantics and evidence conditioning are required.* |
+| 5-3 | Step-size notation: define L̄ and derive the bound. | §4: L̄ = max‖x‖²/4 with ‖x‖² ≤ 2R+1 = 23, so L̄ = 23/4 and any constant step 0 < η < 2/L̄ = 8/23 ≈ 0.348 provably decreases the loss; η = 1.0 sits above the bound and is covered by the (never-fired) backtracking guard. |
+| 5-4 | State what ŷ *is* probabilistically. | §4 now says ŷ on the learned classification path is a **discriminative conditional-probability estimate** for the target — licensing cross-entropy training and the calibration metrics — even though the engine defines no joint distribution over all propositions. |
+| 5-5 | Presentation: dangling author superscript; "expressivity ," splice; §4 punctuation; split finding-3 sentence; Fig-3 caption run-on; "re-mining, not reweighting" punctuation; conclusion "are in"; CRediT labels. | All fixed: corresponding-author `\corref` mark replaces the dangling superscript; the intro splice is now a colon; finding 3 split into three sentences; Fig-3 caption split; discussion comma repaired; conclusion reads "The real-data studies show that…"; CRediT entries use standard taxonomy labels ("Writing – original draft"; "Validation, Writing – review & editing"). |
+| 5-6 | "paired-significant" is not a statistic. | Abstract, discussion, and both READMEs now say the paired-bootstrap confidence interval **excluded zero** on nine of ten splits. |
+| 5-7 | ProbLog per-example compilation cost is our harness's, not ProbLog's. | §2 deployment bullet and §6 setup both scope it: a cost of the per-example evaluation harness, not an inherent property of ProbLog deployments. |
+| 5-8 | Archive the exact submitted version (tag or DOI) and link the pre-registration commit directly. | Data availability now links the pre-registration commit URL (full hash) and names tag `v1.0-submission`. The tag is created locally on the submission commit; the hosting environment's credentials cannot push tags (HTTP 403 on `git push origin <tag>`), so the author must publish it once from any checkout: `git fetch && git tag v1.0-submission <submission-commit> && git push origin v1.0-submission`, or create a GitHub Release with that tag name on the submission commit. |
+
+Also in this round: cover letter pluralized to "The authors declare";
+the workshop cut intentionally remains single-author (the author's
+call); Montecinos's CRediT roles are as the author assigned them —
+only the labels were standardized.

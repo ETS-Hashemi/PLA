@@ -6,16 +6,16 @@ ProbLog~\cite{deraedt2007} attaches probabilities to logic programs
 under the \emph{distribution semantics}: a program denotes a measure over
 possible worlds, inference computes exact marginals via knowledge
 compilation to weighted Boolean formulas~\cite{fierens2015}, and the
-system supports conditioning on evidence --- an operation \pla{}
+system supports conditioning on evidence, an operation \pla{}
 deliberately lacks. (Both capabilities are verified against the
 installed \texttt{problog} package by our test suite.) aProbLog
 generalizes the semantics to arbitrary commutative
-semirings~\cite{kimmig2011} --- the natural formal \emph{reference
+semirings~\cite{kimmig2011}, the natural formal \emph{reference
 point} for non-probabilistic confidence calculi, but not an umbrella
 that contains \pla{}: G\"odel conjunction does not distribute over
 noisy-OR ($\min(0.5,\, 0.4 \oplus 0.4) = 0.5$ while
 $(0.5 \wedge 0.4) \oplus (0.5 \wedge 0.4) = 0.64$), so \pla{}'s default
-operator pair is not a semiring instance --- an executable
+operator pair is not a semiring instance, an executable
 counterexample in the repository's semantics document, and one more
 sense in which \pla{} trades algebraic structure for hand-traceability. DeepProbLog adds
 neural predicates with end-to-end gradient training~\cite{manhaeve2018},
@@ -35,8 +35,8 @@ bounds~\cite{riegel2020}; recent surveys map this converging
 territory~\cite{marra2024,garcez2023}. In all of these, rule weights are
 \emph{static at inference time}: adapting a rule's reliability to a
 changing operational context is retraining's job, not the semantics'.
-That gap --- context-conditioned weights inside an interpretable
-calculus --- is the opening \pla{} explores, with two honesty clauses
+That gap, context-conditioned weights inside an interpretable
+calculus, is the opening \pla{} explores, with two honesty clauses
 attached. First, it is an \emph{interface} gap, not an expressivity
 gap: the reduction of Section~\ref{sec:learning} shows context
 conditioning is exactly rule--context interaction features, which any
@@ -48,7 +48,7 @@ its pre-specified endpoint. The connection to the concept-drift
 literature~\cite{gama2014}, where adaptation is studied outside
 logical representations, survives both clauses. Bayesian networks (e.g.\ the
 educational-standard pgmpy package~\cite{ankan2015}) provide
-joint-distribution posteriors --- verified against the installed package
+joint-distribution posteriors, verified against the installed package
 --- but not rule-shaped, trace-first explanations.
 
 A related, newer line uses crisp symbolic solvers to verify the
@@ -85,7 +85,7 @@ sequential covering~\cite{cohen1995}, rule ensembles distilled into
 sparse linear models (RuleFit~\cite{friedman2008}), Bayesian rule
 lists~\cite{letham2015}, certifiably optimal rule lists
 (CORELS~\cite{angelino2018}), and additive models with intelligible
-shape functions --- GA$^2$M and its EBM
+shape functions, GA$^2$M and its EBM
 implementation~\cite{lou2013,nori2019}. These systems
 produce interpretable \emph{classifiers}; \pla{} differs in what
 surrounds the rules: an inference engine with named uncertainty
@@ -99,7 +99,7 @@ model complexity stated there.
 
 \pla{}'s operators descend from MYCIN's certainty
 factors~\cite{shortliffe1975}: rule-attached confidences, attenuation by
-the weakest antecedent --- Zadeh's G\"odel t-norm~\cite{zadeh1965} ---
+the weakest antecedent, Zadeh's G\"odel t-norm~\cite{zadeh1965}, 
 and parallel combination of co-supporting rules. Indeed \pla{}'s default
 noisy-OR \emph{is} the CF parallel-combination formula
 $\mathit{CF} = \mathit{CF}_1 + \mathit{CF}_2(1-\mathit{CF}_1)$, an
@@ -117,19 +117,19 @@ as coherent.
 \subsection{Positioning: what \pla{} offers, and at what price}
 
 \pla{} does not compete with the systems above on semantic guarantees.
-Its offer is four properties --- each measured in this paper rather
-than promised --- that matter precisely when a score must be defended
+Its offer is four properties, each measured in this paper rather
+than promised, that matter precisely when a score must be defended
 to a person:
 
 \begin{enumerate}
 \item \textbf{Per-decision itemization.} Every score arrives with the
   fired rules, each rule's measured confidence, the explicit
-  aggregation arithmetic, and a deletion counterfactual --- the
+  aggregation arithmetic, and a deletion counterfactual, the
   artifact walked through in Section~\ref{sec:casestudy}, with its
   internal fidelity measured against reversed and random controls in
   Section~\ref{sec:evaluation}. Under distribution semantics this
-  artifact is not merely absent but in general undefinable
-  (Section~\ref{sec:notprob}).
+  artifact is not uniquely determined without an additional
+  attribution rule (Section~\ref{sec:notprob}).
 \item \textbf{Two-level auditability.} The decision is checkable by
   hand, and so is the system: a few hundred dependency-free lines,
   formal definitions that execute as tests, proved and corroborated
@@ -143,14 +143,15 @@ to a person:
   null baseline in Section~\ref{sec:evaluation}.
 \item \textbf{Deployment weight.} Zero dependencies and
   sub-millisecond scenario queries (Section~\ref{sec:implementation}),
-  against per-example program compilation for the nearest
-  semantically grounded alternative (Section~\ref{sec:setup}).
+  against the per-example program compilation of our ProbLog
+  evaluation setup (Section~\ref{sec:setup}), a cost of that
+  evaluation harness rather than of every ProbLog deployment.
 \end{enumerate}
 
 The price is stated with the same precision: no distribution
-semantics (Section~\ref{sec:notprob}) --- where rules overlap, share
-causes, or evidence must be conditioned on, ProbLog is right and
-\pla{} is not --- and a measured accuracy gap of $0.002$--$0.034$ AUC
+semantics (Section~\ref{sec:notprob}); ProbLog is the appropriate
+choice when possible-world semantics and evidence conditioning are
+required; and a measured accuracy gap of $0.002$--$0.034$ AUC
 per split to the interpretable frontier on the credit-card study
 (Section~\ref{sec:evaluation}). The intended domains are education and
 audit-style settings~\cite{appelbaum2017}, where inherent

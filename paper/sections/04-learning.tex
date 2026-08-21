@@ -3,7 +3,7 @@
 \subsection{Reduction to logistic regression}
 
 The reduction is stated under an explicit restriction: a \emph{flat}
-rule set --- every head is the target $T$, no chaining --- over
+rule set, every head is the target $T$, no chaining, over
 \emph{crisp} binary facts $c(x)\in\{0,1\}$ (an example is a set of
 active propositions and active context variables). With graded
 antecedents the $\min$ term of \eqref{eq:candidate} enters the score
@@ -26,37 +26,43 @@ firings and rule--context interactions, with parameters
 $\theta_r = \logit(p_r)$ and $w_r(v)$. Read as a statement about
 expressivity, this is deliberately deflationary: context conditioning
 adds nothing a fixed-weight system could not represent with
-context-conjoined rules --- the contribution is that the engine
+context-conjoined rules, the contribution is that the engine
 exposes the interaction in the rule's own vocabulary, exports the fit
-back exactly, and traces it. The binary cross-entropy loss is
+back exactly, and traces it. On this learned classification path,
+$\hat{y}$ is a discriminative conditional-probability estimate for the
+target, which is what licenses cross-entropy training and the
+calibration metrics of Section~\ref{sec:evaluation}, even though the
+engine defines no joint distribution over all propositions
+(Section~\ref{sec:notprob}). The binary cross-entropy loss is
 convex in the parameters, so every local minimum is global.
 Convexity alone guarantees neither a unique minimizer nor convergence
 at an arbitrary step size, and under complete separation the infimum
-need not be attained at any finite parameter --- so the implementation
+need not be attained at any finite parameter, so the implementation
 earns descent by construction instead of by assumption: each
 full-batch epoch is accepted only if the compiled loss does not
 increase, otherwise the step is rolled back and the rate halved (a
 backtracking guard, unit-tested against a deliberately oversized
-step). For reference, the usual smoothness argument gives
-$L \le \max_i \lVert x_i\rVert^2/4$ with
+step). For reference, the usual smoothness argument bounds the BCE
+smoothness constant by $\bar{L} = \max_i \lVert x_i\rVert^2/4$, and
 $\lVert x_i\rVert^2 \le 2R + 1$ when all $R$ rules fire with one
-active context interaction each, plus the intercept --- $23$ in our
-designs --- hence a provably safe \emph{constant} step of
-$\eta \le 2/L \approx 0.35$. Our runs use $\eta = 1.0$: above that
-conservative bound, and covered by the guard, which never fired in any
-reported run --- every reported trajectory is monotone by construction
+active context interaction each, plus the intercept; in our designs
+$\bar{L} = 23/4$, so any constant step
+$0 < \eta < 2/\bar{L} = 8/23 \approx 0.348$ provably decreases the
+loss each epoch. Our runs use $\eta = 1.0$: above that conservative
+bound, and covered by the guard, which never fired in any reported
+run; every reported trajectory is therefore monotone by construction
 and re-asserted per epoch by the test suite. Zero-rule examples behave
 differently
 with and without the intercept: interceptless, they receive a fixed
 small floor and contribute no gradient; with the intercept they score
-$\sigma(b)$ and train the intercept alone --- the base-rate anchoring
+$\sigma(b)$ and train the intercept alone, the base-rate anchoring
 whose necessity the next paragraph demonstrates.
 
 \paragraph{The intercept matters} The reduction makes one classical
 requirement visible the hard way. On rare-positive data, rules that are
 strong \emph{lifts} but weak absolute probabilities (precision far below
 $0.5$) force every $\theta_r$ negative in the interceptless model; an
-example firing five such rules --- typically the most suspicious one ---
+example firing five such rules (typically the most suspicious one)
 then receives the \emph{lowest} score, inverting the ranking. We
 observed exactly this on the real credit-card data (fitted
 $\theta_r \approx -2.5$; frauds concentrated at five fired rules; AUC
@@ -74,7 +80,7 @@ inversion and its repair.
 Two properties tie the learner to the system it serves. First, fitted
 parameters export back into the engine (rule confidences
 $\sigma(\theta_r)$, context weights $w_r$) and the engine's queries then
-match the learner's predictions to $10^{-9}$ --- what is trained is
+match the learner's predictions to $10^{-9}$, what is trained is
 literally what is executed. Second, on data sampled from a known model
 in this family ($n=3{,}000$; three seeds), the learner recovers the
 planted rule weights within $0.09$ and the planted context weight within
@@ -82,8 +88,8 @@ $0.29$, with the optimizer converged to $\sim 10^{-15}$ loss deltas; the
 tolerances absorb sampling error only, since data, seeds, and optimizer
 are all deterministic.
 
-The learner is implemented in pure Python --- no numpy, torch, or
-scikit-learn --- preserving the engine's zero-dependency property; the
+The learner is implemented in pure Python, no numpy, torch, or
+scikit-learn, preserving the engine's zero-dependency property; the
 training loop compiles the fixed dataset once (fired rules and active
 context per example), which keeps thousand-epoch full-batch fits fast at
 these scales.

@@ -57,7 +57,7 @@ p_{\text{adj}} \;=\; \min\Bigl(1,\; p \cdot \prod_{v\ \text{active}} w(v)\Bigr).
 \label{eq:legacy}
 \end{equation}
 The cap destroys information: with $p=0.7$ and weights $1.2$ and $1.5$,
-the product $1.26$ caps to $1.0$ --- and so does any stronger
+the product $1.26$ caps to $1.0$, and so does any stronger
 combination, making distinct evidence states indistinguishable. The
 \texttt{logit} mode instead treats weights as additive log-odds
 deltas:
@@ -83,8 +83,8 @@ Order confidence vectors $x\in[0,1]^V$ pointwise, and let the
 aggregation operator be one of \texttt{max}, \texttt{noisy\_or},
 \texttt{sum\_cap}. Each of these is monotone in both arguments and
 continuous on $[0,1]^2$, and the candidate map \eqref{eq:candidate} is
-monotone and continuous in $x$, so the round operator $G$ --- a finite
-composition of these maps --- is monotone and continuous on the complete
+monotone and continuous in $x$, so the round operator $G$, a finite
+composition of these maps, is monotone and continuous on the complete
 lattice $[0,1]^V$. The start vector $x_0$ (base facts) satisfies
 $x_0 \le G(x_0)$, hence the trajectory
 $x_0 \le G(x_0) \le G^2(x_0) \le \dots$ is pointwise non-decreasing and
@@ -109,7 +109,7 @@ scoring is a single fold rather than a fixpoint iteration.
 Section~\ref{sec:discussion} returns to monotonicity in evidence as a
 rank-robustness property in its own right.
 
-Property-based tests corroborate the proposition --- monotone
+Property-based tests corroborate the proposition, monotone
 trajectory, boundedness, $\varepsilon$-fixpoint reached, and exact
 agreement between the engine and a reference implementation of $G$ ---
 on 1{,}050 random rule systems including seeded cycles, across the
@@ -125,8 +125,8 @@ fixpoint as a regression test.
 \subsection{Symbolic layer and gating}
 
 A separate crisp layer holds definite-clause facts and rules. Entailment
-is decided by agenda-based forward chaining --- sound and complete for
-definite clauses, linear in KB size --- differential-tested against a
+is decided by agenda-based forward chaining, sound and complete for
+definite clauses, linear in KB size, differential-tested against a
 truth-table oracle on random KBs; a 200-symbol chain answers in well
 under a second. A hybrid engine gates confidences with entailment: a
 \texttt{hard} gate zeroes non-entailed conclusions, a \texttt{soft} gate
@@ -144,9 +144,11 @@ same antecedent combine by noisy-OR to $0.75$, as if their supports were
 independent, whereas a possible-world semantics would let the rules'
 dependence determine the answer. The same coin has a second face:
 under distribution semantics an additive per-rule decomposition of a
-marginal does not exist in general --- overlapping proofs are
-reconciled by inclusion--exclusion, which does not split into per-rule
-shares without attribution machinery (and assumptions) of its own.
+marginal is not uniquely determined without an additional attribution
+rule. Overlapping proofs are reconciled by inclusion--exclusion, which
+does not split into per-rule shares by itself; Shapley-style
+attributions can be imposed on top, but each such rule imports
+assumptions of its own.
 \pla{}'s per-decision itemization exists \emph{because} its calculus
 agrees to itemize, and that agreement is legitimate exactly when
 supports are treated as independent. Users who need the

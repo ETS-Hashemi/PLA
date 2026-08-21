@@ -7,16 +7,16 @@ auditors must defend every flag they raise, and the case for inherently
 interpretable models over post-hoc explanations of black boxes in
 high-stakes settings is well established~\cite{rudin2019}. At the same
 time, the systems that offer strong probabilistic semantics for logical
-knowledge --- probabilistic logic programming and statistical relational
-learning (Section~\ref{sec:related}) --- present two obstacles to exactly
+knowledge, probabilistic logic programming and statistical relational
+learning (Section~\ref{sec:related}), present two obstacles to exactly
 these users: their inference machinery (knowledge compilation, MRF
 inference) is opaque to the domain practitioner who must sign off on a
 decision, and their rule weights are fixed at inference time, so a rule's
 reliability cannot respond to the operational context in which it fires.
 
 \pla{} explores the opposite corner of the design space. It is a
-rule-confidence engine simple enough to trace by hand --- a few hundred
-lines of dependency-free Python --- that is honest about \emph{not} being
+rule-confidence engine simple enough to trace by hand, a few hundred
+lines of dependency-free Python, that is honest about \emph{not} being
 a probability distribution, and that invests the saved complexity in
 three places: context-conditioned rule weights, learnability, and
 measured explanation quality. The first of these enters as a
@@ -30,8 +30,8 @@ demands.
 \begin{enumerate}
 \item \textbf{An explicit confidence calculus with verified properties}
   (Section~\ref{sec:calculus}). All operators are named and formally
-  defined; the definitions are executable --- the test suite extracts and
-  runs every formula in the semantics document --- and fixpoint
+  defined; the definitions are executable, the test suite extracts and
+  runs every formula in the semantics document, and fixpoint
   convergence for the monotone aggregators is proved
   (Proposition~\ref{prop:convergence}) and corroborated by
   property-based tests on 1{,}050 random cyclic rule systems.
@@ -42,17 +42,17 @@ demands.
   binary facts the model class collapses to logistic regression over
   rule firings, so maximum-likelihood fitting is convex, trained under
   a backtracking descent guard, and recovers planted ground truth. The
-  same reduction shows the mechanism adds interface, not expressivity
-  --- fixed-weight systems can encode it as context-conjoined rules ---
+  same reduction shows the mechanism adds interface, not expressivity:
+  fixed-weight systems can encode it as context-conjoined rules ---
   and across three real-data designs, pre-registered ablations show no
-  practically useful gain on the pre-specified endpoint --- a negative
+  practically useful gain on the pre-specified endpoint, a negative
   we report per its kill criterion (Section~\ref{sec:evaluation}).
 \item \textbf{Measured explanation fidelity}
   (Section~\ref{sec:evaluation}). Rule traces are the engine's primary
   output, and their internal fidelity is quantified rather than
   asserted: rule-level deletion metrics (facts untouched, avoiding the
   overlapping-antecedent confound) against reversed and random
-  re-ranking controls, on probability and log-odds scales --- with the
+  re-ranking controls, on probability and log-odds scales, with the
   learned model's rule ranking shown to be the \emph{exact} attribution
   on the log-odds scale by construction.
 \item \textbf{A reproducibility discipline}
@@ -68,7 +68,7 @@ programming, weighted-logic learning, and its own certainty-factor
 lineage. Sections~\ref{sec:calculus} and~\ref{sec:learning} present the
 calculus and the learning theory. Section~\ref{sec:implementation}
 describes the tool. Section~\ref{sec:evaluation} reports the synthetic
-harness validation and two real-data studies --- including an honest
+harness validation and two real-data studies, including an honest
 negative result under temporal drift, and a model-class pathology whose
 repair the reduction of Section~\ref{sec:learning} made obvious.
 Section~\ref{sec:limitations} lists limitations explicitly.
