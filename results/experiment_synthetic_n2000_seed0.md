@@ -10,6 +10,7 @@ Dataset: `creditcard_synthetic_seed0.csv`. Split seed 42, 30% test.
 | gradient_boosting_balanced | 1400 | 600 | 0.9197 | [0.8935, 0.9437] | 0.6302 | [0.5219, 0.7413] | 0.0799 | 0.2900 | 0.0712 | class_weight=balanced, otherwise defaults |
 | decision_tree | 1400 | 600 | 0.7208 | [0.6668, 0.7710] | 0.2278 | [0.1756, 0.2981] | 0.1886 | 0.5492 | 0.1933 | interpretable baseline: depth 4, balanced |
 | ebm_interpretml | 1400 | 600 | 0.9572 | [0.9376, 0.9729] | 0.7640 | [0.6567, 0.8553] | 0.0588 | 0.1917 | 0.0449 | interpretable baseline: EBM defaults |
+| rulefit | 1400 | 600 | 0.8294 | [0.7893, 0.8670] | 0.3509 | [0.2776, 0.4692] | 0.1179 | 0.5433 | 0.1140 | rule baseline: RuleFit, max_rules=30, no linear terms; 28 rules selected |
 | pla_static | 1400 | 600 | 0.7217 | [0.6579, 0.7785] | 0.2947 | [0.2116, 0.4000] | 0.1138 | 1.0908 | 0.0952 | empirical precisions, noisy-OR, neutral context |
 | pla_learned | 1400 | 600 | 0.7227 | [0.6568, 0.7834] | 0.3139 | [0.2257, 0.4226] | 0.0999 | 0.3420 | 0.0290 | logit path + bias, fitted rule + context weights |
 | pla_learned_noctx | 1400 | 600 | 0.7187 | [0.6529, 0.7792] | 0.3212 | [0.2388, 0.4239] | 0.0999 | 0.3422 | 0.0307 | ablation: context weights disabled |

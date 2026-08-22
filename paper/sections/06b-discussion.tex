@@ -5,7 +5,12 @@ credit-card fraud} The ULB features are PCA components; the fraud
 signal concentrates in the tails of a handful of them, and quantile
 propositions capture exactly those tails. Where the signal is
 tail-shaped, a small rule set loses little AUC (and a measured, bounded
-slice of early precision) while buying full traceability. The synthetic study shows the opposite regime: when the
+slice of early precision) while buying full traceability. The RuleFit
+comparison prices the threshold choice itself: mined continuous
+thresholds recover early precision (AP $0.80$ vs.\ the static rules'
+$0.67$) at a cost in AUC ($0.9437$ vs.\ $0.9660$, lower on all ten
+splits), so even between rule models the choice tracks the deployment
+metric rather than a single winner. The synthetic study shows the opposite regime: when the
 generating process is linear in the raw continuous features,
 discretization pays a visible tax. The practical guidance for
 audit-style deployments is therefore diagnostic, not dogmatic: measure
@@ -54,6 +59,11 @@ the ablation gap is $0.4651$ vs.\ $0.4640$: nothing. The mechanism
 operates on rule \emph{reliability}, but what the regime change broke
 was rule \emph{vocabulary}: antecedents that stopped being informative
 cannot be rescued by reweighting, context-conditioned or otherwise.
+The rule-learning baseline corroborates the diagnosis from outside
+\pla{}: RuleFit, carrying its own mined pre-drift thresholds, degrades
+the same way ($0.5825$ strict, $0.6065$ SOX) while the
+continuous-feature models hold near $0.65$--$0.70$
+(Section~\ref{sec:evaluation}).
 When drift replaces the vocabulary, rule re-mining, not reweighting,
 is the needed adaptation, connecting this line to concept-drift
 taxonomies~\cite{gama2014} that distinguish real from virtual drift.

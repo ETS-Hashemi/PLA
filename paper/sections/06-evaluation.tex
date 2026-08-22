@@ -90,7 +90,10 @@ calibration decisively (log-loss $0.3420$ vs.\ $1.0908$); both trail the
 raw-feature models, as expected when the true signal is linear in the
 continuous features and discretization discards most of it, a tax
 that average precision magnifies ($0.8470$ for logistic regression vs.\
-$0.3139$ learned). The ProbLog
+$0.3139$ learned). RuleFit sits exactly where this reading predicts:
+its self-mined continuous thresholds recover part of the tax (AUC
+$0.8294$), above every fixed-decile propositional model and below
+every raw-feature one. The ProbLog
 row executes the same rules under distribution semantics on the same
 examples, and the cross-check is direct numerical agreement, not an
 interval argument: the largest per-example gap between ProbLog's
@@ -114,6 +117,7 @@ logistic regression (raw features) & 0.9746 & [0.9602, 0.9857] & 0.8470 & [0.755
 EBM (raw features) & 0.9572 & [0.9376, 0.9729] & 0.7640 & [0.6567, 0.8553] & 0.1917 & 0.0449\\
 gradient boosting (class-weighted) & 0.9197 & [0.8935, 0.9437] & 0.6302 & [0.5219, 0.7413] & 0.2900 & 0.0712\\
 gradient boosting (untuned) & 0.9171 & [0.8880, 0.9430] & 0.6352 & [0.5309, 0.7347] & 0.3750 & 0.0808\\
+RuleFit (30 rules, raw features) & 0.8294 & [0.7893, 0.8670] & 0.3509 & [0.2776, 0.4692] & 0.5433 & 0.1140\\
 pgmpy naive Bayes (propositions) & 0.7228 & [0.6594, 0.7791] & 0.3288 & [0.2426, 0.4299] & 0.3405 & 0.0288\\
 \pla{} learned (rules + context + bias) & 0.7227 & [0.6568, 0.7834] & 0.3139 & [0.2257, 0.4226] & 0.3420 & 0.0290\\
 \pla{} static (empirical precisions) & 0.7217 & [0.6579, 0.7785] & 0.2947 & [0.2116, 0.4000] & 1.0908 & 0.0952\\
@@ -189,6 +193,15 @@ intervals on every split. In average precision the static rules
 retain most of the frontier's early ranking power
 ($0.6709 \pm 0.0382$ vs.\ $0.7564 \pm 0.0291$ for logistic
 regression); the generated seed summary carries every per-split value.
+The direct rule-model competitor sharpens the comparison: RuleFit's
+mined-threshold ensemble ($26$--$30$ rules selected per split)
+averages AUC $0.9437 \pm 0.0134$, below \pla{} static on every one of
+the ten splits, while carrying more early-ranking power than the
+static rules on every split (AP $0.8013 \pm 0.0293$ vs.\
+$0.6709 \pm 0.0382$; per-split values in the seed summary). Learned
+continuous thresholds buy average precision; fixed decile
+propositions with empirical-precision weights buy AUC and per-rule
+provenance; neither rule model dominates the other.
 Third, learning is a measured trade, not a free upgrade, and its
 calibration gain must be stated against the right reference: the
 learned variant's log-loss of $0.0113$ stands against $0.0127$ for the
@@ -255,7 +268,12 @@ bit). In the strict design (62{,}087 training firm-years after
 serial-fraud handling; 58{,}405 test), tail rules mined pre-2002 barely
 rank later frauds: \pla{} static $0.5285$ [0.5028, 0.5585], learned $0.4905$,
 no-context ablation $0.4733$, against $0.6794$ for raw-ratio logistic
-regression and $0.6660$ for EBM. Average precision shows how thin the
+regression and $0.6660$ for EBM. The degradation is a property of
+thresholded rules, not of \pla{}'s weighting: RuleFit, mining its own
+thresholds on the same pre-drift training years, lands at $0.5825$
+under the strict design ($0.6065$ under SOX), well below the
+continuous-feature models it nearly matched on credit card. Average
+precision shows how thin the
 absolute signal is even for the winners: logistic regression reaches
 $0.0112$ against a test prevalence of $0.0061$, less than double the
 random-ranker baseline. The context ablation shows a small positive AUC
@@ -284,6 +302,7 @@ EBM (raw features) & 0.6441 & [0.6038, 0.6880] & 0.0067 & [0.0050, 0.0097] & 0.0
 gradient boosting (class-weighted) & 0.6432 & [0.5969, 0.6849] & 0.0076 & [0.0055, 0.0122] & 0.3448\\
 gradient boosting (untuned) & 0.6283 & [0.5860, 0.6695] & 0.0062 & [0.0049, 0.0084] & 0.0276\\
 decision tree (depth 4, balanced) & 0.6266 & [0.5798, 0.6653] & 0.0061 & [0.0048, 0.0079] & 0.5154\\
+RuleFit (30 rules, raw features) & 0.6065 & [0.5564, 0.6528] & 0.0065 & [0.0049, 0.0105] & 0.0494\\
 \pla{} static (empirical precisions) & 0.5381 & [0.4941, 0.5809] & 0.0085 & [0.0038, 0.0270] & 0.0923\\
 constant-prevalence baseline & 0.5000 & [0.5000, 0.5000] & 0.0040 & [0.0034, 0.0047] & 0.0262\\
 \pla{} learned (rules + context + bias) & 0.4651 & [0.4207, 0.5097] & 0.0038 & [0.0031, 0.0049] & 0.0266\\

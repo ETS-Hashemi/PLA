@@ -158,7 +158,7 @@ Numbers below are development results on a seeded synthetic sample with
 planted logistic ground truth ($n{=}2{,}000$) that validate the harness;
 the repository also carries two real-data studies (regenerated
 byte-for-byte the same way), summarized at the end of this section. Table~\ref{tab:headtohead} compares PLA with static
-empirical-precision rules, PLA with learned weights, and four baselines.
+empirical-precision rules, PLA with learned weights, and five baselines.
 Reported as measured: with the standard logistic intercept included,
 the learned variant matches static ranking (AUC $0.7227$ vs.\ $0.7217$)
 and wins calibration decisively (log-loss $0.3420$ vs.\ $1.0908$) ---
@@ -181,6 +181,7 @@ Model & AUC & Brier & log-loss & ECE\\
 \midrule
 logistic regression (raw features) & 0.9746 & 0.0413 & 0.1390 & 0.0298\\
 gradient boosting (raw features) & 0.9171 & 0.0883 & 0.3750 & 0.0808\\
+RuleFit (30 rules, raw features) & 0.8294 & 0.1179 & 0.5433 & 0.1140\\
 ProbLog on PLA rules (subsample) & 0.7416 & 0.1327 & 1.4447 & 0.0704\\
 pgmpy naive Bayes (propositions) & 0.7228 & 0.0993 & 0.3405 & 0.0288\\
 PLA static (empirical precisions) & 0.7217 & 0.1138 & 1.0908 & 0.0952\\

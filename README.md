@@ -29,7 +29,12 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
   it at 0.002–0.034 per split (static 0.9660 ± 0.0076, learned
   0.9602 ± 0.0088 over ten splits), confidence intervals overlapping;
   in average precision the static rules keep most of the frontier's
-  early ranking power (0.67 ± 0.04 vs. 0.76 ± 0.03 for LR).
+  early ranking power (0.67 ± 0.04 vs. 0.76 ± 0.03 for LR). The direct
+  rule-model competitor splits the difference the honest way: RuleFit
+  (pure rule ensemble, 26–30 mined rules) trails PLA static on AUC on
+  all ten splits (0.9437 ± 0.0134) while beating it on AP on all ten
+  (0.80 ± 0.03) — thresholds mined from raw features buy early
+  precision; PLA's decile propositions buy AUC and per-rule provenance.
 - **Learning is a measured trade, not a free upgrade.** On the
   credit-card study, fitting the
   weights beats the constant-prevalence null baseline on log-loss (0.0113 vs.

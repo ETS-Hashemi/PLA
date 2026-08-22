@@ -27,6 +27,9 @@ Headline findings (full framing and caveats in `paper/`):
   model tracks it at 0.002–0.034 per split (static 0.9660 ± 0.0076,
   learned 0.9602 ± 0.0088), CIs overlapping; static AP retains most of
   the frontier's early ranking power (0.67 ± 0.04 vs. LR 0.76 ± 0.03).
+  RuleFit (pure rule ensemble, max_rules=30, no linear terms) is the
+  direct rule-model comparison: AUC 0.9437 ± 0.0134 (below PLA static
+  on all ten splits), AP 0.80 ± 0.03 (above it on all ten).
 - **Learning is a measured trade.** On credit card, MLE beats the
   constant-prevalence
   null baseline on log-loss (0.0113 vs. 0.0127; the baseline row appears in every

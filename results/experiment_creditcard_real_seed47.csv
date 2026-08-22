@@ -4,6 +4,7 @@ gradient_boosting,199364,85443,0.7877,0.7169,0.8428,0.4803,0.3776,0.5669,0.0014,
 gradient_boosting_balanced,199364,85443,0.9552,0.9222,0.9813,0.6920,0.6083,0.7778,0.0018,0.0177,0.0141,"class_weight=balanced, otherwise defaults"
 decision_tree,199364,85443,0.8802,0.8263,0.9286,0.4407,0.3611,0.5106,0.0222,0.1042,0.0688,"interpretable baseline: depth 4, balanced"
 ebm_interpretml,199364,85443,0.9712,0.9531,0.9875,0.8284,0.7636,0.8847,0.0004,0.0028,0.0002,interpretable baseline: EBM defaults
+rulefit,199364,85443,0.9390,0.9074,0.9664,0.7390,0.6564,0.8203,0.0006,0.0058,0.0006,"rule baseline: RuleFit, max_rules=30, no linear terms; 27 rules selected"
 pla_static,199364,85443,0.9607,0.9336,0.9819,0.6129,0.5170,0.7010,0.0019,0.0189,0.0149,"empirical precisions, noisy-OR, neutral context"
 pla_learned,199364,85443,0.9564,0.9287,0.9801,0.6208,0.5295,0.7044,0.0015,0.0103,0.0025,"logit path + bias, fitted rule + context weights"
 pla_learned_noctx,199364,85443,0.9570,0.9300,0.9804,0.5249,0.4347,0.6097,0.0015,0.0104,0.0025,ablation: context weights disabled

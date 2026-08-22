@@ -127,3 +127,20 @@ Also in this round: cover letter pluralized to "The authors declare";
 the workshop cut intentionally remains single-author (the author's
 call); Montecinos's CRediT roles are as the author assigned them —
 only the labels were standardized.
+
+## Round 6 — external review (third pass), and its disposition
+
+Six points; all accepted. One required a new experiment across every
+design.
+
+| # | Reviewer point | Disposition |
+|---|---|---|
+| 6-1 | Comprehensiveness and sufficiency never defined mathematically; cite the defining literature (ERASER). | §6.5 now carries display equations for both metrics at both levels, exactly matching `pla/fidelity.py`: fact-level comp = s(F) − s(F∖A₁), suff = s(F) − s(F∩A₁); rule-level comp = τ(s(F)) − τ(s₋ᵣ₁(F)), suff = τ(s(F)) − τ(s_{r₁}(F)), with τ the identity or the ε-clipped logit (ε=10⁻⁹), averaged over examples with ≥1 fired rule. DeYoung et al. 2020 (ERASER) cited at the definitions and at the intro's first mention; Jacovi & Goldberg 2020 kept for the faithfulness framing. |
+| 6-2 | No direct rule-model baseline despite discussing RuleFit/RIPPER/BRL/CORELS. | **RuleFit added and run on every design** (imodels implementation, cited): configured as a pure rule ensemble — max_rules=30, include_linear=False, fixed seed — a configuration itself verified by a claims test. Ten-split credit card: AUC 0.9437 ± 0.0134 (below PLA static on all ten splits), AP 0.8013 ± 0.0293 (above PLA static on all ten); strict drift 0.5825 and SOX 0.6065 (degrades like every thresholded rule model while continuous-feature models hold 0.65–0.70 — corroborating the vocabulary-drift lesson from outside PLA); synthetic 0.8294 (between the fixed-decile propositional block and the raw-feature models, as the discretization-tax reading predicts). All tables, figures, findings, discussion, READMEs, and the workshop cut updated; every regenerated file is an add-only diff (pre-existing rows byte-identical). |
+| 6-3 | Terminology: Appendix A says "probability", package named probabilistic-logic-agent, paper says values are not probabilities. | `"confidence"` is now the canonical scenario rule-value key and the documented preferred accessor (`ProbRule.confidence`); `"probability"` is a documented deprecated alias (both-keys-disagree fails loud); query results carry a `"confidence"` key with `"probability"` kept as a deprecated duplicate; all 34 scenario files, the scenario exporter, docs, README, Appendix A, and SEMANTICS.md updated, and both now state the distribution name is historical. Six new tests. |
+| 6-4 | Abstract ~285 words; reduce to 230–250. | Rewritten at 249 words; no claim dropped. |
+| 6-5 | Put the intercept into Eq. (6). | Eq. (6) is now ŷ = σ(b + Σ_{r fired} z_r), with the base-rate-prior-rule reading stated at the equation, the interceptless variant identified as b = 0, and the later intercept paragraph rewritten to reference the equation instead of re-deriving it. |
+| 6-6 | Conclusion's "calibration beats the constant-prevalence null baseline" is not true for every accounting design. | Reworded to the reviewer's sentence: *on the credit-card study, the learned model's log-loss beats the constant-prevalence baseline*; the abstract, cover letter, and both READMEs now attribute the log-loss win to the learned weights on credit card specifically. |
+
+Test count after this round: 101 (swept in README, §5, and the
+workshop cut).
