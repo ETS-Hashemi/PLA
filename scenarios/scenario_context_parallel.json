@@ -8,7 +8,7 @@
     {
       "condition": ["PersistentCough", "WeightLoss"],
       "result": "LungCancerRisk",
-      "probability": 0.7,
+      "confidence": 0.7,
       "context": {
         "1": {
           "AgeOver60": 1.2
@@ -21,7 +21,7 @@
     {
       "condition": ["LungCancerRisk", "ChestPain"],
       "result": "BiopsyRequired",
-      "probability": 0.9,
+      "confidence": 0.9,
       "context": {
         "1": {
           "FamilyHistoryOfCancer": 1.0

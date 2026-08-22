@@ -48,6 +48,7 @@ DISPLAY_NAMES = {
     "gradient_boosting_balanced": "gradient boosting (class-weighted)",
     "decision_tree": "decision tree (depth 4)",
     "ebm_interpretml": "EBM",
+    "rulefit": "RuleFit (30 rules)",
     "pla_static": "PLA static",
     "pla_learned": "PLA learned",
     "pla_learned_noctx": "PLA learned, no context",

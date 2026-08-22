@@ -22,8 +22,11 @@
   handling (post-first-fraud firm-years dropped from training only), and
   a much coarser rule vocabulary than their 28-feature ensembles. Its
   negative results bind these protocols, not the hypothesis space.
-  Baselines run library defaults by design, with one class-weighted
-  variant added for gradient boosting after its default collapse
+  Baselines run library defaults by design, with two stated
+  exceptions: a class-weighted
+  variant added for gradient boosting after its default collapse, and
+  RuleFit's declared rule budget (\texttt{max\_rules}=30, no linear
+  terms) chosen for complexity parity rather than accuracy
   (Section~\ref{sec:evaluation}); nothing else is tuned, which may
   understate every baseline.
 \item \textbf{What fidelity metrics can and cannot show.} The trace is

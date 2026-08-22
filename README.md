@@ -30,7 +30,8 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
   0.9602 ± 0.0088 over ten splits), confidence intervals overlapping;
   in average precision the static rules keep most of the frontier's
   early ranking power (0.67 ± 0.04 vs. 0.76 ± 0.03 for LR).
-- **Learning is a measured trade, not a free upgrade.** Fitting the
+- **Learning is a measured trade, not a free upgrade.** On the
+  credit-card study, fitting the
   weights beats the constant-prevalence null baseline on log-loss (0.0113 vs.
   0.0127) — but average precision exposes a real early-ranking cost
   that AUC hides: static 0.67 vs. learned 0.55 on average, with the
@@ -188,7 +189,7 @@ the dataset schemas that turn CSV rows into examples.
     {
       "condition": ["DelayedShipment", "HighPriorityOrder"],
       "result": "EscalationRequired",
-      "probability": 0.8,
+      "confidence": 0.8,
       "context": {"DriverShortage": 0.9}
     }
   ],

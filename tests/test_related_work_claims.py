@@ -87,3 +87,29 @@ def test_noisy_or_is_mycin_parallel_combination():
         assert math.isclose(
             aggregate_supports(cf1, cf2, "noisy_or"), mycin, abs_tol=1e-12
         )
+
+
+def test_rulefit_config_is_a_pure_rule_ensemble():
+    """Claim (Sections 2 and 6): the RuleFit baseline is configured as a
+    pure rule ensemble — max_rules=30, no linear terms — so every selected
+    term is a conjunctive rule, the direct competitor to PLA's rules."""
+    pytest.importorskip("imodels")
+    import warnings
+
+    from imodels import RuleFitClassifier
+
+    X = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]] * 25
+    y = [1 if a > 0.5 and b > 0.5 else 0 for a, b in X]
+    model = RuleFitClassifier(max_rules=30, include_linear=False,
+                              random_state=0)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model.fit(X, y)
+        proba = model.predict_proba(X)
+    selected = model._get_rules()
+    assert len(selected) <= 30
+    # No linear terms: every candidate term is a rule (a threshold
+    # conjunction), never a bare feature passthrough.
+    if "type" in selected.columns:
+        assert set(selected["type"]) <= {"rule"}
+    assert len(proba) == len(X)

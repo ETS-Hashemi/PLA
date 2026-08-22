@@ -45,6 +45,9 @@ def query_endpoint():
     prob, explanation = engine.query(query)
     return jsonify({
         "query": query,
+        "confidence": prob,
+        # Deprecated duplicate of "confidence" (values are confidences,
+        # not probabilities — docs/SEMANTICS.md); kept for old clients.
         "probability": prob,
         "explanation": explanation
     }), 200

@@ -52,6 +52,10 @@ class HybridEngine:
         return {
             "query": query,
             "symbolic_entails": symbolic_entails,
+            "confidence": final_probability,
+            # Deprecated duplicate of "confidence", kept so existing
+            # callers keep working; PLA values are confidences, not
+            # probabilities (docs/SEMANTICS.md).
             "probability": final_probability,
             "raw_probabilistic": prob_result,
             "gate_mode": self.gate_mode,

@@ -23,7 +23,7 @@ dependencies = []
 [project.optional-dependencies]
 api = ["flask>=2.3"]
 dev = ["pytest>=7", "hypothesis>=6"]
-experiments = ["scikit-learn>=1.3", "problog>=2.2", "interpret-core>=0.6"]  # pgmpy optional (heavy deps)
+experiments = ["scikit-learn>=1.3", "problog>=2.2", "interpret-core>=0.6", "imodels>=1.4"]  # pgmpy optional (heavy deps)
 
 [project.scripts]
 pla = "pla.cli:main"

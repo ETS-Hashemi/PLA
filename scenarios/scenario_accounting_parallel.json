@@ -11,7 +11,7 @@
     {
       "condition": ["LargeTransaction", "NoReceipt"],
       "result": "FraudRisk",
-      "probability": 0.8,
+      "confidence": 0.8,
       "context": {
         "1": {
           "WeekendTransaction": 1.1,
@@ -26,7 +26,7 @@
     {
       "condition": ["FraudRisk", "MultipleDiscrepancies"],
       "result": "AuditRequired",
-      "probability": 0.9,
+      "confidence": 0.9,
       "context": {
         "1": {
           "InternalAlert": 1.0
@@ -39,7 +39,7 @@
     {
       "condition": ["AuditRequired"],
       "result": "InvestigationInitiated",
-      "probability": 0.95
+      "confidence": 0.95
     }
   ],
   "queries": [

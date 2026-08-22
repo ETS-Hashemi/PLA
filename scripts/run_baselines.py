@@ -214,7 +214,38 @@ def sklearn_rows(train_rows, test_rows, schema=CREDITCARD):
         rows.append(skipped("ebm_interpretml", err))
     except Exception as err:  # noqa: BLE001 — record, don't crash the run
         rows.append(skipped("ebm_interpretml", err))
+
+    rows.append(rulefit_row(X_train, y_train, X_test, y_test))
     return rows
+
+
+def rulefit_row(X_train, y_train, X_test, y_test):
+    """Direct rule-model baseline: RuleFit (Friedman & Popescu 2008) as
+    implemented in imodels — rules extracted from a boosted tree ensemble,
+    then L1-selected. Configured as a PURE rule ensemble (no linear terms)
+    with a 30-rule budget so its complexity is comparable to the other
+    interpretable baselines; it mines its own thresholds from the raw
+    numeric features, so it is the learned-rule competitor to PLA's
+    mined-and-weighted rules."""
+    try:
+        from imodels import RuleFitClassifier
+    except ImportError as err:
+        return skipped("rulefit", err)
+    try:
+        import warnings
+        model = RuleFitClassifier(max_rules=30, include_linear=False,
+                                  random_state=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # sklearn penalty deprecations
+            model.fit(X_train, y_train)
+            probs = [float(p[1]) for p in model.predict_proba(X_test)]
+        selected = model._get_rules()
+        n_rules = int((selected["coef"] != 0).sum())
+        return evaluate("rulefit", y_test, probs,
+                        note="rule baseline: RuleFit, max_rules=30, no "
+                             f"linear terms; {n_rules} rules selected")
+    except Exception as err:  # noqa: BLE001 — record, don't crash the run
+        return skipped("rulefit", err)
 
 
 def problog_probability(rule_specs, precisions, facts):

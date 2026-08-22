@@ -9,7 +9,7 @@
     {
       "condition": ["AdverseReaction", "NewDrug"],
       "result": "RecallRequired",
-      "probability": 0.7,
+      "confidence": 0.7,
       "context": {
         "LowSeverityCases": 0.8
       }
@@ -17,7 +17,7 @@
     {
       "condition": ["MultipleReports", "RegulatoryWarning"],
       "result": "RecallRequired",
-      "probability": 0.9,
+      "confidence": 0.9,
       "context": {
         "LowSeverityCases": 0.7
       }
@@ -25,7 +25,7 @@
     {
       "condition": ["RecallRequired"],
       "result": "PublicNotification",
-      "probability": 0.95
+      "confidence": 0.95
     }
   ],
   "queries": [

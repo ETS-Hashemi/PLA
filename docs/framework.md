@@ -70,7 +70,7 @@ Scenarios are defined in JSON files with the following structure:
     {
       "condition": ["Fact1", "Fact2"],
       "result": "ResultFact",
-      "probability": 0.8,
+      "confidence": 0.8,
       "context": {
         "ContextVariable1": 1.2,
         "ContextVariable2": 1.5
@@ -155,7 +155,7 @@ Rules can define context variables and their weights. For example:
 {
   "condition": ["DelayedShipment", "HighPriorityOrder"],
   "result": "EscalationRequired",
-  "probability": 0.8,
+  "confidence": 0.8,
   "context": {
     "DriverShortage": 0.9,
     "WeatherDisruption": 0.7
@@ -193,8 +193,8 @@ prob_kb.add_rule(ProbRule([large, no_receipt], audit, 0.85))
 prob_kb.add_rule(ProbRule([audit], report, 0.6))
 
 engine = HybridEngine(symbolic_kb, prob_kb, gate_mode="hard")
-print(engine.query("AuditRequired")["probability"])    # 0.85  (entailed, passes)
-print(engine.query("RegulatorReport")["probability"])  # 0.0   (not entailed, blocked)
+print(engine.query("AuditRequired")["confidence"])    # 0.85  (entailed, passes)
+print(engine.query("RegulatorReport")["confidence"])  # 0.0   (not entailed, blocked)
 ```
 
 Gate modes: `hard` blocks non-entailed queries to 0.0; `soft` multiplies them
@@ -260,7 +260,7 @@ python rest_api.py
      ```json
      {
        "query": "CustomerNotification",
-       "probability": 0.718,
+       "confidence": 0.718,
        "explanation": "DelayedShipment and HighPriorityOrder triggered EscalationRequired with P=0.756..."
      }
      ```

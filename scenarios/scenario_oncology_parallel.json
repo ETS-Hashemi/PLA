@@ -13,7 +13,7 @@
     {
       "condition": ["FamilyHistoryOfCancer", "GeneticMutationDetected"],
       "result": "HighCancerRisk",
-      "probability": 0.9,
+      "confidence": 0.9,
       "context": {
         "1": {
           "PatientAgeOver60": 1.1
@@ -26,7 +26,7 @@
     {
       "condition": ["SmokingHistory", "PersistentCough"],
       "result": "LungCancerRisk",
-      "probability": 0.8,
+      "confidence": 0.8,
       "context": {
         "1": {
           "EnvironmentalExposure": 1.2
@@ -39,12 +39,12 @@
     {
       "condition": ["RapidWeightLoss", "ChestPain", "AbnormalCTScan"],
       "result": "LungCancerRisk",
-      "probability": 0.85
+      "confidence": 0.85
     },
     {
       "condition": ["LungCancerRisk", "HighCancerRisk"],
       "result": "BiopsyRequired",
-      "probability": 0.95,
+      "confidence": 0.95,
       "context": {
         "1": {
           "TreatmentDelay": 1.0

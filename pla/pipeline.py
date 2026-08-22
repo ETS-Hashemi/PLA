@@ -233,7 +233,7 @@ def export_scenario(rule_specs, precisions, example_facts, example_context, path
             {
                 "condition": list(spec.antecedents),
                 "result": TARGET,
-                "probability": round(precision, 6),
+                "confidence": round(precision, 6),
                 "context": {var: 1.0 for var in spec.context_vars},
             }
             for spec, precision in zip(rule_specs, precisions)

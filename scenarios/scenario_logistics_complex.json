@@ -9,17 +9,17 @@
     {
       "condition": ["DelayedShipment", "HighPriorityOrder"],
       "result": "EscalationRequired",
-      "probability": 0.8
+      "confidence": 0.8
     },
     {
       "condition": ["WeatherDisruption", "DelayedShipment"],
       "result": "EscalationRequired",
-      "probability": 0.7
+      "confidence": 0.7
     },
     {
       "condition": ["WarehouseIssue"],
       "result": "DelayedShipment",
-      "probability": 0.6
+      "confidence": 0.6
     }
   ],
   "queries": [

@@ -140,3 +140,65 @@ def test_contexts_section_with_undeclared_variable_raises(tmp_path):
     with pytest.raises(ScenarioFormatError) as excinfo:
         load_scenario(path)
     assert "Typo" in str(excinfo.value)
+
+
+# --- "confidence" is the canonical rule-value key; "probability" is a
+# --- deprecated alias (PLA values are confidences — docs/SEMANTICS.md).
+
+def _write(tmp_path, rule):
+    config = {"facts": ["A"], "rules": [rule], "queries": ["B"]}
+    path = tmp_path / "scenario.json"
+    path.write_text(json.dumps(config))
+    return path
+
+
+def test_confidence_key_is_canonical(tmp_path):
+    path = _write(tmp_path, {"condition": ["A"], "result": "B",
+                             "confidence": 0.5})
+    prob, _ = load_scenario(path).kb.query("B")
+    assert math.isclose(prob, 0.5, abs_tol=1e-9)
+
+
+def test_legacy_probability_key_loads_identically(tmp_path):
+    canonical = _write(tmp_path, {"condition": ["A"], "result": "B",
+                                  "confidence": 0.5})
+    legacy_path = tmp_path / "legacy.json"
+    legacy_path.write_text(json.dumps(
+        {"facts": ["A"],
+         "rules": [{"condition": ["A"], "result": "B", "probability": 0.5}],
+         "queries": ["B"]}))
+    p_canonical, _ = load_scenario(canonical).kb.query("B")
+    p_legacy, _ = load_scenario(legacy_path).kb.query("B")
+    assert p_canonical == p_legacy
+
+
+def test_conflicting_confidence_and_probability_keys_fail_loud(tmp_path):
+    path = _write(tmp_path, {"condition": ["A"], "result": "B",
+                             "confidence": 0.5, "probability": 0.6})
+    with pytest.raises(ScenarioFormatError):
+        load_scenario(path)
+
+
+def test_missing_rule_value_fails_loud(tmp_path):
+    path = _write(tmp_path, {"condition": ["A"], "result": "B"})
+    with pytest.raises(ScenarioFormatError):
+        load_scenario(path)
+
+
+def test_probrule_confidence_property_aliases_probability():
+    from pla.prob import ProbRule, ProbSymbol
+
+    rule = ProbRule([ProbSymbol("A")], ProbSymbol("B"), 0.5)
+    assert rule.confidence == rule.probability == 0.5
+    rule.confidence = 0.7
+    assert rule.probability == 0.7
+
+
+def test_query_results_carry_confidence_key():
+    from pla.prob import ProbKB, ProbRule, ProbSymbol
+
+    kb = ProbKB()
+    kb.add_fact(ProbSymbol("A"))
+    kb.add_rule(ProbRule([ProbSymbol("A")], ProbSymbol("B"), 0.5))
+    detailed = kb.query_detailed("B")
+    assert detailed["confidence"] == detailed["probability"]

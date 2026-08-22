@@ -8,7 +8,7 @@
     {
       "condition": ["HighTumorMarkerLevels", "Stage3Cancer"],
       "result": "CancerConfirmed",
-      "probability": 0.9,
+      "confidence": 0.9,
       "context": {
         "FamilyHistoryOfCancer": 1.3,
         "SmokingHistory": 1.2
@@ -17,7 +17,7 @@
     {
       "condition": ["CancerConfirmed", "GeneticMutationDetected"],
       "result": "TreatmentPlanRequired",
-      "probability": 0.95,
+      "confidence": 0.95,
       "context": {
         "PatientAge>60": 1.1
       }
@@ -25,7 +25,7 @@
     {
       "condition": ["TreatmentPlanRequired"],
       "result": "ComprehensiveTreatmentPlan",
-      "probability": 0.9
+      "confidence": 0.9
     }
   ],
   "queries": [

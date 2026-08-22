@@ -7,7 +7,7 @@
     {
       "condition": ["PersistentCough", "WeightLoss"],
       "result": "LungCancerRisk",
-      "probability": 0.7
+      "confidence": 0.7
     }
   ],
   "queries": [

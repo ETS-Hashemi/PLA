@@ -22,6 +22,7 @@ TABLE_NAMES = {
     **DISPLAY_NAMES,
     "logistic_regression": "logistic regression (raw features)",
     "ebm_interpretml": "EBM (raw features)",
+    "rulefit": "RuleFit (30 rules, raw features)",
     "decision_tree": "decision tree (depth 4, balanced)",
     "pla_static": "PLA static (empirical precisions)",
     "pla_learned": "PLA learned (rules + context + bias)",

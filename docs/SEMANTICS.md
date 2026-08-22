@@ -12,6 +12,13 @@ have `c = 1`. Confidences are *not* probabilities of a distribution over
 possible worlds (see §5); they are evidence-ordered degrees of support in
 the certainty-factor tradition (§6).
 
+Naming note: the scenario JSON rule-value key is `"confidence"`, with the
+legacy key `"probability"` accepted as a deprecated alias; on the Python
+API, `ProbRule.confidence` is the preferred accessor for the attribute
+historically named `probability`, and query results carry a `"confidence"`
+key (with `"probability"` kept as a deprecated duplicate). The
+distribution name `probabilistic-logic-agent` is historical.
+
 ## 2. Rules
 
 A rule is `(A₁ ∧ … ∧ Aₙ → B, p, w)` with base confidence `p ∈ [0,1]` and

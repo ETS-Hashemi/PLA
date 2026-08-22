@@ -7,7 +7,7 @@
     {
       "condition": ["DelayedShipment", "HighPriorityOrder"],
       "result": "EscalationRequired",
-      "probability": 0.8
+      "confidence": 0.8
     }
   ],
   "queries": [

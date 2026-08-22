@@ -32,8 +32,9 @@ model; and explanation traces whose fidelity is \emph{measured}, at
 the rule level, against reversed and permutation-averaged random
 controls rather than asserted. On real credit-card fraud data, an
 11-rule, fully hand-traceable model tracks the interpretable accuracy
-frontier at 0.002--0.034 AUC per split across ten random splits and
-beats the constant-prevalence null baseline on log-loss; on
+frontier at 0.002--0.034 AUC per split across ten random splits and,
+with learned weights, beats the constant-prevalence baseline on
+log-loss; on
 accounting-fraud data under two temporal
 designs, pre-registered ablations find no practically useful gain from
 the context-conditioning mechanism on the pre-specified endpoint, and

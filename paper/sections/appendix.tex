@@ -7,7 +7,7 @@
     {
       "condition": ["PersistentCough", "WeightLoss"],
       "result": "LungCancerRisk",
-      "probability": 0.7,
+      "confidence": 0.7,
       "context": {"PatientAge>60": 1.2, "SmokingHistory": 1.5}
     }
   ],
@@ -19,6 +19,12 @@
 }
 \end{verbatim}
 
+The rule-value key is \texttt{confidence}, consistent with
+Section~\ref{sec:notprob}: \pla{} values are confidences, not
+probabilities. The key \texttt{probability} is accepted as a
+deprecated legacy alias for older scenario files (supplying both keys
+with different values is an error), and the distribution name
+\texttt{probabilistic-logic-agent} is likewise historical.
 Rule contexts may be flat (weights applying in every set) or nested
 (per-set weights, in which the same variable may carry different weights
 in different sets); \texttt{"context\_mode": "logit"} selects the

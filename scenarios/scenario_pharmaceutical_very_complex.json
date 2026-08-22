@@ -11,37 +11,37 @@
     {
       "condition": ["AdverseReaction", "NewDrug"],
       "result": "RecallRequired",
-      "probability": 0.7
+      "confidence": 0.7
     },
     {
       "condition": ["MultipleReports", "RegulatoryWarning"],
       "result": "RecallRequired",
-      "probability": 0.9
+      "confidence": 0.9
     },
     {
       "condition": ["RecallRequired"],
       "result": "PublicNotification",
-      "probability": 0.95
+      "confidence": 0.95
     },
     {
       "condition": ["ClinicalTrialFailure", "HighSeverityCases"],
       "result": "RecallRequired",
-      "probability": 0.85
+      "confidence": 0.85
     },
     {
       "condition": ["AdverseReaction", "ClinicalTrialFailure"],
       "result": "RegulatoryInvestigation",
-      "probability": 0.8
+      "confidence": 0.8
     },
     {
       "condition": ["RegulatoryInvestigation", "HighSeverityCases"],
       "result": "PublicNotification",
-      "probability": 0.9
+      "confidence": 0.9
     },
     {
       "condition": ["MultipleReports", "AdverseReaction"],
       "result": "RegulatoryInvestigation",
-      "probability": 0.75
+      "confidence": 0.75
     }
   ],
   "queries": [

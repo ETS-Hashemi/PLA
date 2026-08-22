@@ -55,16 +55,29 @@ class ProbSymbol:
 class ProbRule:
     def __init__(self, condition, result, probability, context=None):
         """
-        Initialize a probabilistic rule.
+        Initialize a rule carrying a base confidence.
         :param condition: List of ProbSymbols representing the rule's antecedents.
         :param result: ProbSymbol representing the rule's consequent.
-        :param probability: Base probability of the rule.
+        :param probability: Base confidence of the rule. The parameter and
+            attribute keep their historical name ``probability`` for
+            backward compatibility, but the value is a confidence, not a
+            probability (see docs/SEMANTICS.md, "What the numbers are
+            not"); ``confidence`` is the preferred accessor.
         :param context: Optional dictionary of context variables and their weights.
         """
         self.condition = condition
         self.result = result
         self.probability = probability
         self.context = context or {}
+
+    @property
+    def confidence(self):
+        """The rule's base confidence (preferred name for ``probability``)."""
+        return self.probability
+
+    @confidence.setter
+    def confidence(self, value):
+        self.probability = value
 
     def adjusted_probability(self, current_context, mode="legacy"):
         """
@@ -212,6 +225,9 @@ class ProbKB:
         fact_probs, supports = self._forward_chain()
         return {
             "query": str(query),
+            "confidence": fact_probs.get(query, 0.0),
+            # Deprecated duplicate of "confidence", kept for old callers;
+            # PLA values are confidences (docs/SEMANTICS.md).
             "probability": fact_probs.get(query, 0.0),
             "supports": supports.get(query, []),
             "all_fact_probabilities": {str(k): v for k, v in fact_probs.items()},

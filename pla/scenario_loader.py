@@ -5,13 +5,19 @@ Scenario JSON structure:
     {
       "facts": ["Fact1", ...],
       "rules": [
-        {"condition": [...], "result": "...", "probability": 0.8,
+        {"condition": [...], "result": "...", "confidence": 0.8,
          "context": <rule context>},
         ...
       ],
       "queries": ["Fact2", ...],
       "contexts": {"1": ["VarA", "VarB"], ...}        # optional
     }
+
+The rule value key is ``"confidence"`` — PLA values are confidences, not
+probabilities (docs/SEMANTICS.md, "What the numbers are not"). The legacy
+key ``"probability"`` is accepted as a deprecated alias for backward
+compatibility with older scenario files; supplying both keys with
+different values is an error.
 
 A rule's "context" takes one of two shapes:
 
@@ -156,6 +162,28 @@ def _build_context_sets(config, rule_contexts):
     return {}
 
 
+def _rule_confidence(rule, index):
+    """The rule's value under the canonical key ``"confidence"``, or the
+    deprecated legacy alias ``"probability"``; both present must agree."""
+    has_confidence = "confidence" in rule
+    has_probability = "probability" in rule
+    if has_confidence and has_probability:
+        if rule["confidence"] != rule["probability"]:
+            raise ScenarioFormatError(
+                f"Rule {index}: 'confidence' ({rule['confidence']!r}) and "
+                f"legacy 'probability' ({rule['probability']!r}) disagree; "
+                "keep only 'confidence'."
+            )
+        return rule["confidence"]
+    if has_confidence:
+        return rule["confidence"]
+    if has_probability:
+        return rule["probability"]
+    raise ScenarioFormatError(
+        f"Rule {index}: missing 'confidence' (or legacy 'probability')."
+    )
+
+
 def load_scenario(config_path):
     """Load a scenario file into a Scenario (kb, queries, context sets)."""
     try:
@@ -181,7 +209,8 @@ def load_scenario(config_path):
         shape, ctx = _classify_rule_context(rule.get("context"), index)
         condition = [ProbSymbol(c) for c in rule["condition"]]
         result = ProbSymbol(rule["result"])
-        kb.add_rule(ProbRule(condition, result, rule["probability"], context={}))
+        kb.add_rule(ProbRule(condition, result, _rule_confidence(rule, index),
+                             context={}))
         rule_contexts.append((shape, ctx))
 
     context_sets = _build_context_sets(config, rule_contexts)

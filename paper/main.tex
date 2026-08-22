@@ -46,37 +46,32 @@ with Measured Trace Fidelity}
 We present \pla{}, a rule-confidence model for domains where inherent
 interpretability is a requirement rather than a preference. \pla{}
 descends openly from MYCIN-style certainty factors: rules carry
-confidences, conjunction is the G\"odel t-norm, and co-supporting rules
-combine through a named, per-knowledge-base aggregation operator
+confidences, conjunction is the G\"odel t-norm, and co-supporting
+rules combine through a named, per-knowledge-base aggregation operator
 (noisy-OR by default, provably MYCIN's parallel-combination rule).
 Three properties distinguish it from its lineage and from modern
 statistical-relational systems: (i)~rule confidences are
-\emph{context-conditioned}, with a log-odds mode in which context
-variables contribute additive evidence weights that never saturate;
-(ii)~both rule and context weights are \emph{learnable}, on flat
-rule sets over binary facts the engine's log-odds path reduces exactly
-to logistic regression over rule firings, making maximum-likelihood
-fitting convex; and (iii)~explanations are \emph{traces whose fidelity
-is measured}, with rule-level deletion metrics against reversed- and
-random-ranking controls. Convergence of the monotone aggregators is
-proved and corroborated by property-based tests, the entire engine is
-a few hundred lines of dependency-free Python, and every experimental
-number regenerates from committed scripts with bootstrap confidence
-intervals. On the real ULB
+\emph{context-conditioned}, through a log-odds mode whose additive
+evidence weights never saturate; (ii)~rule and context weights are
+\emph{learnable} --- on flat rule sets over binary facts the log-odds
+path reduces exactly to logistic regression over rule firings, so
+maximum-likelihood fitting is convex; and (iii)~explanations are
+\emph{traces whose fidelity is measured}, by rule-level deletion
+against reversed- and random-ranking controls. Convergence of the
+monotone aggregators is proved, the engine is a few hundred lines of
+dependency-free Python, and every reported number regenerates from
+committed scripts with bootstrap confidence intervals. On the ULB
 credit-card data an 11-rule model averages AUC $0.966$ across ten
 random splits, $0.002$--$0.034$ per split below the interpretable
-accuracy frontier led by EBM, and beats the constant-prevalence
-null baseline on log-loss. On accounting-fraud data under two temporal
-designs, including one built around the 2003 SOX regime change,
-pre-registered ablations backed by paired-bootstrap difference
-intervals find no practically useful improvement from context
-conditioning on the pre-specified AUC endpoint; a consistent post-hoc
-average-precision gain on the credit-card data awaits confirmation,
-and we report the negative as such. The demonstrated value of learning is
-calibration, bought, the average-precision analysis shows, at an
-early-ranking cost whose paired-bootstrap confidence interval excluded
-zero, and the deliverable is the measured, counterfactual-bearing
-trace.
+accuracy frontier led by EBM, and its learned weights beat the
+constant-prevalence baseline on log-loss. On accounting-fraud data
+under two temporal designs, pre-registered ablations backed by
+paired-bootstrap difference intervals find no practically useful
+improvement from context conditioning on the pre-specified AUC
+endpoint; a consistent post-hoc average-precision gain on the
+credit-card data awaits confirmation, and we report the negative as
+such. Learning buys calibration at a measured early-ranking cost; the
+deliverable is the counterfactual-bearing trace.
 \end{abstract}
 
 \begin{keyword}

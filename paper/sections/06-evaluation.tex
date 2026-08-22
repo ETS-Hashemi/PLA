@@ -40,12 +40,18 @@ learning rate $1.0$). \texttt{learned no-context} is the pre-registered
 ablation: identical training with context variables removed, isolating
 the context mechanism.
 
-\paragraph{Baselines} Two interpretable competitors of comparable but
-not identical complexity, a depth-4 class-balanced decision tree
+\paragraph{Baselines} Three interpretable competitors of comparable
+but not identical complexity: a depth-4 class-balanced decision tree
 (at most 15 internal splits, against \pla{}'s 11 rules over the same
-propositions) and an Explainable Boosting Machine at library defaults
+propositions); an Explainable Boosting Machine at library defaults
 (one shape function per continuous feature: a larger
-model)~\cite{lou2013,nori2019}, plus logistic
+model)~\cite{lou2013,nori2019}; and --- the direct rule-model
+competitor --- RuleFit~\cite{friedman2008} as implemented in
+\texttt{imodels}~\cite{singh2021}, configured as a pure rule ensemble
+(\texttt{max\_rules}=30, no linear terms, fixed seed), which mines its
+own thresholds from the raw features, so it is the learned-rule
+counterpart to \pla{}'s mined-and-weighted rules. To these we add
+logistic
 regression (raw features, \texttt{max\_iter}=2000), gradient boosting
 (scikit-learn histogram GBT) both untuned and class-weighted, ProbLog
 executing \pla{}'s own rules under distribution semantics (per-example
@@ -353,6 +359,43 @@ fold with the facts untouched, because fact deletion can deactivate
 several overlapping rules at once (deleting one antecedent of a pair
 rule also silences the matching single rules), which inflates
 fact-level scores; both levels are in the generated files.
+
+\paragraph{Definitions} Both metrics are the deletion-based
+\emph{comprehensiveness} and \emph{sufficiency} of the ERASER
+benchmark~\cite{deyoung2020}, read under the
+faithfulness-not-plausibility framing of~\cite{jacovi2020}, with the
+token rationale replaced by the trace's top-ranked rule. Write
+$s(\cdot)$ for the model's score, $F$ for an example's fact set, and
+$A_1$ for the antecedent set of the trace's top-ranked rule. The
+fact-level (ERASER-style) metrics delete or keep that rule's
+\emph{facts}:
+\begin{equation}
+\mathrm{comp}_{\mathrm{fact}} = s(F) - s(F \setminus A_1),
+\qquad
+\mathrm{suff}_{\mathrm{fact}} = s(F) - s(F \cap A_1).
+\label{eq:fidelity-fact}
+\end{equation}
+The rule-level metrics instead remove the top-ranked \emph{rule} $r_1$
+from the aggregation fold with $F$ untouched: writing
+$s_{-r}$ for the score recomputed without rule $r$ and $s_{r}$ for the
+score from rule $r$ alone (plus the model's prior term, when it has
+one),
+\begin{equation}
+\mathrm{comp}_{\mathrm{rule}} = \tau\bigl(s(F)\bigr) - \tau\bigl(s_{-r_1}(F)\bigr),
+\qquad
+\mathrm{suff}_{\mathrm{rule}} = \tau\bigl(s(F)\bigr) - \tau\bigl(s_{r_1}(F)\bigr),
+\label{eq:fidelity-rule}
+\end{equation}
+where $\tau$ is the identity on the probability scale or the clipped
+log-odds map $\tau(p) = \logit\bigl(\min(\max(p,\varepsilon),
+1-\varepsilon)\bigr)$ with $\varepsilon = 10^{-9}$. Each metric is
+averaged over the $n$ test examples with at least one fired rule
+(no-fire examples have no trace to evaluate). Comprehensiveness is
+better higher (the top-ranked factor is load-bearing); sufficiency is
+better nearer zero (the top factor alone approximately reproduces the
+score). These implementations are
+\texttt{pla/fidelity.py}, and the numbers below regenerate from
+\texttt{scripts/run\_fidelity.py}.
 
 \begin{table}[t]
 \centering

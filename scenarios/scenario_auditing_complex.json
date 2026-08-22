@@ -9,17 +9,17 @@
     {
       "condition": ["HighRiskClient", "LateSubmission"],
       "result": "AuditFlag",
-      "probability": 0.8
+      "confidence": 0.8
     },
     {
       "condition": ["UnverifiedDocuments", "LargeDiscrepancy"],
       "result": "AuditFlag",
-      "probability": 0.9
+      "confidence": 0.9
     },
     {
       "condition": ["AuditFlag"],
       "result": "InvestigationRequired",
-      "probability": 0.95
+      "confidence": 0.95
     }
   ],
   "queries": [

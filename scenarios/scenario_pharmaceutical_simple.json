@@ -7,7 +7,7 @@
     {
       "condition": ["AdverseReaction", "NewDrug"],
       "result": "RecallRequired",
-      "probability": 0.7
+      "confidence": 0.7
     }
   ],
   "queries": [

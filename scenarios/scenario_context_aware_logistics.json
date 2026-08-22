@@ -8,7 +8,7 @@
     {
       "condition": ["DelayedShipment", "HighPriorityOrder"],
       "result": "EscalationRequired",
-      "probability": 0.8,
+      "confidence": 0.8,
       "context": {
         "DriverShortage": 0.9,
         "WeatherDisruption": 0.7
@@ -17,7 +17,7 @@
     {
       "condition": ["EscalationRequired", "TrafficCongestion"],
       "result": "CustomerNotification",
-      "probability": 0.95,
+      "confidence": 0.95,
       "context": {
         "WarehouseIssue": 0.8
       }

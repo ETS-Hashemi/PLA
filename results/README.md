@@ -27,7 +27,8 @@ Headline findings (full framing and caveats in `paper/`):
   model tracks it at 0.002–0.034 per split (static 0.9660 ± 0.0076,
   learned 0.9602 ± 0.0088), CIs overlapping; static AP retains most of
   the frontier's early ranking power (0.67 ± 0.04 vs. LR 0.76 ± 0.03).
-- **Learning is a measured trade.** MLE beats the constant-prevalence
+- **Learning is a measured trade.** On credit card, MLE beats the
+  constant-prevalence
   null baseline on log-loss (0.0113 vs. 0.0127; the baseline row appears in every
   table, and it scores ECE 0.0000 — equal-width ECE is a blunt
   instrument at these prevalences) while average precision pays: an AP

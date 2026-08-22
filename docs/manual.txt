@@ -70,7 +70,7 @@ Body:
   "scenario": "oncology.json",
   "query": "CancerConfirmed"
 }
-Returns JSON: {"probability": 0.8075, "explanation": "..."}
+Returns JSON: {"confidence": 0.8075, "explanation": "..."}
 
 11. Command-Line Interface (CLI) Guide
 Run a scenario:
