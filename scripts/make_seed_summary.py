@@ -20,7 +20,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 
 MODELS = ["logistic_regression", "ebm_interpretml", "gradient_boosting_balanced",
-          "pla_static", "pla_learned", "pla_learned_noctx"]
+          "rulefit", "pla_static", "pla_learned", "pla_learned_noctx"]
 
 
 def _seed_of(path):
