@@ -91,11 +91,15 @@ def _experiment_table(csv_name, with_ece=True, subset_block=True):
 
 
 def _fidelity_table(level="rules", model="pla_static"):
-    """Rule-level deletion for the static model (the genuinely tested
-    heuristic ranking): trace comprehensiveness/sufficiency plus the
-    paired-bootstrap Delta against BOTH controls. The learned model's
-    rule ranking is exact by construction on the log-odds scale, so its
-    headline lives in the text; all rows are in the generated CSVs."""
+    """Rule-level deletion for the static model, read as
+    implementation-concordance validation: in the flat crisp designs
+    the precision ranking is provably the exact deletion ranking
+    (s - s_{-i} = p_i * prod_{j!=i}(1-p_j), monotone in p_i within a
+    fired set), so these rows check pipeline-vs-algebra agreement.
+    Trace comprehensiveness/sufficiency plus the paired-bootstrap
+    Delta against BOTH controls; the genuinely fallible test is the
+    chained study (scripts/run_fidelity_chained.py). All rows are in
+    the generated CSVs."""
     lines = [
         "\\begin{tabular}{lrrllr}",
         "\\toprule",

@@ -62,16 +62,21 @@ confidence intervals, and caveats in [`results/`](results/README.md) and
   rank later frauds near chance while raw-ratio logistic regression
   reaches 0.68–0.70 — reweighting (context-conditioned or otherwise)
   cannot rescue antecedents that stopped being informative.
-- **Traces are measurably faithful — in the internal sense, measured
-  properly.** Rule-level deletion (facts untouched, no
-  overlapping-antecedent confound) beats reversed *and* random
-  re-ranking controls on all four datasets with paired CIs excluding
-  zero; the learned model's rule ranking is exact by construction on
-  the log-odds scale (its per-rule contribution *is* z_r —
-  unit-tested). The generated case study walks one real fraud through
+- **Trace fidelity, with its exactness boundary drawn honestly.** In
+  the flat experiments both models' rankings are provably the exact
+  deletion ranking (noisy-OR gives s − s₋ᵢ = pᵢ·Π(1−pⱼ), monotone in
+  pᵢ), so the deletion tables there are implementation-concordance
+  checks — and they pass everywhere with paired CIs excluding zero.
+  The genuinely fallible case is measured too: across 20 seeded
+  chained programs, the local candidate ranking names the most
+  load-bearing rule only 32.4% of the time (chance 25.8%) and captures
+  ~49% of the oracle deletion impact — so for chained conclusions the
+  artifact to trust is the engine's exported deletion counterfactual
+  (leave-one-rule-out), not raw candidate magnitudes. The generated
+  case study walks one real fraud through
   the engine — 11 rules fire, noisy-OR folds to 0.4929 against a
-  0.0017 base rate — with a leave-one-rule-out table none of the
-  baselines produce.
+  0.0017 base rate — with exactly that leave-one-rule-out table, which
+  none of the baselines produce.
 
 One engineering lesson worth advertising: **keep the intercept.** Without
 the standard logistic bias term, additive log-odds pooling of
@@ -131,7 +136,7 @@ curl -X POST -H "Content-Type: application/json" \
      -d '{"query": "LungCancerRisk"}' http://127.0.0.1:5000/query
 ```
 
-Run the tests (101 collected; CI runs them on Python 3.9–3.12, where one
+Run the tests (104 collected; CI runs them on Python 3.9–3.12, where one
 network-dependent download test skips itself):
 
 ```bash
@@ -275,7 +280,7 @@ section are machine-verified by `tests/test_related_work_claims.py`.
 | `pla/` | The engine: `prob.py`, `kb.py`, `engine.py`, `learn.py`, `pipeline.py`, `fidelity.py`, `metrics.py`, scenario loader, CLI, REST API |
 | `scenarios/` | 34 JSON scenarios across audit, medical, logistics, pharma domains |
 | `scripts/` | Data fetching, rule mining, experiments, baselines, fidelity, case study — everything that generates `results/` |
-| `tests/` | 101-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
+| `tests/` | 104-test pytest suite (semantics, property-based convergence, learning, claim verification), run in CI on Python 3.9–3.12 |
 | `examples/` | Runnable demos that generate every number quoted in this README |
 | `data/` | Dataset cache (gitignored) + provenance README |
 | `results/` | Generated experiment, fidelity, and case-study tables (byte-reproducible) |

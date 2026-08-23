@@ -364,17 +364,35 @@ Section~\ref{sec:discussion} draws the drift lesson.
 is generated from the model's own rule computation, so no deletion
 metric here can certify external explanation quality; what it can
 certify, and what a bug would break, is that the \emph{exported
-ranking} matches what actually moves the score. For the learned model
-that match is exact by construction on the log-odds scale: the
-telescoped path of Section~\ref{sec:learning} makes rule $r$'s
-contribution identically $z_r$, so its rule-level log-odds
-comprehensiveness \emph{equals} the trace's top score (a unit test
-asserts the identity). The genuinely falsifiable measurements are
-therefore (i) the static model's, whose precision ranking is a
-heuristic that could have failed, and (ii) the margins over two
-controls that re-rank the \emph{same fired rules}: reversed
-(worst-first) and a deterministic random ordering. We report
-\emph{rule-level} deletion, the top-ranked rule is removed from the
+ranking} matches what actually moves the score. In the flat
+experiments of Tables~\ref{tab:headtohead}--\ref{tab:sox} that match
+is exact for \emph{both} models, by algebra rather than by
+measurement. For the learned model the telescoped path of
+Section~\ref{sec:learning} makes rule $r$'s log-odds contribution
+identically $z_r$ (a unit test asserts the identity). For the static
+model, noisy-OR over a fired set with candidate values $c_j$ gives
+$s = 1 - \prod_j (1 - c_j)$ and
+\begin{equation}
+s - s_{-i} \;=\; c_i \prod_{j \ne i} (1 - c_j)
+\;=\; \frac{c_i}{1 - c_i} \prod_{j} (1 - c_j),
+\label{eq:noisyor-deletion}
+\end{equation}
+which is strictly increasing in $c_i$ within a fixed fired set (and
+any strictly monotone rescaling, including the clipped logit,
+preserves the ranking); with crisp facts the candidates \emph{are}
+the empirical precisions, so ranking rules by precision provably
+ranks them by deletion impact. An earlier draft called the static
+ranking a heuristic that could have failed; under these experimental
+conditions, Eq.~\eqref{eq:noisyor-deletion} shows it could not have.
+Table~\ref{tab:fidelity} is therefore read as
+\emph{implementation-concordance validation}: it checks that the
+shipped pipeline computes what the algebra dictates, with the
+reversed (worst-first) and deterministic random re-rankings of the
+same fired rules calibrating the metric's discriminative range, not
+supplying independent evidence of fidelity. The genuinely fallible
+case needs rankings the algebra does not fix, which is what the
+chained study below provides. We report \emph{rule-level} deletion,
+the top-ranked rule is removed from the
 fold with the facts untouched, because fact deletion can deactivate
 several overlapping rules at once (deleting one antecedent of a pair
 rule also silences the matching single rules), which inflates
@@ -413,14 +431,27 @@ averaged over the $n$ test examples with at least one fired rule
 (no-fire examples have no trace to evaluate). Comprehensiveness is
 better higher (the top-ranked factor is load-bearing); sufficiency is
 better nearer zero (the top factor alone approximately reproduces the
-score). These implementations are
+score). Deletion-based faithfulness evaluation carries a known
+out-of-distribution critique: perturbed inputs can leave the data
+manifold and distort the measurement~\cite{zheng2025}. The rule-level
+variant is the less exposed instrument here, since deletion happens
+inside the aggregation fold rather than in input space (any fact
+subset is a valid input to a rule engine, and the rule-level metric
+does not alter the facts at all); the fact-level variant inherits the
+standard caveat alongside its overlap confound. These implementations
+are
 \texttt{pla/fidelity.py}, and the numbers below regenerate from
 \texttt{scripts/run\_fidelity.py}.
 
 \begin{table}[t]
 \centering
-\caption{Rule-level trace fidelity for the static model: the top-ranked
-rule is removed from the noisy-OR fold, facts untouched.
+\caption{Rule-level \emph{implementation-concordance} validation for
+the static model: the top-ranked
+rule is removed from the noisy-OR fold, facts untouched. In this flat
+crisp setting the precision ranking is provably the exact deletion
+ranking (Eq.~\ref{eq:noisyor-deletion}), so these rows check that the
+pipeline computes what the algebra dictates rather than test a
+fallible ranking (the chained study in the text provides that test).
 Comprehensiveness (higher is better) and sufficiency (closer to zero is
 better) for the trace ranking, with seeded paired-bootstrap 95\% CIs of
 the mean comprehensiveness margin over the reversed control and over a
@@ -443,9 +474,12 @@ accounting, SOX & 11{,}642 & 0.0079 & 0.0013 [0.0013, 0.0014] & 0.0007 [0.0007, 
 }
 \end{table}
 
-Table~\ref{tab:fidelity} reports the static model. Its precision
-ranking beats both controls on every dataset, with paired-bootstrap
-margins whose intervals exclude zero throughout. The rule-level
+Table~\ref{tab:fidelity} behaves exactly as
+Eq.~\eqref{eq:noisyor-deletion} requires: the trace ranking beats both
+controls on every dataset, with paired-bootstrap margins whose
+intervals exclude zero throughout --- concordance between pipeline and
+algebra, and a calibration of how large the margins run when the
+ranking is exact. The rule-level
 numbers also quantify the confound the design removes: fact-level
 comprehensiveness on credit card is $0.0202$, inflated about seven
 percent above the rule-level $0.0188$ by deletions that silence
@@ -457,6 +491,37 @@ data ($0.0002$ at $n{=}48{,}630$), consistent with calibration,
 uninformative as a measurement, which is why the log-odds scale is the
 right instrument for it. Every level, scale, and control combination
 is in the generated files.
+
+\paragraph{The chained case: where the local ranking genuinely fails}
+Chained programs void the algebra: deleting an upstream rule
+propagates through a re-run fixpoint, so a rule's local candidate
+(toward its own head) carries no guarantee about its impact on the
+target. We measure exactly this on twenty independently seeded
+three-step programs (sixteen rules each: facts $\to$ four
+intermediates $\to$ a deeper node $\to$ target, with graded antecedent
+minima; $400$ sampled examples per program), computing every fired
+rule's true target impact by brute-force deletion with a full fixpoint
+re-run, and comparing the trace's candidate ranking against that
+oracle and both controls. The verdict is a measured negative. Pooled
+over $6{,}348$ scored examples, the trace's top pick is the oracle
+rule on $32.4\%$ of examples against a tie-aware chance baseline of
+$25.8\%$; it captures $49\%$ of the oracle's deletion impact ($0.1597$
+vs.\ $0.3238$); and while it beats the reversed control overall
+($+0.0767$ $[0.0708, 0.0814]$), its pooled margin over the random
+control is small ($+0.0270$ $[0.0222, 0.0309]$) and unstable across
+programs: the per-program paired interval lies above zero in nine of
+twenty programs and \emph{below} zero in seven. The mechanism is
+structural, not incidental: in a chained program the most load-bearing
+rule is typically an upstream, non-redundant one --- the single point
+of failure for an intermediate the target relies on --- and local
+support magnitude does not identify it. The design consequence is one
+the engine already implements: within a single fold, candidates are
+exact attributions (Eq.~\ref{eq:noisyor-deletion}); across folds they
+are not importance scores, and the trustworthy attribution for a
+chained conclusion is the deletion counterfactual itself, which the
+engine computes exactly and ships as the leave-one-rule-out table of
+the case study below. Per-program rows are in the generated files
+(\texttt{scripts/run\_fidelity\_chained.py}).
 
 \subsection{Case study: one real fraud, traced}\label{sec:casestudy}
 

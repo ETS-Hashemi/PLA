@@ -20,22 +20,26 @@ bib() { bibtex "$1" > /dev/null || [ $? -lt 2 ]; }  # bibtex exits 1 on warnings
  latex main.tex && bib main && latex main.tex && latex main.tex
  latex workshop.tex && latex workshop.tex
  latex highlights.tex
- latex cover_letter.tex)
+ latex cover_letter.tex
+ latex supplementary.tex && latex supplementary.tex)
 
 mkdir -p dist
 rm -f dist/overleaf_package.zip dist/submission_package.zip
 
 (cd paper && zip -q -r ../dist/overleaf_package.zip \
     main.tex workshop.tex highlights.tex cover_letter.tex \
+    supplementary.tex \
     sections figures references.bib README.md)
 
 staging=$(mktemp -d)
 cp paper/main.pdf "$staging/manuscript.pdf"
 cp paper/highlights.pdf "$staging/highlights.pdf"
 cp paper/cover_letter.pdf "$staging/cover_letter.pdf"
+cp paper/supplementary.pdf "$staging/supplementary.pdf"
 cp dist/overleaf_package.zip "$staging/source.zip"
 (cd "$staging" && zip -q -r submission_package.zip \
-    manuscript.pdf highlights.pdf cover_letter.pdf source.zip)
+    manuscript.pdf highlights.pdf cover_letter.pdf supplementary.pdf \
+    source.zip)
 mv "$staging/submission_package.zip" dist/
 rm -rf "$staging"
 

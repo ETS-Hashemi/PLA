@@ -14,9 +14,13 @@ descent decreases it monotonically for a small enough learning rate.
 
 The learner is exactly tied to the engine: ``to_prob_kb()`` exports the
 learned parameters as a ProbKB, and predictions agree with ``kb.query``
-(see tests/test_learning.py). When no rule fires the engine reports 0.0;
-the learner uses a small floor instead so the loss stays finite, and such
-examples contribute no gradient.
+(see tests/test_learning.py). When no rule fires the engine reports 0.0,
+and the pure interceptless logistic model would report sigmoid(0) = 0.5;
+the interceptless learner instead uses a small out-of-model floor
+(NO_FIRE_FLOOR, an implementation convention, not a prediction of the
+model class) so rare-event loss stays finite, and such examples
+contribute no gradient. With use_bias=True (every reported experiment)
+no convention is involved: the model itself scores sigmoid(b).
 
 Training data format: each example is
 ``({"active", "propositions"}, {"active", "context", "vars"}, label01)``.

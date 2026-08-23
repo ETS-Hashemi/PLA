@@ -80,9 +80,13 @@ interpretable ones, produce this artifact: a decision tree yields a
 path, EBM yields shape functions, but neither names weighted domain
 rules whose provenance is an auditable training-set measurement. The
 fidelity results license trusting these traces in the internal sense
-measured in Section~\ref{sec:evaluation}: the exported ranking is the
-computation's own, exactly so for the learned model on the log-odds
-scale, and better than reversed and random re-rankings for the static
-heuristic; whether such traces improve human audit decisions is the
+measured in Section~\ref{sec:evaluation}, with a boundary the chained
+study makes explicit: in the flat experiments the
+exported ranking is the computation's own by algebra, for both
+models; in chained programs the local candidate ordering is barely
+better than chance at naming the most load-bearing rule, so there the
+artifact to trust is the deletion counterfactual itself --- the
+leave-one-rule-out table the engine exports --- not the raw candidate
+magnitudes; whether such traces improve human audit decisions is the
 separate, unanswered question Section~\ref{sec:limitations} defers to
 a human-subject study.

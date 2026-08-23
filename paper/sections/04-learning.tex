@@ -57,12 +57,18 @@ $0 < \eta < 2/\bar{L} = 8/23 \approx 0.348$ provably decreases the
 loss each epoch. Our runs use $\eta = 1.0$: above that conservative
 bound, and covered by the guard, which never fired in any reported
 run; every reported trajectory is therefore monotone by construction
-and re-asserted per epoch by the test suite. Zero-rule examples behave
-differently
-with and without the intercept: interceptless, they receive a fixed
-small floor and contribute no gradient; with the intercept they score
-$\sigma(b)$ and train the intercept alone, the base-rate anchoring
-whose necessity the next paragraph demonstrates.
+and re-asserted per epoch by the test suite. Zero-rule examples mark
+the one place the implementation deliberately steps outside
+Eq.~\eqref{eq:lr}: the pure reduction with $b = 0$ scores an empty
+fired set at $\sigma(0) = \tfrac12$, absurd on rare-event data, so the
+interceptless configuration instead assigns a fixed out-of-model floor
+($10^{-3}$, an implementation convention documented as such, not a
+prediction of the model class) and excludes those examples from the
+gradient. With the intercept --- the configuration every reported
+experiment uses --- no convention is needed: Eq.~\eqref{eq:lr} itself
+scores the empty set at $\sigma(b)$, and the example trains the
+intercept alone, the base-rate anchoring whose necessity the next
+paragraph demonstrates.
 
 \paragraph{The intercept matters} The reduction makes one classical
 requirement visible the hard way. On rare-positive data, rules that are

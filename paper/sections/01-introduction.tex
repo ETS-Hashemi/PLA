@@ -5,7 +5,7 @@ person \emph{why} it concluded something is often unusable regardless of
 its accuracy. Regulators demand justifications for individual decisions,
 auditors must defend every flag they raise, and the case for inherently
 interpretable models over post-hoc explanations of black boxes in
-high-stakes settings is well established~\cite{rudin2019}. At the same
+high-stakes settings is well established~\cite{rudin2019,dimarino2025}. At the same
 time, the systems that offer strong probabilistic semantics for logical
 knowledge, probabilistic logic programming and statistical relational
 learning (Section~\ref{sec:related}), present two obstacles to exactly
@@ -14,7 +14,13 @@ inference) is opaque to the domain practitioner who must sign off on a
 decision, and their rule weights are fixed at inference time, so a rule's
 reliability cannot respond to the operational context in which it fires.
 
-\pla{} explores the opposite corner of the design space. It is a
+\pla{}\footnote{\pla{} abbreviates \emph{Probabilistic Logic Agent},
+the project's original name, kept for continuity with the released
+package (\texttt{probabilistic-logic-agent}). As
+Section~\ref{sec:notprob} makes precise, the values the engine
+manipulates are confidences, not probabilities of a distribution over
+possible worlds; the name records the lineage, not a semantic claim.}
+explores the opposite corner of the design space. It is a
 rule-confidence engine simple enough to trace by hand, a few hundred
 lines of dependency-free Python, that is honest about \emph{not} being
 a probability distribution, and that invests the saved complexity in
@@ -47,21 +53,27 @@ demands.
   and across three real-data designs, pre-registered ablations show no
   practically useful gain on the pre-specified endpoint, a negative
   we report per its kill criterion (Section~\ref{sec:evaluation}).
-\item \textbf{Measured explanation fidelity}
+\item \textbf{Measured explanation fidelity, with its exactness
+  boundary drawn honestly}
   (Section~\ref{sec:evaluation}). Rule traces are the engine's primary
   output, and their internal fidelity is quantified rather than
   asserted: rule-level deletion metrics in the comprehensiveness /
   sufficiency family of ERASER~\cite{deyoung2020} (facts untouched,
-  avoiding the
-  overlapping-antecedent confound) against reversed and random
-  re-ranking controls, on probability and log-odds scales, with the
-  learned model's rule ranking shown to be the \emph{exact} attribution
-  on the log-odds scale by construction.
+  avoiding the overlapping-antecedent confound), on probability and
+  log-odds scales. In the flat crisp experiments \emph{both} models'
+  rankings are provably the exact deletion ranking, so those tables
+  are reported as implementation-concordance checks; a chained
+  multi-step study, where the local candidate ranking is genuinely
+  fallible, then measures it against a brute-force deletion oracle
+  and finds it barely above chance --- a measured boundary that
+  scopes trace trust to single-fold conclusions and hands chained
+  ones to the engine's exported deletion counterfactuals.
 \item \textbf{A reproducibility discipline}
   (Section~\ref{sec:implementation}). Every number reported in this
   paper regenerates byte-for-byte from committed scripts; claims about
   competitor capabilities are themselves verified by tests against the
-  installed competitor packages; and \ref{app:provenance} maps
+  installed competitor packages; and the supplementary material
+  (Table~S1) maps
   each substantive claim to the artifact that verifies it.
 \end{enumerate}
 

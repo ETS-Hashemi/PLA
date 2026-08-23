@@ -13,8 +13,15 @@ Interface: ``predict(facts, context) -> prob`` and
 ``attributions(facts, context) -> [(antecedents, score), ...]`` ranked most
 important first, fired rules only. A deliberately wrong ranking (e.g.
 reversed) must score worse on comprehensiveness than the faithful one —
-that contrast is what makes the metric informative, and is what the tests
-check.
+that contrast is what the tests check.
+
+Exactness caveat: in a flat single-fold noisy-OR setting, deleting rule i
+changes the score by s - s_{-i} = c_i * prod_{j!=i}(1 - c_j), which is
+monotone in the candidate c_i within a fired set — so ranking by candidate
+(precision, for crisp facts) is provably the exact deletion ranking, and
+these metrics there validate implementation concordance rather than test a
+fallible ranking. The genuinely fallible, multi-step case is exercised by
+``scripts/run_fidelity_chained.py``.
 
 Fact deletion can deactivate several overlapping rules at once, so this
 module also provides **rule-level** deletion (``evaluate_rule_fidelity``):

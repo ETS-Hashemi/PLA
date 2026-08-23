@@ -32,13 +32,16 @@
 \item \textbf{What fidelity metrics can and cannot show.} The trace is
   generated from the same computation it explains, so deletion metrics
   here validate \emph{internal consistency}, that the exported
-  ranking matches what actually moves the score, against reversed and
-  random controls, rather than any external notion of explanation
-  quality. For the learned model the rule ranking is exact by
-  construction on the log-odds scale (its per-rule contribution
-  \emph{is} $z_r$), so the informative measurements are the static
-  model's, where ranking by empirical precision is a genuine heuristic,
-  and the controls' margins. Absolute-probability deltas additionally
+  ranking matches what actually moves the score, rather than any
+  external notion of explanation quality. In the flat crisp
+  experiments that consistency is exact by algebra for \emph{both}
+  models --- the learned per-rule contribution is $z_r$ by
+  construction, and Eq.~\ref{eq:noisyor-deletion} fixes the static
+  deletion ranking --- so those tables are implementation-concordance
+  checks, not tests of a fallible ranking; the chained study is the
+  only setting reported here where the trace ranking can genuinely
+  fail, and its oracle-agreement rate is the honest headline.
+  Absolute-probability deltas additionally
   compress for calibrated rare-event models
   (Section~\ref{sec:evaluation}); the rule-level and log-odds variants
   reported there are the appropriate instruments.
