@@ -3,7 +3,7 @@
 \paragraph{Why eleven rules nearly match logistic regression on
 credit-card fraud} The ULB features are PCA components; the fraud
 signal concentrates in the tails of a handful of them, and quantile
-propositions capture exactly those tails. Where the signal is
+propositions capture those same tails. Where the signal is
 tail-shaped, a small rule set loses little AUC (and a measured, bounded
 slice of early precision) while buying full traceability. The RuleFit
 comparison prices the threshold choice itself: mined continuous
@@ -29,7 +29,7 @@ static rules, a difference whose paired-bootstrap confidence interval
 excluded zero on nine of the ten splits. The pattern is consistent with maximum
 likelihood sharing credit among correlated, co-firing rules ---
 shrinking redundant weights compresses the score separation among the
-multi-rule examples at the very top of the ranking, exactly the region
+multi-rule examples at the very top of the ranking, the region
 AP weighs most, and where empirical-precision noisy-OR, monotone in the
 fired set, keeps its lead. The deployment guidance follows the
 decision, not a single metric: where scores feed thresholds,
@@ -85,8 +85,8 @@ study makes explicit: in the flat experiments the
 exported ranking is the computation's own by algebra, for both
 models; in chained programs the local candidate ordering is barely
 better than chance at naming the most load-bearing rule, so there the
-artifact to trust is the deletion counterfactual itself --- the
-leave-one-rule-out table the engine exports --- not the raw candidate
+artifact to trust is the deletion counterfactual itself (the
+leave-one-rule-out table the engine exports), not the raw candidate
 magnitudes; whether such traces improve human audit decisions is the
 separate, unanswered question Section~\ref{sec:limitations} defers to
 a human-subject study.

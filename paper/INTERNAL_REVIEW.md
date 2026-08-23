@@ -165,3 +165,18 @@ Also in this round (author request): a footnote at the first use of
 \pla{} states the name abbreviates *Probabilistic Logic Agent*, kept
 for continuity with the released package, recording lineage rather
 than a semantic claim.
+
+## Round 8 — prose naturalness pass (author request)
+
+Style-only edit across the manuscript, workshop cut, and READMEs: no
+claim, number, citation, table cell, or equation changed. What moved:
+overused intensifiers thinned ("exactly" 22 → 9, keeping only identity
+claims such as "reduces exactly to logistic regression"; "genuinely"
+0; "deliberately" and "provably" kept only in formal register),
+em-dash interpolations converted to commas, parentheses, or separate
+sentences (14 → 1, matching the author's own earlier punctuation
+preference), repeated signature phrasings varied ("drawn honestly" →
+"made explicit", "the honest headline" → "the number to quote",
+"measured negative" → "clear negative", "ships" → "exports"), and two
+"exactly why … exactly why" / double-"exactly" constructions
+rewritten. Diff is reviewable as prose-only.

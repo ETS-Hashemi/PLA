@@ -45,8 +45,8 @@ but not identical complexity: a depth-4 class-balanced decision tree
 (at most 15 internal splits, against \pla{}'s 11 rules over the same
 propositions); an Explainable Boosting Machine at library defaults
 (one shape function per continuous feature: a larger
-model)~\cite{lou2013,nori2019}; and --- the direct rule-model
-competitor --- RuleFit~\cite{friedman2008} as implemented in
+model)~\cite{lou2013,nori2019}; and, as the direct rule-model
+competitor, RuleFit~\cite{friedman2008} as implemented in
 \texttt{imodels}~\cite{singh2021}, configured as a pure rule ensemble
 (\texttt{max\_rules}=30, no linear terms, fixed seed), which mines its
 own thresholds from the raw features, so it is the learned-rule
@@ -90,7 +90,7 @@ calibration decisively (log-loss $0.3420$ vs.\ $1.0908$); both trail the
 raw-feature models, as expected when the true signal is linear in the
 continuous features and discretization discards most of it, a tax
 that average precision magnifies ($0.8470$ for logistic regression vs.\
-$0.3139$ learned). RuleFit sits exactly where this reading predicts:
+$0.3139$ learned). RuleFit lands where this reading predicts:
 its self-mined continuous thresholds recover part of the tax (AUC
 $0.8294$), above every fixed-decile propositional model and below
 every raw-feature one. The ProbLog
@@ -219,7 +219,7 @@ score compression in the learned model's top bins: learned AP
 averages $0.5534 \pm 0.0307$ across the ten splits against the static
 rules' $0.6709 \pm 0.0382$, a loss whose paired-bootstrap confidence
 interval excluded zero on nine of ten splits (per-split intervals in
-the generated \texttt{\_diffs} files) and one concentrated exactly
+the generated \texttt{\_diffs} files) and one concentrated just
 where an audit queue operates. Section~\ref{sec:discussion}
 weighs this trade. Fourth, this study surfaced a model-class
 pathology, preserved pre-fix in the repository's history: without the
@@ -351,9 +351,10 @@ data, paired interval excluding zero on all ten splits,
 $\Delta$AP $+0.038$ to $+0.096$, and absent under both drift designs
 --- requires confirmation on new data before it can count as a
 benefit.} We flag the tension openly: AP is the metric this paper
-elsewhere ties to audit queues, which is exactly why the credit-card
-AP result is a hypothesis worth confirming rather than a footnote ---
-and exactly why, being post hoc, it cannot revise a verdict defined on
+elsewhere ties to audit queues. That makes the credit-card
+AP result a hypothesis worth confirming rather than a footnote, and
+it is also why, being post hoc, the result cannot revise a verdict
+defined on
 the pre-registered endpoint. The demonstrated value of learning lies
 in calibration, not in context adjustment;
 Section~\ref{sec:discussion} draws the drift lesson.
@@ -389,8 +390,8 @@ Table~\ref{tab:fidelity} is therefore read as
 shipped pipeline computes what the algebra dictates, with the
 reversed (worst-first) and deterministic random re-rankings of the
 same fired rules calibrating the metric's discriminative range, not
-supplying independent evidence of fidelity. The genuinely fallible
-case needs rankings the algebra does not fix, which is what the
+supplying independent evidence of fidelity. A real test needs
+rankings the algebra does not fix, which is what the
 chained study below provides. We report \emph{rule-level} deletion,
 the top-ranked rule is removed from the
 fold with the facts untouched, because fact deletion can deactivate
@@ -474,11 +475,12 @@ accounting, SOX & 11{,}642 & 0.0079 & 0.0013 [0.0013, 0.0014] & 0.0007 [0.0007, 
 }
 \end{table}
 
-Table~\ref{tab:fidelity} behaves exactly as
+Table~\ref{tab:fidelity} behaves as
 Eq.~\eqref{eq:noisyor-deletion} requires: the trace ranking beats both
 controls on every dataset, with paired-bootstrap margins whose
-intervals exclude zero throughout --- concordance between pipeline and
-algebra, and a calibration of how large the margins run when the
+intervals exclude zero throughout. This is concordance between
+pipeline and
+algebra, and it calibrates how large the margins run when the
 ranking is exact. The rule-level
 numbers also quantify the confound the design removes: fact-level
 comprehensiveness on credit card is $0.0202$, inflated about seven
@@ -492,17 +494,17 @@ uninformative as a measurement, which is why the log-odds scale is the
 right instrument for it. Every level, scale, and control combination
 is in the generated files.
 
-\paragraph{The chained case: where the local ranking genuinely fails}
+\paragraph{The chained case: where the local ranking can fail, and does}
 Chained programs void the algebra: deleting an upstream rule
 propagates through a re-run fixpoint, so a rule's local candidate
 (toward its own head) carries no guarantee about its impact on the
-target. We measure exactly this on twenty independently seeded
+target. We measure this on twenty independently seeded
 three-step programs (sixteen rules each: facts $\to$ four
 intermediates $\to$ a deeper node $\to$ target, with graded antecedent
 minima; $400$ sampled examples per program), computing every fired
 rule's true target impact by brute-force deletion with a full fixpoint
 re-run, and comparing the trace's candidate ranking against that
-oracle and both controls. The verdict is a measured negative. Pooled
+oracle and both controls. The outcome is a clear negative. Pooled
 over $6{,}348$ scored examples, the trace's top pick is the oracle
 rule on $32.4\%$ of examples against a tie-aware chance baseline of
 $25.8\%$; it captures $49\%$ of the oracle's deletion impact ($0.1597$
@@ -512,14 +514,14 @@ control is small ($+0.0270$ $[0.0222, 0.0309]$) and unstable across
 programs: the per-program paired interval lies above zero in nine of
 twenty programs and \emph{below} zero in seven. The mechanism is
 structural, not incidental: in a chained program the most load-bearing
-rule is typically an upstream, non-redundant one --- the single point
-of failure for an intermediate the target relies on --- and local
+rule is typically an upstream, non-redundant one, the single point
+of failure for an intermediate the target relies on, and local
 support magnitude does not identify it. The design consequence is one
 the engine already implements: within a single fold, candidates are
 exact attributions (Eq.~\ref{eq:noisyor-deletion}); across folds they
 are not importance scores, and the trustworthy attribution for a
 chained conclusion is the deletion counterfactual itself, which the
-engine computes exactly and ships as the leave-one-rule-out table of
+engine computes in full and exports as the leave-one-rule-out table of
 the case study below. Per-program rows are in the generated files
 (\texttt{scripts/run\_fidelity\_chained.py}).
 

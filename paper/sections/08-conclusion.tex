@@ -3,7 +3,7 @@
 \pla{} turns a certainty-factor-style calculus into a verifiable
 research vehicle: explicit semantics whose formulas execute as tests,
 proved-and-corroborated convergence, saturation-free log-odds context
-conditioning, convex weight learning tied exactly to the engine, and
+conditioning, convex weight learning tied directly to the engine, and
 explanation fidelity measured against a control, all inside a
 dependency-free package whose every reported number regenerates from
 committed scripts.
@@ -14,7 +14,8 @@ accuracy frontier on credit-card fraud across ten splits, that on the
 credit-card study the learned model's log-loss beats the
 constant-prevalence baseline, and that
 rule-level traces beat reversed and permutation-averaged random
-controls on every dataset --- alongside a pre-registered negative on
+controls on every dataset. Alongside these sits a pre-registered
+negative on
 the context-conditioning mechanism itself: no practically useful
 improvement on the pre-specified AUC endpoint under any of the three
 designs, with the post-hoc credit-card average-precision gain held

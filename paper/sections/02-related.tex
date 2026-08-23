@@ -44,8 +44,8 @@ conditioning is exactly rule--context interaction features, which any
 fixed-weight system can represent by context-conjoined rules; what
 differs is that \pla{} exposes the conditioning in the rule's own
 vocabulary and trace. Second, under the drift designs of
-Section~\ref{sec:evaluation} the mechanism earns a negative verdict on
-its pre-specified endpoint. The connection to the concept-drift
+Section~\ref{sec:evaluation} the mechanism comes away with a negative
+result on its pre-specified endpoint. The connection to the concept-drift
 literature~\cite{gama2014}, where adaptation is studied outside
 logical representations, survives both clauses. Bayesian networks (e.g.\ the
 educational-standard pgmpy package~\cite{ankan2015}) provide
@@ -140,7 +140,7 @@ to a person:
   regenerate from committed scripts (Section~\ref{sec:implementation}).
 \item \textbf{Learning that stays in the rule vocabulary.} Rule
   confidences are fitted by a convex reduction to logistic regression
-  and export back into the same engine exactly
+  and export back into the same engine without approximation
   (Section~\ref{sec:learning}), so the learned model itemizes exactly
   like the hand-written one; its calibration is measured against a
   null baseline in Section~\ref{sec:evaluation}.

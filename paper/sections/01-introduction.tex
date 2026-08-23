@@ -8,8 +8,8 @@ interpretable models over post-hoc explanations of black boxes in
 high-stakes settings is well established~\cite{rudin2019,dimarino2025}. At the same
 time, the systems that offer strong probabilistic semantics for logical
 knowledge, probabilistic logic programming and statistical relational
-learning (Section~\ref{sec:related}), present two obstacles to exactly
-these users: their inference machinery (knowledge compilation, MRF
+learning (Section~\ref{sec:related}), present two obstacles to these
+very users: their inference machinery (knowledge compilation, MRF
 inference) is opaque to the domain practitioner who must sign off on a
 decision, and their rule weights are fixed at inference time, so a rule's
 reliability cannot respond to the operational context in which it fires.
@@ -54,19 +54,19 @@ demands.
   practically useful gain on the pre-specified endpoint, a negative
   we report per its kill criterion (Section~\ref{sec:evaluation}).
 \item \textbf{Measured explanation fidelity, with its exactness
-  boundary drawn honestly}
+  boundary made explicit}
   (Section~\ref{sec:evaluation}). Rule traces are the engine's primary
   output, and their internal fidelity is quantified rather than
   asserted: rule-level deletion metrics in the comprehensiveness /
   sufficiency family of ERASER~\cite{deyoung2020} (facts untouched,
   avoiding the overlapping-antecedent confound), on probability and
   log-odds scales. In the flat crisp experiments \emph{both} models'
-  rankings are provably the exact deletion ranking, so those tables
-  are reported as implementation-concordance checks; a chained
-  multi-step study, where the local candidate ranking is genuinely
-  fallible, then measures it against a brute-force deletion oracle
-  and finds it barely above chance --- a measured boundary that
-  scopes trace trust to single-fold conclusions and hands chained
+  rankings are the exact deletion ranking by algebra, so those tables
+  are reported as implementation-concordance checks. A chained
+  multi-step study, where the local candidate ranking can actually
+  fail, then measures it against a brute-force deletion oracle
+  and finds it barely above chance; this boundary
+  scopes trace trust to single-fold conclusions and leaves chained
   ones to the engine's exported deletion counterfactuals.
 \item \textbf{A reproducibility discipline}
   (Section~\ref{sec:implementation}). Every number reported in this
@@ -82,7 +82,7 @@ programming, weighted-logic learning, and its own certainty-factor
 lineage. Sections~\ref{sec:calculus} and~\ref{sec:learning} present the
 calculus and the learning theory. Section~\ref{sec:implementation}
 describes the tool. Section~\ref{sec:evaluation} reports the synthetic
-harness validation and two real-data studies, including an honest
-negative result under temporal drift, and a model-class pathology whose
+harness validation and two real-data studies, including a negative
+result under temporal drift reported as such, and a model-class pathology whose
 repair the reduction of Section~\ref{sec:learning} made obvious.
 Section~\ref{sec:limitations} lists limitations explicitly.

@@ -30,7 +30,7 @@ extra-logical term: it maps onto the engine as a base-rate prior rule
 (an always-true antecedent with confidence $\sigma(b)$) folded first
 by logit pooling, and the interceptless variant is the special case
 $b = 0$. Read as a statement about
-expressivity, this is deliberately deflationary: context conditioning
+expressivity, this is deflationary on purpose: context conditioning
 adds nothing a fixed-weight system could not represent with
 context-conjoined rules, the contribution is that the engine
 exposes the interaction in the rule's own vocabulary, exports the fit
@@ -58,14 +58,14 @@ loss each epoch. Our runs use $\eta = 1.0$: above that conservative
 bound, and covered by the guard, which never fired in any reported
 run; every reported trajectory is therefore monotone by construction
 and re-asserted per epoch by the test suite. Zero-rule examples mark
-the one place the implementation deliberately steps outside
+the one place the implementation knowingly steps outside
 Eq.~\eqref{eq:lr}: the pure reduction with $b = 0$ scores an empty
 fired set at $\sigma(0) = \tfrac12$, absurd on rare-event data, so the
 interceptless configuration instead assigns a fixed out-of-model floor
 ($10^{-3}$, an implementation convention documented as such, not a
 prediction of the model class) and excludes those examples from the
-gradient. With the intercept --- the configuration every reported
-experiment uses --- no convention is needed: Eq.~\eqref{eq:lr} itself
+gradient. With the intercept, the configuration every reported
+experiment uses, no convention is needed: Eq.~\eqref{eq:lr} itself
 scores the empty set at $\sigma(b)$, and the example trains the
 intercept alone, the base-rate anchoring whose necessity the next
 paragraph demonstrates.
@@ -77,7 +77,7 @@ $0.5$) force every $\theta_r$ negative in the interceptless model
 ($b = 0$ in Eq.~\eqref{eq:lr}); an
 example firing five such rules (typically the most suspicious one)
 then receives the \emph{lowest} score, inverting the ranking. We
-observed exactly this on the real credit-card data (fitted
+observed this on the real credit-card data (fitted
 $\theta_r \approx -2.5$; frauds concentrated at five fired rules; AUC
 $0.076$). With the intercept of Eq.~\eqref{eq:lr} in place, $b$
 absorbs the base rate
