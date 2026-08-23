@@ -212,7 +212,7 @@ Context handling is fail-loud: malformed shapes, unknown context sets,
 and typo'd variables raise `ScenarioFormatError` instead of silently
 applying no adjustment. 34 ready-made scenarios live in `scenarios/`.
 
-## What PLA is (and is not)
+## What PLA is 
 
 PLA's calculus sits in the **certainty-factor lineage** (MYCIN, Shortliffe
 & Buchanan 1975): rules carry confidences, conjunction is `min(...)` (the
