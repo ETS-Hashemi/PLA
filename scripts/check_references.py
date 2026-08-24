@@ -45,7 +45,7 @@ BIB = ROOT / "paper" / "references.bib"
 OUT_DIR = ROOT / "paper" / "references"
 API = "https://api.semanticscholar.org/graph/v1/paper/search"
 FIELDS = "title,year,venue,authors,externalIds,openAccessPdf"
-RATE_SECONDS = 1.1
+RATE_SECONDS = 1.5  # the keyed limit is 1/s, but bursts still 429
 
 
 def parse_bib(path):

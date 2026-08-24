@@ -64,7 +64,8 @@ semantics, not for ranking comparison.
 
 \paragraph{Metrics and inference} ROC AUC and average precision (AP;
 the class-imbalance-sensitive complement) both carry seeded
-percentile-bootstrap 95\% confidence intervals ($B{=}500$, shared
+percentile-bootstrap 95\% confidence intervals~\cite{efron1993}
+($B{=}500$, shared
 resamples), and the tables display both. Claims about
 \emph{differences} between models never rest on overlapping individual
 intervals: every such claim cites a paired-bootstrap CI of the
@@ -74,7 +75,7 @@ measured by log-loss against an explicit \emph{null baseline}, a
 constant predictor at the training prevalence, which appears as a row
 in every table; it is a reference point, not a floor, since better
 predictors score below it, together with expected calibration
-error over 10 equal-width bins, a
+error~\cite{naeini2015} over 10 equal-width bins, a
 coarse instrument at these prevalences (nearly all mass falls in the
 first bin), so the log-binned reliability diagram
 (Figure~\ref{fig:reliability}) is the primary calibration evidence.

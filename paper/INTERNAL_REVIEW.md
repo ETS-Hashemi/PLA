@@ -235,3 +235,9 @@ Enrichments applied:
 Open-access PDFs harvested into `paper/references/` (gitignored;
 licenses recorded in the report — only CC-BY copies are candidates
 for deliberate committing).
+
+Addendum: three attribution gaps found during this round were
+filled — Pearl 1988 at the belief-network migration, Naeini et al.
+2015 at the ECE definition, and Efron & Tibshirani 1993 at the
+bootstrap protocol — bringing the bibliography to 43 entries, all
+verified.
