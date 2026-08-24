@@ -8,13 +8,16 @@ paper/references/verification_report.md. Where Semantic Scholar exposes
 an open-access PDF, it is downloaded to paper/references/<bibkey>.pdf
 with its license recorded.
 
-Run this OUTSIDE restricted networks (api.semanticscholar.org must be
-reachable). The API key is read from the S2_API_KEY environment
-variable and is never written to any file:
+Run this where api.semanticscholar.org is reachable. The API key is
+read from the S2_API_KEY environment variable, or from a `.s2_key`
+file at the repository root (gitignored — a key must never enter git
+history: the manuscript cites a commit hash, so history can never be
+rewritten to scrub a leak):
 
-    export S2_API_KEY=...        # your key; do not commit it anywhere
+    export S2_API_KEY=...        # or: echo "..." > .s2_key
     python scripts/check_references.py            # verify + fetch PDFs
     python scripts/check_references.py --no-pdf   # verify only
+    python scripts/check_references.py --search "noisy-or attribution"
 
 Redistribution note: paper/references/*.pdf is gitignored. Before
 committing any downloaded PDF to the public repository, check its
@@ -75,9 +78,9 @@ def first_surname(author_field):
             else first.split()[-1]).lower()
 
 
-def s2_search(title, key):
+def s2_search(title, key, limit=3):
     query = urllib.parse.quote(clean(title))
-    url = f"{API}?query={query}&fields={FIELDS}&limit=3"
+    url = f"{API}?query={query}&fields={FIELDS}&limit={limit}"
     request = urllib.request.Request(url, headers={"x-api-key": key})
     with urllib.request.urlopen(request, timeout=30) as response:
         return json.loads(response.read()).get("data", [])
@@ -132,15 +135,58 @@ def fetch_pdf(best, bibkey, key):
         return None, f"download failed: {error}"
 
 
+def load_key():
+    """S2_API_KEY from the environment, else the first line of a
+    gitignored .s2_key file at the repository root."""
+    key = os.environ.get("S2_API_KEY")
+    if key:
+        return key.strip()
+    key_file = ROOT / ".s2_key"
+    if key_file.exists():
+        return key_file.read_text().strip().splitlines()[0]
+    sys.exit("set S2_API_KEY, or put the key in .s2_key at the repo "
+             "root (gitignored) — never commit a key")
+
+
+def search_command(query, key, limit):
+    """Ad-hoc literature search: print the top matches for a query."""
+    try:
+        candidates = s2_search(query, key, limit=limit)
+    except urllib.error.URLError as error:
+        sys.exit(f"api.semanticscholar.org unreachable ({error.reason}); "
+                 "run where the network policy allows it")
+    if not candidates:
+        print("no results")
+        return
+    for paper in candidates:
+        authors = ", ".join(a["name"] for a in paper.get("authors", [])[:6])
+        doi = (paper.get("externalIds") or {}).get("DOI", "")
+        pdf = (paper.get("openAccessPdf") or {}).get("url", "")
+        print(f"- {paper.get('title', '?')} ({paper.get('year', '?')})")
+        print(f"    {authors}")
+        detail = "    " + (paper.get("venue") or "venue unknown")
+        if doi:
+            detail += f" | doi:{doi}"
+        print(detail)
+        if pdf:
+            print(f"    open access: {pdf}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--no-pdf", action="store_true",
                         help="verify metadata only, download nothing")
+    parser.add_argument("--search", metavar="QUERY",
+                        help="skip verification; search the literature "
+                             "and print the top matches")
+    parser.add_argument("--limit", type=int, default=5,
+                        help="results to print with --search (default 5)")
     args = parser.parse_args()
 
-    key = os.environ.get("S2_API_KEY")
-    if not key:
-        sys.exit("set S2_API_KEY in the environment (never commit it)")
+    key = load_key()
+    if args.search:
+        search_command(args.search, key, args.limit)
+        return
 
     entries = parse_bib(BIB)
     OUT_DIR.mkdir(exist_ok=True)

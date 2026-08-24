@@ -37,3 +37,6 @@ paper/*.pdf
 
 # Downloaded reference PDFs (author use; commit only CC-licensed ones deliberately)
 paper/references/*.pdf
+
+# Local Semantic Scholar API key (never commit a key)
+.s2_key
