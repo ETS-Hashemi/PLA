@@ -203,3 +203,35 @@ author's own decisions in it, recorded here:
 - Remaining em-dash interpolations converted to commas across the
   abstract, introduction, calculus, implementation, evaluation, and
   discussion, completing the author's punctuation pass.
+
+## Round 10 — bibliography verification (dual method)
+
+Every one of the 40 references.bib entries was verified twice, by
+independent methods: (a) four parallel web-search passes checking
+existence, authors, year, venue, and volume/pages against publisher
+and index pages (dblp, ACL Anthology, JMLR, Project Euclid, arXiv,
+publisher DOIs); (b) a Semantic Scholar Graph API sweep
+(`scripts/check_references.py`, author-supplied key, 1 req/s with
+429 backoff), whose report is committed at
+`paper/references/verification_report.md`. Where the two methods
+overlap they agree; the S2 report's remaining MISMATCH/CHECK rows are
+record artifacts (preprint/reprint years for bach2017, marra2024,
+garcez2023, shortliffe1975, heckerman1986; generic-title collisions
+for zadeh1965, west2016, fierens2015), each individually confirmed
+correct by method (a) with exact DOIs.
+
+Real errors found and fixed:
+- `nori2019`: wrong arXiv ID (1909.09502 → 1909.09223).
+- `manhaeve2018`: wrong NeurIPS pages (3749--3759 → 3753--3763).
+
+Enrichments applied:
+- `kambhampati2024`: official ICML proceedings title carries the
+  "Position:" prefix; PMLR 235, pp. 22895--22907 added.
+- `bao2020`: note added pointing to the 2022 erratum
+  (doi:10.1111/1475-679X.12454), which corrects that paper's RUSBoost
+  results; nothing in this manuscript quotes those numbers, so no
+  claim here changes.
+
+Open-access PDFs harvested into `paper/references/` (gitignored;
+licenses recorded in the report — only CC-BY copies are candidates
+for deliberate committing).

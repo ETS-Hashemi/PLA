@@ -36,6 +36,7 @@ import pathlib
 import re
 import sys
 import time
+import unicodedata
 import urllib.parse
 import urllib.request
 
@@ -78,12 +79,21 @@ def first_surname(author_field):
             else first.split()[-1]).lower()
 
 
-def s2_search(title, key, limit=3):
+def s2_search(title, key, limit=3, attempts=4):
+    """Search with backoff: the API rate-limits in bursts, so a 429 is
+    retried with increasing sleeps rather than recorded as an error."""
     query = urllib.parse.quote(clean(title))
     url = f"{API}?query={query}&fields={FIELDS}&limit={limit}"
     request = urllib.request.Request(url, headers={"x-api-key": key})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.loads(response.read()).get("data", [])
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.loads(response.read()).get("data", [])
+        except urllib.error.HTTPError as error:
+            if error.code == 429 and attempt < attempts - 1:
+                time.sleep(5 * (attempt + 1))
+                continue
+            raise
 
 
 def similarity(a, b):
@@ -92,11 +102,22 @@ def similarity(a, b):
 
 
 def verify(entry, candidates):
-    """Return (status, note, best_candidate)."""
+    """Return (status, note, best_candidate). Among similar titles the
+    candidate whose year matches the bib is preferred, so a preprint or
+    reprint record does not shadow the cited version."""
     title = clean(entry["title"])
     if not candidates:
         return "NOT_FOUND", "no search results", None
-    best = max(candidates, key=lambda c: similarity(title, c.get("title", "")))
+
+    def rank(candidate):
+        score = similarity(title, candidate.get("title", ""))
+        year = entry.get("year")
+        year_bonus = 0.05 if (year and candidate.get("year")
+                              and abs(int(year) - candidate["year"]) <= 1)\
+            else 0.0
+        return score + year_bonus
+
+    best = max(candidates, key=rank)
     score = similarity(title, best.get("title", ""))
     if score < 0.75:
         return ("CHECK", f"best match only {score:.2f} similar: "
@@ -104,12 +125,19 @@ def verify(entry, candidates):
     notes = []
     year = entry.get("year")
     if year and best.get("year") and abs(int(year) - best["year"]) > 1:
-        notes.append(f"year: bib {year} vs S2 {best['year']}")
+        notes.append(f"year: bib {year} vs S2 {best['year']} (check "
+                     "whether S2 matched a preprint or reprint)")
     if entry.get("author"):
         surname = first_surname(entry["author"])
-        s2_authors = [a["name"].split()[-1].lower()
-                      for a in best.get("authors", [])]
-        if s2_authors and surname not in s2_authors:
+        # Compare against full author names, accent-folded, so
+        # multi-word and accented surnames ("De Raedt", "Škrjanc") match.
+        def fold(text):
+            return unicodedata.normalize("NFKD", text.lower())\
+                .encode("ascii", "ignore").decode()
+
+        full_names = " | ".join(fold(a["name"])
+                                for a in best.get("authors", []))
+        if full_names and fold(surname) not in full_names:
             notes.append(f"first author '{surname}' not in S2 author list")
     if notes:
         return "MISMATCH", "; ".join(notes), best
