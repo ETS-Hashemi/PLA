@@ -143,7 +143,10 @@ def load_key():
         return key.strip()
     key_file = ROOT / ".s2_key"
     if key_file.exists():
-        return key_file.read_text().strip().splitlines()[0]
+        for line in key_file.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                return line
     sys.exit("set S2_API_KEY, or put the key in .s2_key at the repo "
              "root (gitignored) — never commit a key")
 
