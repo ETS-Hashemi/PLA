@@ -34,3 +34,6 @@ data/*
 *.spl
 *.toc
 paper/*.pdf
+
+# Downloaded reference PDFs (author use; commit only CC-licensed ones deliberately)
+paper/references/*.pdf
