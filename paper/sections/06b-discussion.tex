@@ -19,8 +19,9 @@ rules' AUC against a raw-feature reference makes that a one-table
 check) before committing to a rule-shaped model.
 
 \paragraph{What maximum likelihood buys, what it costs, and when each
-matters} Across every study, learning the weights improves calibration
---- on the real credit-card data the learned variant's log-loss is
+matters} Across every study, learning the weights improves
+calibration: on the real credit-card data the learned variant's
+log-loss is
 roughly a third below the static rules' and its expected calibration
 error is smaller by a factor of six. AUC barely moves, which tempts the
 conclusion that ranking is free; average precision corrects it: the

@@ -241,3 +241,14 @@ filled — Pearl 1988 at the belief-network migration, Naeini et al.
 2015 at the ECE definition, and Efron & Tibshirani 1993 at the
 bootstrap protocol — bringing the bibliography to 43 entries, all
 verified.
+
+## Round 11 — punctuation and phrasing pass, all documents
+
+Every remaining spaced em-dash interpolation was removed across the
+manuscript, workshop cut, cover letter, highlights, and supplementary
+(converted to commas, colons, parentheses, or sentence breaks with
+per-site judgment; the LaTeX `--` en-dash in number ranges is standard
+and stays). Residual stock phrasings were varied where they were
+rhetorical and kept where they state identities ("reduces exactly to
+logistic regression", "provably the exact deletion ranking"). No
+claim, number, or citation changed.

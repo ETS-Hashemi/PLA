@@ -9,7 +9,7 @@ with Measured Trace Fidelity}
 \author{Seyed Masoud Hashemi Ahmadi\\
 \small École de technologie supérieure (ÉTS), Montréal\\
 \small \texttt{contact@AiCentralLab.com}}
-\date{Working draft --- workshop/tool-track cut}
+\date{Working draft (workshop/tool-track cut)}
 
 \begin{document}
 \maketitle
@@ -24,10 +24,10 @@ parallel-combination rule). Three properties distinguish it from its
 lineage and from modern statistical-relational systems: rule confidences
 are \emph{context-conditioned}, with a log-odds mode whose additive
 evidence weights never saturate; rule and context weights are
-\emph{learnable} --- on binary facts the engine's log-odds path reduces
+\emph{learnable}: on binary facts the engine's log-odds path reduces
 exactly to logistic regression over rule firings, so training is convex
 maximum likelihood; and explanations are \emph{traces whose fidelity is
-measured} with deletion metrics --- read as implementation-concordance
+measured} with deletion metrics, read as implementation-concordance
 checks where the candidate ranking is provably the exact deletion
 ranking, and tested for real in a chained study where it is not.
 The calculus carries a proved convergence proposition corroborated by
@@ -37,8 +37,8 @@ regenerates byte-for-byte from committed scripts. Real-data studies on the
 ULB credit-card and Bao et al.\ accounting-fraud datasets are included:
 near-frontier ranking and a measured calibration/early-precision trade
 on the former, and
-pre-registered context ablations on the latter whose verdict --- no
-practically useful gain on the pre-specified endpoint --- we report as
+pre-registered context ablations on the latter whose verdict (no
+practically useful gain on the pre-specified endpoint) we report as
 such.
 \end{abstract}
 
@@ -60,7 +60,7 @@ for the monotone aggregators and corroborated by property tests on
 1{,}050 random cyclic rule systems. (2)~Context-conditioned,
 learnable rule weights: additive log-odds context evidence with convex
 maximum-likelihood fitting that recovers planted ground truth. (3)~Measured
-explanation fidelity with its exactness boundary drawn honestly: in
+explanation fidelity with its exactness boundary made explicit: in
 flat settings the candidate ranking is provably the exact deletion
 ranking (the metrics validate implementation concordance), and a
 chained multi-step study measures the case where it can fail against
@@ -71,21 +71,22 @@ claim mapped to a verifying artifact in the repository.
 \section{Related work}\label{sec:related}
 ProbLog attaches probabilities to logic programs under the distribution
 semantics, computing exact possible-world marginals via knowledge
-compilation and supporting conditioning on evidence --- an operation PLA
-deliberately lacks~\cite{deraedt2007,fierens2015}; aProbLog generalizes
-the semantics to commutative semirings~\cite{kimmig2011} --- a natural
+compilation and supporting conditioning on evidence, an operation PLA
+lacks by design~\cite{deraedt2007,fierens2015}; aProbLog generalizes
+the semantics to commutative semirings~\cite{kimmig2011}, a natural
 reference point, though PLA's own pair is not a semiring instance
 (G\"odel conjunction fails to distribute over noisy-OR); DeepProbLog and
 Scallop add neural predicates and differentiable provenance
-reasoning~\cite{manhaeve2018,li2023}. In weighted-logic systems --- Markov
+reasoning~\cite{manhaeve2018,li2023}. In weighted-logic systems
+(Markov
 Logic Networks~\cite{richardson2006}, Probabilistic Soft
-Logic~\cite{bach2017}, Logical Neural Networks~\cite{riegel2020} --- rule
+Logic~\cite{bach2017}, Logical Neural Networks~\cite{riegel2020}), rule
 weights are static at inference time: adapting rule reliability to a
 changing operational context is retraining's job, not the semantics'.
 That gap, context-conditioned weights inside an interpretable calculus,
-is the one PLA explores --- an interface rather than expressivity gap,
+is the one PLA explores: an interface rather than expressivity gap,
 since fixed-weight systems can encode the same interactions as
-context-conjoined rules --- connected to concept-drift
+context-conjoined rules; the line connects to concept-drift
 adaptation~\cite{gama2014}. All of these systems ship as Python packages;
 PLA claims no language-based novelty. Its lineage is instead MYCIN's
 certainty factors~\cite{shortliffe1975} with the G\"odel
@@ -119,15 +120,15 @@ inference iterates a monotone round operator on the lattice $[0,1]^V$;
 the trajectory from the base facts is pointwise non-decreasing and
 bounded, and the operators are continuous, so the limit is the Kleene
 least fixpoint. (Logit pooling
-is deliberately non-monotone --- sub-$\tfrac12$ candidates are negative
-evidence --- and is used on the acyclic learning path.) These properties
+is non-monotone by design, since sub-$\tfrac12$ candidates are negative
+evidence, and is used on the acyclic learning path.) These properties
 are corroborated by property tests on 1{,}050 random cyclic systems, with a closed-form
 regression test for slow high-probability cycles. The symbolic layer
 decides definite-clause entailment by linear forward chaining
 (differential-tested against a truth-table oracle; a 200-symbol KB
 answers in well under a second) and gates confidences in hard/soft modes.
 PLA has \emph{no} distribution semantics: no possible-world measure, no
-conditioning, and aggregation chooses an independence stance --- users
+conditioning, and aggregation chooses an independence stance: users
 needing those guarantees should use ProbLog.
 
 \section{Learning}\label{sec:learning}
@@ -166,9 +167,9 @@ byte-for-byte the same way), summarized at the end of this section. Table~\ref{t
 empirical-precision rules, PLA with learned weights, and five baselines.
 Reported as measured: with the standard logistic intercept included,
 the learned variant matches static ranking (AUC $0.7227$ vs.\ $0.7217$)
-and wins calibration decisively (log-loss $0.3420$ vs.\ $1.0908$) ---
-raw empirical precisions are badly overconfident when several rules fire
-together, and maximum likelihood repairs exactly that. Both PLA
+and wins calibration decisively (log-loss $0.3420$ vs.\ $1.0908$).
+Raw empirical precisions are badly overconfident when several rules fire
+together, and maximum likelihood repairs just that. Both PLA
 variants trail the raw-feature baselines, as expected when the true model
 is logistic in the raw features. The ProbLog row executes the same rules
 under distribution semantics on the same examples and agrees with
@@ -201,29 +202,30 @@ in prediction when the trace's top rule's facts are removed) and
 sufficiency (gap when only they are kept), against a reversed-attribution
 control. For both variants the faithful trace out-scores the control on
 comprehensiveness ($0.2222$ vs.\ $0.1864$ static; $0.0939$ vs.\ $0.0807$
-learned): the traces name factors that actually drive predictions --- a
-measured property, not an asserted one (rule-level variants, log-odds
+learned): the traces name factors that actually drive predictions, a
+measured property rather than an asserted one (rule-level variants,
+log-odds
 scales, and a random control are in the repository).
 
 \paragraph{Real data.} The same scripts run on two real datasets. On the
 ULB credit-card data (284{,}807 transactions, 492 frauds) an 11-rule PLA
 model reaches AUC $0.9687$ (static) and $0.9625$ (learned, ECE $0.0022$)
 against $0.9796$ for raw-feature logistic regression; average precision
-exposes the trade behind that near-tie --- static $0.7258$ vs.\ learned
-$0.5361$ --- so learning buys calibration at a measured early-ranking
+exposes the trade behind that near-tie (static $0.7258$ vs.\ learned
+$0.5361$), so learning buys calibration at a measured early-ranking
 cost. And the
 interceptless learner's \emph{inverted} AUC of $0.076$, repaired to
 $0.9625$ by the standard intercept, is a model-class lesson the logistic
 reduction made obvious. On the Bao et al.\ accounting data~\cite{bao2020},
 tail rules mined before the temporal boundary barely beat chance after it
 (AUC $\approx 0.53$; raw-ratio logistic regression $0.68$--$0.70$), and
-pre-registered context ablations --- including a design trained across
-the 2003 SOX regime change so the context weight is identifiable ---
+pre-registered context ablations, including a design trained across
+the 2003 SOX regime change so the context weight is identifiable,
 find no practically useful improvement from context conditioning on
 the pre-specified AUC endpoint (paired $\Delta$AUC $0.0011$
 [$-0.0071$, $0.0140$] under the SOX design; a post-hoc
-average-precision gain on credit card awaits confirmation): an honest
-negative, reported per its kill criterion.
+average-precision gain on credit card awaits confirmation): a
+negative result, reported per its kill criterion.
 
 \section{Limitations and roadmap}
 PLA has no joint measure and no conditioning; its language is
