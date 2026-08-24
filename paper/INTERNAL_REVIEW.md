@@ -180,3 +180,26 @@ preference), repeated signature phrasings varied ("drawn honestly" →
 "measured negative" → "clear negative", "ships" → "exports"), and two
 "exactly why … exactly why" / double-"exactly" constructions
 rewritten. Diff is reviewable as prose-only.
+
+## Round 9 — author's final revision adopted
+
+The author's Overleaf export (5th) was adopted as the new base. The
+author's own decisions in it, recorded here:
+
+- **Single authorship.** Julio Montecinos removed from the author
+  list and CRediT; the corresponding-author markup dropped as
+  unnecessary. Consistency sweep applied: "The author declares"
+  (manuscript and cover letter), singular wording in the AI
+  declaration, supplementary title page.
+- **Generative-AI declaration added by the author** (Claude and
+  ChatGPT; language editing, LaTeX restructuring, code error
+  checking), satisfying the Elsevier disclosure requirement.
+- **Data availability simplified** to the repository URL alone: the
+  round-7 tag/Zenodo archival sentence was withdrawn by the author,
+  so the section now makes no claim that requires a pre-submission
+  step. The pre-registration commit remains cited in Section 6. The
+  Zenodo option is kept as a comment for the author to take up or
+  not.
+- Remaining em-dash interpolations converted to commas across the
+  abstract, introduction, calculus, implementation, evaluation, and
+  discussion, completing the author's punctuation pass.

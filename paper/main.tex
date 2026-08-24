@@ -35,12 +35,12 @@
 \title{\pla: A Transparent, Learnable Rule-Confidence Engine
 with Measured Trace Fidelity}
 
-\author[ets]{Seyed Masoud Hashemi Ahmadi\corref{cor1}}
+\author[ets]{Seyed Masoud Hashemi Ahmadi}
 \ead{Seyed-Masoud.Hashemi-Ahmadi.1@ens.etsmtl.ca}
-\author[ets]{Julio Montecinos}
+
 
 \address[ets]{\'Ecole de technologie sup\'erieure (\'ETS), Montr\'eal, Canada}
-\cortext[cor1]{Corresponding author.}
+
 
 \begin{abstract}
 We present \pla{}, a rule-confidence model for domains where inherent
@@ -61,8 +61,8 @@ against reversed- and random-ranking controls. Convergence of the
 monotone aggregators is proved, the engine is a few hundred lines of
 dependency-free Python, and every reported number regenerates from
 committed scripts with bootstrap confidence intervals. On the ULB
-credit-card data an 11-rule model averages AUC $0.966$ across ten
-random splits, $0.002$--$0.034$ per split below the interpretable
+credit-card data, an 11-rule model averages AUC $0.966$ across ten
+random splits, $0.002$–$0.034$ per split below the interpretable
 accuracy frontier led by EBM, and its learned weights beat the
 constant-prevalence baseline on log-loss. On accounting-fraud data
 under two temporal designs, pre-registered ablations backed by
@@ -95,9 +95,8 @@ detection
 \section*{CRediT authorship contribution statement}
 \textbf{Seyed Masoud Hashemi Ahmadi:} Conceptualization, Methodology,
 Software, Formal analysis, Investigation, Data curation,
-Writing -- original draft, Visualization.
+Writing the original draft, review \& editing, Validation, and Visualization.
 
-\textbf{Julio Montecinos:} Validation, Writing -- review \& editing.
 
 \section*{Funding}
 No funding was received for conducting this study.
@@ -106,7 +105,7 @@ No funding was received for conducting this study.
 % the funder names and grant numbers.
 
 \section*{Declaration of competing interest}
-The authors declare no known competing financial interests or personal
+The author declares no known competing financial interests or personal
 relationships that could have appeared to influence the work reported
 in this paper.
 
@@ -117,19 +116,13 @@ Both datasets are public: the ULB credit-card fraud data of
 applied before use are documented in the repository's data manifest.
 The complete engine, experiment scripts, generated results, and this
 manuscript's sources are available at
-\url{https://github.com/ETS-Hashemi/PLA}. The pre-registration commit
-is \texttt{8f2dd2e}
-(\url{https://github.com/ETS-Hashemi/PLA/commit/8f2dd2edd409ccec44a32e803d7d9ceb0f1581ab}),
-and the exact submitted revision is tagged \texttt{v1.0-submission}
-and deposited as a citable archive on Zenodo; the archive's DOI is
-stated in the repository README.
-% AUTHOR ACTION before submission: (1) enable the repository at
-% https://zenodo.org/account/settings/github/ ; (2) create the GitHub
-% release "v1.0-submission" on the submitted commit — Zenodo then
-% archives it and mints the DOI automatically; (3) paste the DOI badge
-% into README.md. Without these steps the sentence above is not yet
-% true.
-
+\url{https://github.com/ETS-Hashemi/PLA}. 
+% Optional archival step the author may still take before submission:
+% enable the repository at https://zenodo.org/account/settings/github/
+% and create a GitHub release on the submitted commit — Zenodo then
+% mints a citable DOI that can be added here and to README.md.
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+During the preparation of this work, the author used Claude (Anthropic) and ChatGPT (OpenAI) for language editing, LaTeX restructuring, and code error checking. After using these tools, the author reviewed and edited the content as needed and takes full responsibility for the content of the article.
 % Acknowledgements / funding: intentionally left for the author to
 % complete before submission (grant numbers, scholarships, computing
 % support), since these cannot be inferred from the repository.
