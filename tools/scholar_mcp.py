@@ -38,6 +38,16 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# ---------------------------------------------------------------------
+# API keys. EITHER paste them between the quotes below on YOUR LOCAL
+# COPY of this file (keep that copy outside any git repository and
+# never commit it filled in), OR leave these empty and set the
+# S2_API_KEY / SCOPUS_API_KEY environment variables instead — the
+# environment is used whenever the constant is empty.
+# ---------------------------------------------------------------------
+S2_API_KEY = ""       # <-- paste your Semantic Scholar key here
+SCOPUS_API_KEY = ""   # <-- paste your Scopus (Elsevier) key here
+
 PROTOCOL_VERSION = "2024-11-05"
 
 TOOLS = [
@@ -90,9 +100,11 @@ def _get(url, headers):
 
 
 def semantic_scholar(query, limit):
-    key = os.environ.get("S2_API_KEY")
+    key = S2_API_KEY or os.environ.get("S2_API_KEY")
     if not key:
-        return "S2_API_KEY is not set in this server's environment."
+        return ("No Semantic Scholar key: paste it into S2_API_KEY at "
+                "the top of this file, or set the S2_API_KEY "
+                "environment variable.")
     fields = "title,year,venue,authors,externalIds,openAccessPdf"
     url = ("https://api.semanticscholar.org/graph/v1/paper/search"
            f"?query={urllib.parse.quote(query)}&fields={fields}"
@@ -118,9 +130,11 @@ def semantic_scholar(query, limit):
 
 
 def scopus(query, limit):
-    key = os.environ.get("SCOPUS_API_KEY")
+    key = SCOPUS_API_KEY or os.environ.get("SCOPUS_API_KEY")
     if not key:
-        return "SCOPUS_API_KEY is not set in this server's environment."
+        return ("No Scopus key: paste it into SCOPUS_API_KEY at the "
+                "top of this file, or set the SCOPUS_API_KEY "
+                "environment variable.")
     encoded = urllib.parse.quote(f"TITLE-ABS-KEY({query})")
     url = ("https://api.elsevier.com/content/search/scopus"
            f"?query={encoded}&count={limit}")
