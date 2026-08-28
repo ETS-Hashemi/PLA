@@ -253,25 +253,6 @@ Every model, split, and bootstrap is seeded, so the scripts regenerate
 the committed `results/` files **byte for byte** — regenerate, never
 hand-edit. Every AUC carries a seeded percentile-bootstrap 95% CI.
 
-## The paper
-
-[`paper/`](paper/README.md) is a self-contained Overleaf project:
-
-- **Journal manuscript** — *"PLA: A Transparent, Learnable
-  Rule-Confidence Engine with Measured Trace Fidelity"* (`main.tex`,
-  Elsevier `elsarticle` class, numbered natbib references). Compile with
-  `pdflatex main && bibtex main && pdflatex main && pdflatex main`, or
-  zip the folder and upload to Overleaf with `main.tex` as the main
-  document. Class options switch between `review` (submission,
-  line-numbered), `preprint`, and `final,3p` (journal layout).
-- **Workshop cut** — `workshop.tex`, self-contained, held to 4–6 pages by
-  a CI gate.
-
-CI compiles both on every push and uploads the PDFs as the `papers`
-artifact on the Actions run. Every number in both documents traces to a
-generated artifact — the claim-to-evidence map is Appendix B of the
-manuscript, and the competitor-positioning claims in the related-work
-section are machine-verified by `tests/test_related_work_claims.py`.
 
 ## Repository layout
 
@@ -286,9 +267,6 @@ section are machine-verified by `tests/test_related_work_claims.py`.
 | `results/` | Generated experiment, fidelity, and case-study tables (byte-reproducible) |
 | `docs/` | Framework overview, executable formal semantics (`SEMANTICS.md`), methodology |
 | `research/` | Reading list and the gap statement (hypotheses, baselines, kill criteria) |
-| `paper/` | Overleaf project: `elsarticle` journal manuscript + 4–6 page workshop cut |
-| `TODO.md` | The verifiable rebuild roadmap — complete, 29/29 ticked with commit hashes |
-| `PROJECT_FEEDBACK.md` | Full technical review and publishability assessment |
 
 ## Research program
 
@@ -302,7 +280,7 @@ richer context features, rule re-mining under vocabulary drift,
 log-odds-scale fidelity metrics, and uncertainty-aware verification of
 LLM-extracted facts.
 
-Contact: [contact@AiCentralLab.com](mailto:contact@AiCentralLab.com)
+Contact: [seyedmasoud.hashemiahmadi.1@ens.etsmtl.ca](mailto:seyedmasoud.hashemiahmadi.1@ens.etsmtl.ca)
 
 ## License
 
