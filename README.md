@@ -265,7 +265,6 @@ hand-edit. Every AUC carries a seeded percentile-bootstrap 95% CI.
 | `examples/` | Runnable demos that generate every number quoted in this README |
 | `data/` | Dataset cache (gitignored) + provenance README |
 | `results/` | Generated experiment, fidelity, and case-study tables (byte-reproducible) |
-| `docs/` | Framework overview, executable formal semantics (`SEMANTICS.md`), methodology |
 | `research/` | Reading list and the gap statement (hypotheses, baselines, kill criteria) |
 
 ## Research program
