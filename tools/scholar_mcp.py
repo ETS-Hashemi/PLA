@@ -45,8 +45,8 @@ import urllib.request
 # S2_API_KEY / SCOPUS_API_KEY environment variables instead — the
 # environment is used whenever the constant is empty.
 # ---------------------------------------------------------------------
-S2_API_KEY = ""       # <-- paste your Semantic Scholar key here
-SCOPUS_API_KEY = ""   # <-- paste your Scopus (Elsevier) key here
+S2_API_KEY = "s2k-8Q4zaBAQeJnBdEmIjrE2HhN3EnAKOF5Fg99Eyofs"       # <-- paste your Semantic Scholar key here
+SCOPUS_API_KEY = "526b6026bb32380b6e9053e32c26ebed"   # <-- paste your Scopus (Elsevier) key here
 
 PROTOCOL_VERSION = "2024-11-05"
 
