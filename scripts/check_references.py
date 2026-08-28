@@ -163,20 +163,63 @@ def fetch_pdf(best, bibkey, key):
         return None, f"download failed: {error}"
 
 
-def load_key():
-    """S2_API_KEY from the environment, else the first line of a
-    gitignored .s2_key file at the repository root."""
-    key = os.environ.get("S2_API_KEY")
+def _key_from(env_name, file_name):
+    key = os.environ.get(env_name)
     if key:
         return key.strip()
-    key_file = ROOT / ".s2_key"
+    key_file = ROOT / file_name
     if key_file.exists():
         for line in key_file.read_text().splitlines():
             line = line.strip()
             if line and not line.startswith("#"):
                 return line
+    return None
+
+
+def load_key():
+    """S2_API_KEY from the environment, else the first non-comment line
+    of a gitignored .s2_key file at the repository root."""
+    key = _key_from("S2_API_KEY", ".s2_key")
+    if key:
+        return key
     sys.exit("set S2_API_KEY, or put the key in .s2_key at the repo "
              "root (gitignored) — never commit a key")
+
+
+def load_scopus_key():
+    key = _key_from("SCOPUS_API_KEY", ".scopus_key")
+    if key:
+        return key
+    sys.exit("set SCOPUS_API_KEY, or put the key in .scopus_key at the "
+             "repo root (gitignored) — never commit a key")
+
+
+def scopus_search(query, key, limit):
+    """Scopus Search API: TITLE-ABS-KEY query, standard view."""
+    encoded = urllib.parse.quote(f"TITLE-ABS-KEY({query})")
+    url = (f"https://api.elsevier.com/content/search/scopus"
+           f"?query={encoded}&count={limit}")
+    request = urllib.request.Request(
+        url, headers={"X-ELS-APIKey": key, "Accept": "application/json"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        results = json.loads(response.read())["search-results"]
+    total = results.get("opensearch:totalResults", "?")
+    print(f"({total} total Scopus matches)")
+    for entry in results.get("entry", []):
+        if "error" in entry:
+            print("no results")
+            return
+        print(f"- {entry.get('dc:title', '?')}"
+              f" ({(entry.get('prism:coverDate') or '?')[:4]})")
+        detail = (f"    {entry.get('dc:creator', '?')} | "
+                  f"{entry.get('prism:publicationName', 'venue unknown')}")
+        if entry.get("prism:volume"):
+            detail += (f" {entry['prism:volume']}"
+                       f"({entry.get('prism:issueIdentifier', '-')})"
+                       f":{entry.get('prism:pageRange', '?')}")
+        print(detail)
+        if entry.get("prism:doi"):
+            print(f"    doi:{entry['prism:doi']}")
 
 
 def search_command(query, key, limit):
@@ -210,10 +253,18 @@ def main():
     parser.add_argument("--search", metavar="QUERY",
                         help="skip verification; search the literature "
                              "and print the top matches")
+    parser.add_argument("--engine", choices=("s2", "scopus"), default="s2",
+                        help="search backend for --search (default s2)")
     parser.add_argument("--limit", type=int, default=5,
                         help="results to print with --search (default 5)")
     args = parser.parse_args()
 
+    if args.search and args.engine == "scopus":
+        try:
+            scopus_search(args.search, load_scopus_key(), args.limit)
+        except urllib.error.URLError as error:
+            sys.exit(f"api.elsevier.com unreachable ({error.reason})")
+        return
     key = load_key()
     if args.search:
         search_command(args.search, key, args.limit)

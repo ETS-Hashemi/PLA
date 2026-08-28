@@ -252,3 +252,9 @@ and stays). Residual stock phrasings were varied where they were
 rhetorical and kept where they state identities ("reduces exactly to
 logistic regression", "provably the exact deletion ranking"). No
 claim, number, or citation changed.
+
+Addendum 2: a Scopus search engine was added to the reference
+tool (author-supplied key, gitignored). Its first test query surfaced
+Lucas (2001, Knowledge-Based Systems 14(7):327-335), the study of
+certainty-factor-like structures inside Bayesian networks; verified by
+both engines and cited at the Heckerman discussion in Section 2.

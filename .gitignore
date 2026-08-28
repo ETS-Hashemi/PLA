@@ -40,3 +40,4 @@ paper/references/*.pdf
 
 # Local Semantic Scholar API key (never commit a key)
 .s2_key
+.scopus_key
